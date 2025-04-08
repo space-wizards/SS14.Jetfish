@@ -1,0 +1,6 @@
+﻿services:
+  ss14.jetfish:
+    image: ss14.jetfish
+    build:
+      context: .
+      dockerfile: SS14.Jetfish/Dockerfile

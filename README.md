@@ -54,8 +54,4 @@ This is a work in progress.
 - Base/Database
     - Postgres
     - Tables:
-      - Accounts (Holds info gathered from the IDP -> roles etc.)
-      - AdminRoles (PK -> Name, Permisions) -> Holds global permissions (creating new teams etc.)
-      - Teams (PK -> guid, FK -> Team Members, Name, FK -> Boards)
-      - Team Members (FK -> Account, FK -> Team, FK -> Role)
-      - Roles (PK -> Name, Permissions [probably array of enum values])
+      - TODO
