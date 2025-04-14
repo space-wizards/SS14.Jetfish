@@ -7,6 +7,7 @@ namespace SS14.Jetfish.Database;
 public class ApplicationDbContext : DbContext
 {
     public DbSet<User> User { get; set; }
+    public DbSet<Team> Team { get; set; }
 
     public ApplicationDbContext(DbContextOptions options) : base(options)
     {

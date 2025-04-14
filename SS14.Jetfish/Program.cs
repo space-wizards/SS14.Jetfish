@@ -8,6 +8,7 @@ using SS14.Jetfish;
 using SS14.Jetfish.Components;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Database;
+using SS14.Jetfish.Security;
 using SS14.MaintainerBot.Core.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -67,6 +68,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
 #endregion
 
 builder.SetupOidc();
+builder.SetupAuthentication();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

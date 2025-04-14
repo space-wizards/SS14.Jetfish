@@ -30,17 +30,22 @@ public class ServerConfiguration
     public string? PathBase { get; set; }
 
     public bool EnableMigrations { get; set; } = true;
-    
+
     /// <summary>
     /// A claim that is required to be present before allowing access to the service.
     /// Any authenticated user has access if this is null.
     /// </summary>
     public string? RequiredClaim { get; set; }
-    
+
     /// <summary>
     /// If <see cref="RequiredClaim"/> is not null a user is only allowed to access the service if the required claim
     /// matches any of the configured values.
     /// If this is null any value is valid.
     /// </summary>
     public List<string>? RequiredClaimValues { get; set; }
+
+    /// <summary>
+    /// A claim that gives a person who has it full access. Recommended for first setup.
+    /// </summary>
+    public string? AdminClaim { get; set; }
 }
