@@ -48,8 +48,6 @@ public static class StartupMigrationHelper
             throw new InvalidOperationException("There are differences between the current database model and the most recent migration.");
         }
         
-        
-        ctx.Database.EnsureCreated();
         ctx.Database.Migrate();
         Log.Debug("Applied migrations.");
     }

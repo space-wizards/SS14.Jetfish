@@ -7,7 +7,7 @@ public class ServerConfiguration
     public const string Name = "Server";
 
     public Uri Host { get; set; } = new("https://localhost:7154");
-    public List<string> CorsOrigins { get; set; } = null!;
+    public List<string>? CorsOrigins { get; set; }
     public CultureInfo Language { get; set; } = null!; //new("en-US");
 
     /// <summary>
@@ -30,4 +30,17 @@ public class ServerConfiguration
     public string? PathBase { get; set; }
 
     public bool EnableMigrations { get; set; } = true;
+    
+    /// <summary>
+    /// A claim that is required to be present before allowing access to the service.
+    /// Any authenticated user has access if this is null.
+    /// </summary>
+    public string? RequiredClaim { get; set; }
+    
+    /// <summary>
+    /// If <see cref="RequiredClaim"/> is not null a user is only allowed to access the service if the required claim
+    /// matches any of the configured values.
+    /// If this is null any value is valid.
+    /// </summary>
+    public List<string>? RequiredClaimValues { get; set; }
 }

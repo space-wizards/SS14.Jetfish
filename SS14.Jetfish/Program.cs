@@ -1,6 +1,10 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using SS14.Jetfish;
 using SS14.Jetfish.Components;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Database;
@@ -62,6 +66,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
 
 #endregion
 
+builder.SetupOidc();
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -88,5 +94,16 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapGet("/login", (string? returnUrl, HttpContext context) => Results.Challenge(new AuthenticationProperties
+{
+    RedirectUri = returnUrl,
+}, [OpenIdConnectDefaults.AuthenticationScheme]));
+
+app.MapGet("/logout", async (string? returnUrl, HttpContext context) =>
+{
+    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    return Results.Redirect(returnUrl ?? context.Request.PathBase.Add("/"));
+});
 
 app.Run();
