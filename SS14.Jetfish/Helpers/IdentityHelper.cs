@@ -6,6 +6,12 @@ public static class IdentityHelper
 {
     public static Guid? GetUserId(this IEnumerable<Claim> claims)
     {
-        return new Guid(claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+        var nameClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        if (nameClaim != null && Guid.TryParse(nameClaim.Value, out var userId))
+        {
+            return userId;
+        }
+
+        return null;
     }
 }

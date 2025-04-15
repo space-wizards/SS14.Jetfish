@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace SS14.Jetfish.Security.Model;
 
-public sealed class Team : IEntityTypeConfiguration<Team>
+public sealed class Team : IEntityTypeConfiguration<Team>, IResource
 {
     public Guid Id { get; set; }
 

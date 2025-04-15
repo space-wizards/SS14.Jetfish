@@ -12,6 +12,7 @@ using SS14.Jetfish.Core.Extensions;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Security;
+using SS14.Jetfish.Security.Model;
 using SS14.MaintainerBot.Core.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -118,8 +119,9 @@ app.MapGet("/test", async (ICommandService commandService) =>
     {
         Message = "Hello World!"
     };
-    
+
     await commandService.Run(debugCommand);
-});
+})
+.RequireAuthorization(nameof(AccessArea.TeamCreate));
 
 app.Run();
