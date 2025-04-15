@@ -8,7 +8,7 @@ using SS14.Jetfish.Database;
 
 #nullable disable
 
-namespace SS14.Jetfish.Database.Migrations
+namespace SS14.Jetfish.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot

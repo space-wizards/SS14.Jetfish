@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace SS14.Jetfish.Database.Migrations
+namespace SS14.Jetfish.Migrations
 {
     /// <inheritdoc />
     public partial class InitialMigration : Migration
