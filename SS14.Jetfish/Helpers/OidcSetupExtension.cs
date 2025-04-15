@@ -9,7 +9,7 @@ public static class OidcSetupExtension
     public static void SetupOidc(this WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<LoginHandler>();
-        
+
         builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -21,7 +21,7 @@ public static class OidcSetupExtension
                 options.LoginPath = builder.Configuration["Auth:LoginPath"] ?? "/login";
                 options.LogoutPath = builder.Configuration["Auth:LogoutPath"] ?? "/logout";
                 options.ReturnUrlParameter = "returnUrl";
-                options.AccessDeniedPath = "/error";
+                options.AccessDeniedPath = "/access-denied";
             })
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {

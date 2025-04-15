@@ -1,0 +1,30 @@
+﻿@page "/access-denied"
+@using System.Web
+
+@inject NavigationManager NavigationManager
+
+<h3>AccessDenied</h3>
+
+@if (string.IsNullOrEmpty(_resource))
+{
+    <p>Access to this resource has been denied.</p>
+}
+else
+{
+    <p>Access to the resource at @_resource has been denied.</p>
+}
+
+@code {
+    private string? _resource = null;
+
+    protected override void OnInitialized()
+    {
+        var querySplit = NavigationManager.Uri.Split('?');
+        if (querySplit.Length < 2)
+            return;
+
+        var query = HttpUtility.ParseQueryString(querySplit[1]);
+        _resource = query.Get("returnUrl"); // I do not know why this is returnUrl, but it is.
+    }
+
+}
