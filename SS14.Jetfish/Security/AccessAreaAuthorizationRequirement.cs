@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using SS14.Jetfish.Database.Model.Policy;
+using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Security;
 

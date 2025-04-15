@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace SS14.Jetfish.Database.Model.Policy;
+namespace SS14.Jetfish.Security.Model;
 
 /// <summary>
 /// Controls access policies for various endpoints and actions for Jetfish.

@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SS14.Jetfish.Database.Model.Policy;
 
-namespace SS14.Jetfish.Database.Model;
+namespace SS14.Jetfish.Security.Model;
 
 public class User : IEntityTypeConfiguration<User>
 {

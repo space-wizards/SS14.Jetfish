@@ -1,4 +1,4 @@
-﻿namespace SS14.Jetfish.Database.Model.Policy;
+﻿namespace SS14.Jetfish.Security.Model;
 
 public enum AccessArea
 {

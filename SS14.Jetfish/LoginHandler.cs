@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Database;
-using SS14.Jetfish.Database.Model;
 using SS14.Jetfish.Helpers;
+using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish;
 

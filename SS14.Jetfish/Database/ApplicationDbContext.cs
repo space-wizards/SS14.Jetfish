@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using SS14.Jetfish.Database.Model;
+using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Database;
 
