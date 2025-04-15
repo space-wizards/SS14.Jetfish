@@ -12,6 +12,7 @@ using SS14.Jetfish.Core.Commands;
 using SS14.Jetfish.Core.Extensions;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Database;
+using SS14.Jetfish.FileHosting;
 using SS14.Jetfish.Security;
 using SS14.Jetfish.Security.Model;
 using SS14.MaintainerBot.Core.Helpers;
@@ -100,6 +101,8 @@ app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
 
 app.UseAntiforgery();
+
+app.UseFileHosting();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()

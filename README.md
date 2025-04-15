@@ -14,10 +14,13 @@ This is a work in progress.
   - Labels for items
   - Assigned Users
   - Rich Display (See trello cards)?
+    - Emojis
   - GitHub integration to automatically move items to "done"
 - File hosting for images etc.
-  - Caching
+  - Caching / Etags
   - File administration
+  - Compression!!!!
+  - Animated WebP Support (should work ootb)
 - Administration
   - Role management only through SSO?
 

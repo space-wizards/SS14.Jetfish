@@ -48,4 +48,9 @@ public class ServerConfiguration
     /// A claim that gives a person who has it full access. Recommended for first setup.
     /// </summary>
     public string? AdminClaim { get; set; }
+
+    /// <summary>
+    /// The directory where user uploaded files are stored.
+    /// </summary>
+    public string UserContentDirectory { get; set; } = null!;
 }

@@ -5,4 +5,5 @@ public enum AccessArea
     TeamCreate,
     TeamEdit,
     TeamDelete,
+    FileRead
 }
