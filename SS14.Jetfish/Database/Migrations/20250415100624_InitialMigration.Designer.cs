@@ -12,7 +12,7 @@ using SS14.Jetfish.Database;
 namespace SS14.Jetfish.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250415090923_InitialMigration")]
+    [Migration("20250415100624_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
