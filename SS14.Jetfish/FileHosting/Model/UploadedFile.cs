@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security;
+using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.FileHosting.Model;
 
@@ -23,12 +25,19 @@ public class UploadedFile : IEntityTypeConfiguration<UploadedFile>, IResource
     public required string Name { get; set; }
 
     public DateTimeOffset LastModified { get; }
+    
+    public required User UploadedBy { get; set; } 
+    
+    public required ICollection<Project> UsedInProjects { get; set; }
 
     public void Configure(EntityTypeBuilder<UploadedFile> builder)
     {
+        builder.HasMany(file => file.UsedInProjects)
+            .WithMany();
+        
         builder.Property(e => e.LastModified)
             .ValueGeneratedOnAddOrUpdate()
-            .HasColumnType("timestamp without time zone")
+            .HasColumnType("timestamp with time zone")
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
 }

@@ -10,11 +10,15 @@ public static class FileHostingExtension
     {
         app.Map("/files", files =>
         {
-            files.UseCors();
+            files.UseRouting();
             files.UseEndpoints(endpoints =>
             {
+                endpoints.MapGet("/project/{projectId:guid}/file/{fileId:guid}",
+                    async (Guid fileId, Guid projectId, FileService fileService, ClaimsPrincipal user) =>
+                        await fileService.GetProjectFileAsResult(user, projectId, fileId));
+                
                 endpoints.MapGet("/{fileId:guid}", async (Guid fileId, FileService fileService, ClaimsPrincipal user) => 
-                    await fileService.GetFileAsResult(user, fileId));
+                    await fileService.GetUserFileAsResult(user, fileId));
             });
         });
     }

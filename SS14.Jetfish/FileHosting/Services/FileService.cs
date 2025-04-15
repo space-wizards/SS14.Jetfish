@@ -5,6 +5,8 @@ using Microsoft.Net.Http.Headers;
 using Serilog;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Database;
+using SS14.Jetfish.FileHosting.Model;
+using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.FileHosting.Services;
@@ -22,17 +24,46 @@ public sealed class FileService
         configuration.Bind(ServerConfiguration.Name, _serverConfiguration);
     }
 
-    public async Task<IResult> GetFileAsResult(ClaimsPrincipal principal, Guid fileId)
+    public async Task<IResult> GetProjectFileAsResult(ClaimsPrincipal principal, Guid projectId, Guid fileId)
     {
-        var file = await _dbContext.UploadedFile.FirstOrDefaultAsync(file => file.Id == fileId);
+        var file = await _dbContext.UploadedFile
+            .Include(file => file.UsedInProjects)
+            .FirstOrDefaultAsync(file =>
+            file.Id == fileId && file.UsedInProjects.Any(project => project.Id == projectId)
+        );
+
+        if (file == null)
+            return Results.NotFound();
+
+        var project = file.UsedInProjects.First(project => project.Id == projectId);
+        var authorizationResult = await _authorizationService.AuthorizeAsync(principal, project, nameof(AccessArea.ProjectRead));
+        if (!authorizationResult.Succeeded)
+            return Results.Unauthorized();
+
+        return InternalGetFileResult(file);
+    }
+    
+    /*
+     * Gets a file uploaded by the given user principal
+     */
+    public async Task<IResult> GetUserFileAsResult(ClaimsPrincipal principal, Guid fileId)
+    {
+        var file = await _dbContext.UploadedFile.FirstOrDefaultAsync(file => 
+            file.Id == fileId && file.UploadedBy.Id == principal.Claims.GetUserId());
+        
         if (file == null)
             return Results.NotFound();
 
         //TODO: Pass project instead of file
-        var authorizationResult = await _authorizationService.AuthorizeAsync(principal, file, nameof(AccessArea.FileRead));
+        /*var authorizationResult = await _authorizationService.AuthorizeAsync(principal, file, nameof(AccessArea.FileRead));
         if (!authorizationResult.Succeeded)
             return Results.Unauthorized();
+        */
+        return InternalGetFileResult(file);
+    }
 
+    private IResult InternalGetFileResult(UploadedFile file)
+    {
         var resolvedPath = Path.Combine(_serverConfiguration.UserContentDirectory, file.RelativePath);
         if (!File.Exists(resolvedPath))
         {

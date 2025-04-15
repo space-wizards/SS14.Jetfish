@@ -52,5 +52,5 @@ public class ServerConfiguration
     /// <summary>
     /// The directory where user uploaded files are stored.
     /// </summary>
-    public string UserContentDirectory { get; set; } = null!;
+    public string UserContentDirectory { get; set; } = "uploads";
 }
