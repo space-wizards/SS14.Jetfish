@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 using Serilog;
 using SS14.Jetfish;
 using SS14.Jetfish.Components;
@@ -78,6 +79,8 @@ builder.SetupCommandHandling();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 
