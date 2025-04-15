@@ -7,6 +7,9 @@ using Serilog;
 using SS14.Jetfish;
 using SS14.Jetfish.Components;
 using SS14.Jetfish.Configuration;
+using SS14.Jetfish.Core.Commands;
+using SS14.Jetfish.Core.Extensions;
+using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Security;
 using SS14.MaintainerBot.Core.Helpers;
@@ -69,6 +72,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
 
 builder.SetupOidc();
 builder.SetupAuthentication();
+builder.SetupCommandHandling();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -106,6 +110,16 @@ app.MapGet("/logout", async (string? returnUrl, HttpContext context) =>
 {
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     return Results.Redirect(returnUrl ?? context.Request.PathBase.Add("/"));
+});
+
+app.MapGet("/test", async (ICommandService commandService) =>
+{
+    var debugCommand = new DebugCommand
+    {
+        Message = "Hello World!"
+    };
+    
+    await commandService.Run(debugCommand);
 });
 
 app.Run();
