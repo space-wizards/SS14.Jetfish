@@ -1,0 +1,31 @@
+﻿name: Build & Test
+on:
+  push:
+    branches: [ master ]
+  merge_group:
+  pull_request:
+    types: [ opened, reopened, synchronize, ready_for_review ]
+    branches: [ master ]
+jobs:
+  build:
+    if: github.event.pull_request.draft == false
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4.1.0
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Build Project
+        run: dotnet build --configuration Release --no-restore /m
+        # /m switch is for multithreaded build
+
+      - name: Run Unit Tests
+        run: dotnet test --no-build --configuration Release SS14.Jetfish.Tests/SS14.Jetfish.Tests.csproj

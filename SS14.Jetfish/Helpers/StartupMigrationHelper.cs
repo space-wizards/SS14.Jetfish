@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Diagnostics;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -15,7 +16,7 @@ public static class StartupMigrationHelper
     {
         Migrate<TContext>(builder.ApplicationServices);
     }
-    
+
     [PublicAPI]
     public static void Migrate<TContext>(IServiceProvider serviceProvider) where TContext : DbContext
     {
@@ -30,25 +31,38 @@ public static class StartupMigrationHelper
         if (migrationsAssembly.ModelSnapshot == null)
         {
             Log.Warning("No model snapshot found. Skipping migrations.");
-            return;   
+            return;
         }
-        
-        var modelInitializer = sp.GetRequiredService<IModelRuntimeInitializer>();
+
+        var diffsExist = DiffsExist(sp, migrationsAssembly, modelDiffer);
+
+        if(diffsExist)
+        {
+            throw new InvalidOperationException("There are differences between the current database model and the most recent migration.");
+        }
+
+        ctx.Database.Migrate();
+        Log.Debug("Applied migrations.");
+    }
+
+    public static bool DiffsExist(
+        IServiceProvider serviceProvider,
+        IMigrationsAssembly migrationsAssembly,
+        IMigrationsModelDiffer modelDiffer)
+    {
+        if (migrationsAssembly.ModelSnapshot == null)
+            throw new InvalidOperationException("No model snapshot found.");
+
+        var modelInitializer = serviceProvider.GetRequiredService<IModelRuntimeInitializer>();
         var sourceModel = modelInitializer.Initialize(migrationsAssembly.ModelSnapshot.Model);
 
-        var designTimeModel = sp.GetRequiredService<IDesignTimeModel>();
+        var designTimeModel = serviceProvider.GetRequiredService<IDesignTimeModel>();
         var readOptimizedModel = designTimeModel.Model;
 
         var diffsExist = modelDiffer.HasDifferences(
             sourceModel.GetRelationalModel(),
             readOptimizedModel.GetRelationalModel());
 
-        if(diffsExist)
-        {
-            throw new InvalidOperationException("There are differences between the current database model and the most recent migration.");
-        }
-        
-        ctx.Database.Migrate();
-        Log.Debug("Applied migrations.");
+        return diffsExist;
     }
 }

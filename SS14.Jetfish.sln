@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		compose.yaml = compose.yaml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SS14.Jetfish.Tests", "SS14.Jetfish.Tests\SS14.Jetfish.Tests.csproj", "{14E3D868-18EA-4C85-8433-84C86F7D5A91}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,5 +19,9 @@ Global
 		{24F8D4B6-3711-4855-9AB1-BEC9C237B3C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24F8D4B6-3711-4855-9AB1-BEC9C237B3C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24F8D4B6-3711-4855-9AB1-BEC9C237B3C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14E3D868-18EA-4C85-8433-84C86F7D5A91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14E3D868-18EA-4C85-8433-84C86F7D5A91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14E3D868-18EA-4C85-8433-84C86F7D5A91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14E3D868-18EA-4C85-8433-84C86F7D5A91}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
