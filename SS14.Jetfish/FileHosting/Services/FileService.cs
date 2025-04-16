@@ -67,11 +67,11 @@ public sealed class FileService
         var resolvedPath = Path.Combine(_serverConfiguration.UserContentDirectory, file.RelativePath);
         if (!File.Exists(resolvedPath))
         {
-            Log.Error("File exists in DB but not in file system. Path {file}", file.RelativePath);
+            Log.Error("File exists in DB but not in file system. Path {File}", file.RelativePath);
             return Results.InternalServerError("File does not exist in file system, but exists in DB.");
         }
 
-        var etag = new EntityTagHeaderValue(file.Etag);
-        return Results.File(resolvedPath, file.MimeType, file.Name, file.LastModified, etag, true);
+        var etag = new EntityTagHeaderValue($"\"{file.Etag}\"");
+        return Results.File(Path.GetFullPath(resolvedPath), file.MimeType, file.Name, file.LastModified, etag, true);
     }
 }

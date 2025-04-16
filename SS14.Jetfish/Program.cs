@@ -76,6 +76,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
 builder.AddOidc();
 builder.AddAuthentication();
 builder.AddCommandHandling();
+builder.AddFileHosting();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
