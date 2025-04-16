@@ -1,0 +1,34 @@
+@page "/projects"
+@using SS14.Jetfish.Helpers
+@using SS14.Jetfish.Projects.Model
+@using SS14.Jetfish.Projects.Repositories
+<h3>ProjectList</h3>
+
+@foreach (var project in _projects)
+{
+    <p>@project.Id</p>
+}
+
+@code {
+    [Inject]
+    private ProjectRepository ProjectRepository { get; set; } = null!;
+    
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthenticationState { get; set; }
+    
+    private ICollection<Project> _projects = new List<Project>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthenticationState is null)
+            return;
+
+        var authState = await AuthenticationState;
+        var userId = authState.User.Claims.GetUserId();
+        if (!userId.HasValue)
+            return;
+        
+        _projects = await ProjectRepository.ListByPolicy(userId.Value, AccessArea.ProjectRead);
+    }
+
+}

@@ -27,15 +27,15 @@ public sealed class FileService
     public async Task<IResult> GetProjectFileAsResult(ClaimsPrincipal principal, Guid projectId, Guid fileId)
     {
         var file = await _dbContext.UploadedFile
-            .Include(file => file.UsedInProjects)
+            .Include(file => file.Usages)
             .FirstOrDefaultAsync(file =>
-            file.Id == fileId && file.UsedInProjects.Any(project => project.Id == projectId)
+            file.Id == fileId && file.Usages.Any(usage => usage.ProjectId == projectId)
         );
 
         if (file == null)
             return Results.NotFound();
 
-        var project = file.UsedInProjects.First(project => project.Id == projectId);
+        var project = file.Usages.First(usage => usage.ProjectId == projectId);
         var authorizationResult = await _authorizationService.AuthorizeAsync(principal, project, nameof(AccessArea.ProjectRead));
         if (!authorizationResult.Succeeded)
             return Results.Unauthorized();

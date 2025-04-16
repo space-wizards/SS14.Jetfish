@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SS14.Jetfish.Database;
@@ -11,9 +12,11 @@ using SS14.Jetfish.Database;
 namespace SS14.Jetfish.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250416180633_SUS_WEAREJUSTGONNADELETEALLMIGRATIONSBEFORERELEASEANYWAY_AMONGUS")]
+    partial class SUS_WEAREJUSTGONNADELETEALLMIGRATIONSBEFORERELEASEANYWAY_AMONGUS
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,9 +99,6 @@ namespace SS14.Jetfish.Migrations
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Version")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
@@ -111,13 +111,10 @@ namespace SS14.Jetfish.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("LaneId")
+                    b.Property<int>("Id")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Version")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ProjectId", "LaneId");
+                    b.HasKey("ProjectId", "Id");
 
                     b.ToTable("Lane");
                 });
@@ -127,9 +124,6 @@ namespace SS14.Jetfish.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<int>("Version")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -153,9 +147,6 @@ namespace SS14.Jetfish.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<int>("Version")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.ToTable("AccessPolicies");
@@ -171,9 +162,6 @@ namespace SS14.Jetfish.Migrations
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
-
-                    b.Property<int>("Version")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -191,9 +179,6 @@ namespace SS14.Jetfish.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
 
-                    b.Property<int>("Version")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.ToTable("Team");
@@ -209,9 +194,6 @@ namespace SS14.Jetfish.Migrations
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("Version")
-                        .HasColumnType("integer");
 
                     b.HasKey("TeamId", "UserId");
 
@@ -232,9 +214,6 @@ namespace SS14.Jetfish.Migrations
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
-
-                    b.Property<int>("Version")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

@@ -1,15 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SS14.Jetfish.Core.Repositories;
 
 namespace SS14.Jetfish.Security.Model;
 
 /// <summary>
 /// Controls access policies for various endpoints and actions for Jetfish.
 /// </summary>
-public sealed class AccessPolicy : IEntityTypeConfiguration<AccessPolicy>
+public sealed class AccessPolicy : IEntityTypeConfiguration<AccessPolicy>, IRecord<int>
 {
     public int Id { get; set; }
+    public int Version { get; set; }
 
     /// <summary>
     /// Areas this policy applies to.

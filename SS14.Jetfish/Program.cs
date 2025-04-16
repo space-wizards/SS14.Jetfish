@@ -13,6 +13,7 @@ using SS14.Jetfish.Core.Extensions;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.FileHosting;
+using SS14.Jetfish.Projects.Repositories;
 using SS14.Jetfish.Security;
 using SS14.Jetfish.Security.Model;
 using SS14.MaintainerBot.Core.Helpers;
@@ -77,6 +78,8 @@ builder.AddOidc();
 builder.AddAuthentication();
 builder.AddCommandHandling();
 builder.AddFileHosting();
+
+builder.Services.AddScoped<ProjectRepository>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

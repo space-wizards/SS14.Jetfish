@@ -7,7 +7,7 @@ using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.FileHosting.Model;
 
-public class UploadedFile : IEntityTypeConfiguration<UploadedFile>, IResource
+public sealed class UploadedFile : IEntityTypeConfiguration<UploadedFile>, IResource
 {
     public Guid Id { get; set; }
 
@@ -28,12 +28,13 @@ public class UploadedFile : IEntityTypeConfiguration<UploadedFile>, IResource
     
     public required User UploadedBy { get; set; } 
     
-    public required ICollection<Project> UsedInProjects { get; set; }
+    public required ICollection<FileUsage> Usages { get; set; }
 
     public void Configure(EntityTypeBuilder<UploadedFile> builder)
     {
-        builder.HasMany(file => file.UsedInProjects)
-            .WithMany();
+        builder.HasMany(file => file.Usages)
+            .WithOne()
+            .HasForeignKey(usage => usage.UploadedFileId);
         
         builder.Property(e => e.LastModified)
             .ValueGeneratedOnAddOrUpdate()
