@@ -97,9 +97,9 @@ namespace SS14.Jetfish.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.PrimitiveCollection<int[]>("AccessAreas")
+                    b.PrimitiveCollection<short[]>("AccessAreas")
                         .IsRequired()
-                        .HasColumnType("integer[]");
+                        .HasColumnType("smallint[]");
 
                     b.Property<string>("Name")
                         .IsRequired()
