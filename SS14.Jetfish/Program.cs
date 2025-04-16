@@ -104,20 +104,15 @@ app.UseAntiforgery();
 
 app.UseFileHosting();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
+    .RequireAuthorization()
     .AddInteractiveServerRenderMode();
 
-app.MapGet("/login", (string? returnUrl, HttpContext context) => Results.Challenge(new AuthenticationProperties
-{
-    RedirectUri = returnUrl,
-}, [OpenIdConnectDefaults.AuthenticationScheme]));
-
-app.MapGet("/logout", async (string? returnUrl, HttpContext context) =>
-{
-    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    return Results.Redirect(returnUrl ?? context.Request.PathBase.Add("/"));
-});
+app.MapAuthEndpoint();
 
 app.MapGet("/test", async (ICommandService commandService) =>
 {

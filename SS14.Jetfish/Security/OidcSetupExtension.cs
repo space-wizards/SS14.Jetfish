@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
@@ -51,5 +52,22 @@ public static class OidcSetupExtension
                     await handler.HandleUserDataUpdate(ctx);
                 };
             });
+
+        builder.Services.AddAuthorization();
+        builder.Services.AddCascadingAuthenticationState();
+    }
+
+    public static void MapAuthEndpoint(this WebApplication app)
+    {
+        app.MapGet("/login", (string? returnUrl) => Results.Challenge(new AuthenticationProperties
+        {
+            RedirectUri = returnUrl,
+        }, [OpenIdConnectDefaults.AuthenticationScheme]));
+
+        app.MapGet("/logout", async (string? returnUrl, HttpContext context) =>
+        {
+            await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Results.Redirect(returnUrl ?? context.Request.PathBase.Add("/"));
+        });
     }
 }

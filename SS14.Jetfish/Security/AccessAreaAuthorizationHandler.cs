@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Helpers;
@@ -30,9 +31,12 @@ public sealed class AccessAreaAuthorizationHandler : AuthorizationHandler<Access
             return;
         }
 
-        Guid? resourceId = null;
-        if (context.Resource is IResource resource)
-            resourceId = resource.Id;
+        Guid? resourceId = context.Resource switch
+        {
+            Guid guid => guid,
+            IResource resource => resource.Id,
+            _ => null
+        };
 
         var user = await dbContext.User
             .Include(user => user.ResourcePolicies)

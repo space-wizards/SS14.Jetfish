@@ -1,0 +1,25 @@
+
+<AuthorizeView Resource="@Resource" Policy="@Policy">
+    <Authorized>
+        @ChildContent
+    </Authorized>
+    <NotAuthorized>
+        <MudContainer class="d-flex justify-center" Style="height: calc(100vh - 64px);">
+            <p style="align-content: center;">You don't have access to this @ResourceName.</p>
+        </MudContainer>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    
+    [Parameter]
+    public string ResourceName { get; set; } = "Resource";
+    
+    [Parameter]
+    public string Policy { get; set; } = null!;
+    
+    [Parameter]
+    public object? Resource { get; set; }
+}

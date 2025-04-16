@@ -1,0 +1,14 @@
+@page "/project/{projectId:guid}"
+
+
+
+@if(Project == null)
+{
+    <p>Project not found</p>
+}
+else
+{
+<AuthorizeResource ResourceName="project" Policy="@(nameof(AccessArea.ProjectRead))" Resource="@ProjectId">
+    <h3>Project</h3>
+</AuthorizeResource>
+}
