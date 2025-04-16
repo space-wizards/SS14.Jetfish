@@ -6,6 +6,7 @@ namespace SS14.Jetfish.FileHosting;
 
 public static class FileHostingExtension
 {
+    
     public static void UseFileHosting(this WebApplication app)
     {
         app.Map("/files", files =>

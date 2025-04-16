@@ -7,7 +7,7 @@ namespace SS14.Jetfish;
 
 public static class OidcSetupExtension
 {
-    public static void SetupOidc(this WebApplicationBuilder builder)
+    public static void AddOidc(this WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<LoginHandler>();
 

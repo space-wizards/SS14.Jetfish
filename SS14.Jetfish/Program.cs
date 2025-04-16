@@ -73,9 +73,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
 
 #endregion
 
-builder.SetupOidc();
-builder.SetupAuthentication();
-builder.SetupCommandHandling();
+builder.AddOidc();
+builder.AddAuthentication();
+builder.AddCommandHandling();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

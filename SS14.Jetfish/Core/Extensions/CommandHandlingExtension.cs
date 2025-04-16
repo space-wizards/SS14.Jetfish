@@ -5,7 +5,7 @@ namespace SS14.Jetfish.Core.Extensions;
 
 public static class CommandHandlingExtension
 {
-    public static void SetupCommandHandling(this WebApplicationBuilder builder)
+    public static void AddCommandHandling(this WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<ICommandService, CommandService>();
         builder.Services.AddScoped<ICommandHandler, DebugCommandHandler>();
