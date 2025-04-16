@@ -1,7 +1,7 @@
 ﻿<MudNavMenu>
     <MudNavLink Href="/" Match="NavLinkMatch.All">Overview</MudNavLink>
     <MudNavGroup Title="Admin" Expanded="true" Class="nav-group-hide-empty">
-        <AuthorizeResource DisplayError="false" Policy="@AccessAreaExtensions.GetPolicyNames(AccessArea.AdminReadGlobalPolicies)">
+        <AuthorizeResource DisplayError="false" Policy="@(nameof(AccessArea.AdminReadGlobalPolicies))">
             <MudNavLink Href="/admin/policies"  Match="NavLinkMatch.Prefix">Policies</MudNavLink>
         </AuthorizeResource>
     </MudNavGroup>
