@@ -5,10 +5,10 @@ namespace SS14.Jetfish.Security;
 
 public sealed class AccessAreaAuthorizationRequirement : IAuthorizationRequirement
 {
-    public AccessArea AccessArea { get; }
+    public AccessArea[] AccessAreas { get; }
 
-    public AccessAreaAuthorizationRequirement(AccessArea accessArea)
+    public AccessAreaAuthorizationRequirement(AccessArea[] accessAreas)
     {
-        AccessArea = accessArea;
+        AccessAreas = accessAreas;
     }
 }

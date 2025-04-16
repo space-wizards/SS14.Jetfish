@@ -18,11 +18,21 @@ public sealed class AccessAreaPolicyProvider : IAuthorizationPolicyProvider
 
     public Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
-        if (!_accessAreaPolicies.TryGetValue(policyName, out var policy))
+        var policies = policyName.Split(';');
+        var areaPolicies = new List<AccessArea>();
+        foreach (var policy in policies)
+        {
+            if (!_accessAreaPolicies.TryGetValue(policy, out var parsedPolicy))
+                continue;
+
+            areaPolicies.Add(parsedPolicy);
+        }
+
+        if (areaPolicies.Count == 0)
             return Task.FromResult<AuthorizationPolicy?>(null);
 
         var policyBuilder = new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme);
-        policyBuilder.AddRequirements(new AccessAreaAuthorizationRequirement(policy));
+        policyBuilder.AddRequirements(new AccessAreaAuthorizationRequirement(areaPolicies.ToArray()));
 
         // NULL SUPPRESSION!! (C# expects a nullable type, our return value cant be null because we are making it above)
         return Task.FromResult(policyBuilder.Build())!;

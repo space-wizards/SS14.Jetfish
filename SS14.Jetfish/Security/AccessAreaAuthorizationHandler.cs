@@ -51,7 +51,7 @@ public sealed class AccessAreaAuthorizationHandler : AuthorizationHandler<Access
 
         if (user.ResourcePolicies
             .Any(policy => policy.ResourceId == resourceId
-                    && policy.AccessPolicy.AccessAreas.Contains(requirement.AccessArea)))
+                    && policy.AccessPolicy.AccessAreas.Any(x => requirement.AccessAreas.Contains(x))))
         {
             context.Succeed(requirement);
             return;
@@ -63,7 +63,7 @@ public sealed class AccessAreaAuthorizationHandler : AuthorizationHandler<Access
             .ThenInclude(policy => policy.AccessPolicy)
             .Any(teamMember =>
             teamMember.UserId == user.Id
-            && teamMember.Role.Policies.Any(policy => policy.AccessPolicy.AccessAreas.Contains(requirement.AccessArea)
+            && teamMember.Role.Policies.Any(policy => policy.AccessPolicy.AccessAreas.Any(x => requirement.AccessAreas.Contains(x))
             ));
 
         if (hasTeamAccess)
