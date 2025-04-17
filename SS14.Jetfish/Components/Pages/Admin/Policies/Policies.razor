@@ -1,9 +1,54 @@
 ﻿@page "/admin/policies"
+
 @using Microsoft.AspNetCore.Authorization
+@using SS14.Jetfish.Security
+
 @attribute [Authorize(Policy = nameof(Permission.PoliciesRead))]
+
+@inject PolicyRepository PolicyRepository
 
 <h3>Policies</h3>
 
-@code {
+<MudDataGrid @ref="_dataGrid" Items="_globalPolicies" MultiSelection="true" Filterable="true" Hideable="true" Groupable="true" GroupExpanded="false">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Global Policies</MudText>
+        <MudSpacer />
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Role.DisplayName" StickyLeft="true" Grouping="true"/>
+        <PropertyColumn Property="x => x.Role.IdpName"/>
+        <PropertyColumn Property="x => x.Policy.AccessPolicy.Name"/>
+        <PropertyColumn Property="x => PermissionExtensions.GetPolicyNames(x.Policy.AccessPolicy.Permissions.ToArray())"/>
+    </Columns>
+</MudDataGrid>
 
+@code {
+    private class GlobalPolicy
+    {
+        public Role Role { get; set; } = null!;
+        public ResourcePolicy Policy { get; set; } = null!;
+    }
+
+    private List<GlobalPolicy> _globalPolicies = [];
+    private MudDataGrid<GlobalPolicy> _dataGrid = null!;
+
+    private IEnumerable<Role> _roles = [];
+
+
+    protected override void OnInitialized()
+    {
+        _roles = PolicyRepository.GetAllGlobal();
+
+        foreach (var role in _roles)
+        {
+            foreach (var resourcePolicy in role.Policies)
+            {
+                _globalPolicies.Add(new GlobalPolicy()
+                {
+                    Role = role,
+                    Policy = resourcePolicy,
+                });
+            }
+        }
+    }
 }
