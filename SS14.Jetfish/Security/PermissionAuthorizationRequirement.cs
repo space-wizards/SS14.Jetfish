@@ -5,9 +5,9 @@ namespace SS14.Jetfish.Security;
 
 public sealed class PermissionAuthorizationRequirement : IAuthorizationRequirement
 {
-    public Permission[] Permissions { get; }
+    public List<Permission> Permissions { get; }
 
-    public PermissionAuthorizationRequirement(Permission[] permissions)
+    public PermissionAuthorizationRequirement(List<Permission> permissions)
     {
         Permissions = permissions;
     }

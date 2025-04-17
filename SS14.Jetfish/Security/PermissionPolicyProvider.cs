@@ -32,7 +32,7 @@ public sealed class PermissionPolicyProvider : IAuthorizationPolicyProvider
             return Task.FromResult<AuthorizationPolicy?>(null);
 
         var policyBuilder = new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme);
-        policyBuilder.AddRequirements(new PermissionAuthorizationRequirement(areaPolicies.ToArray()));
+        policyBuilder.AddRequirements(new PermissionAuthorizationRequirement(areaPolicies));
 
         // NULL SUPPRESSION!! (C# expects a nullable type, our return value cant be null because we are making it above)
         return Task.FromResult(policyBuilder.Build())!;

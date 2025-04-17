@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using MudBlazor;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Helpers;
+using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Security;
 
@@ -38,6 +38,31 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             _ => null
         };
 
+        var roles = context.User.Claims.Where(c => c.Type == _serverConfiguration.RoleClaim)
+            .Select(c => c.Value)
+            .ToList();
+
+        if (roles.Count > 0)
+        {
+            // ඞ
+
+            var hasIdpAccess = await dbContext.Role
+                .Include(role => role.Policies)
+                .ThenInclude(resourcePolicy => resourcePolicy.AccessPolicy)
+                .Where(x => x.IdpName != null && roles.Contains(x.IdpName))
+                .Where(x => x.Policies.Any(y => y.ResourceId == resourceId || y.Global))
+                .AnyAsync(x =>
+                    x.Policies.Any(y => requirement.Permissions.Intersect(y.AccessPolicy.Permissions).Any()));
+
+            if (hasIdpAccess)
+            {
+                context.Succeed(requirement);
+                return;
+            }
+        }
+
+
+
         var user = await dbContext.User
             .Include(user => user.ResourcePolicies)
             .ThenInclude(resourcePolicy => resourcePolicy.AccessPolicy)
@@ -51,7 +76,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
 
         if (user.ResourcePolicies
             .Any(policy => (policy.ResourceId == resourceId || policy.Global)
-                    && policy.AccessPolicy.Permissions.Any(x => requirement.Permissions.Contains(x))))
+                    && HasAnyPermission(requirement.Permissions, policy.AccessPolicy.Permissions)))
         {
             context.Succeed(requirement);
             return;
@@ -63,9 +88,9 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             .ThenInclude(policy => policy.AccessPolicy)
             .Any(teamMember =>
             teamMember.UserId == user.Id
-            && teamMember.Role.Policies.Any(policy => 
+            && teamMember.Role.Policies.Any(policy =>
                 (policy.ResourceId == resourceId || policy.Global)
-                && policy.AccessPolicy.Permissions.Any(x => requirement.Permissions.Contains(x))
+                && HasAnyPermission(requirement.Permissions, policy.AccessPolicy.Permissions)
             ));
 
         if (hasTeamAccess)
@@ -93,5 +118,10 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             - AccessPolicy
             An alternative to triggers would be a materialized view but refreshing that view would mean it gets rebuild completely every time some permission changes
          */
+    }
+
+    public static bool HasAnyPermission(List<Permission> requiredPermissions, List<Permission> subjectPermissions)
+    {
+        return requiredPermissions.Intersect(subjectPermissions).Any();
     }
 }

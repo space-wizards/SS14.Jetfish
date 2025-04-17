@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Security.Claims;
 
 namespace SS14.Jetfish.Configuration;
 
@@ -48,6 +49,10 @@ public class ServerConfiguration
     /// A claim that gives a person who has it full access. Recommended for first setup.
     /// </summary>
     public string? AdminClaim { get; set; }
+    /// <summary>
+    /// The claim to use for filling in roles.
+    /// </summary>
+    public string RoleClaim { get; set; } = ClaimTypes.Role;
 
     /// <summary>
     /// The directory where user uploaded files are stored.
