@@ -39,6 +39,7 @@ public static class OidcSetupExtension
                 options.Scope.Add("profile");
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.TokenValidationParameters.NameClaimType = "name";
+                options.TokenValidationParameters.RoleClaimType = builder.Configuration["Server:RoleClaim"];
 
                 options.Events.OnTokenValidated = async ctx =>
                 {

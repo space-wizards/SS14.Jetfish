@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Linq.Expressions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Database;
@@ -76,7 +77,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
 
         if (user.ResourcePolicies
             .Any(policy => (policy.ResourceId == resourceId || policy.Global)
-                    && HasAnyPermission(requirement.Permissions, policy.AccessPolicy.Permissions)))
+                    && requirement.Permissions.Intersect(policy.AccessPolicy.Permissions).Any()))
         {
             context.Succeed(requirement);
             return;
@@ -90,7 +91,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             teamMember.UserId == user.Id
             && teamMember.Role.Policies.Any(policy =>
                 (policy.ResourceId == resourceId || policy.Global)
-                && HasAnyPermission(requirement.Permissions, policy.AccessPolicy.Permissions)
+                && requirement.Permissions.Intersect(policy.AccessPolicy.Permissions).Any()
             ));
 
         if (hasTeamAccess)
@@ -118,10 +119,5 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             - AccessPolicy
             An alternative to triggers would be a materialized view but refreshing that view would mean it gets rebuild completely every time some permission changes
          */
-    }
-
-    public static bool HasAnyPermission(List<Permission> requiredPermissions, List<Permission> subjectPermissions)
-    {
-        return requiredPermissions.Intersect(subjectPermissions).Any();
     }
 }
