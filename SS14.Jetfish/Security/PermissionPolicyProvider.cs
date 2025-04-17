@@ -4,25 +4,25 @@ using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Security;
 
-public sealed class AccessAreaPolicyProvider : IAuthorizationPolicyProvider
+public sealed class PermissionPolicyProvider : IAuthorizationPolicyProvider
 {
-    private readonly Dictionary<string, AccessArea> _accessAreaPolicies = new Dictionary<string, AccessArea>();
+    private readonly Dictionary<string, Permission> _permissionPolicies = new Dictionary<string, Permission>();
 
-    public AccessAreaPolicyProvider()
+    public PermissionPolicyProvider()
     {
-        foreach (var accessArea in Enum.GetValues<AccessArea>())
+        foreach (var permission in Enum.GetValues<Permission>())
         {
-            _accessAreaPolicies.Add(Enum.GetName(accessArea)!, accessArea);
+            _permissionPolicies.Add(Enum.GetName(permission)!, permission);
         }
     }
 
     public Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
         var policies = policyName.Split(';');
-        var areaPolicies = new List<AccessArea>();
+        var areaPolicies = new List<Permission>();
         foreach (var policy in policies)
         {
-            if (!_accessAreaPolicies.TryGetValue(policy, out var parsedPolicy))
+            if (!_permissionPolicies.TryGetValue(policy, out var parsedPolicy))
                 continue;
 
             areaPolicies.Add(parsedPolicy);
@@ -32,7 +32,7 @@ public sealed class AccessAreaPolicyProvider : IAuthorizationPolicyProvider
             return Task.FromResult<AuthorizationPolicy?>(null);
 
         var policyBuilder = new AuthorizationPolicyBuilder(CookieAuthenticationDefaults.AuthenticationScheme);
-        policyBuilder.AddRequirements(new AccessAreaAuthorizationRequirement(areaPolicies.ToArray()));
+        policyBuilder.AddRequirements(new PermissionAuthorizationRequirement(areaPolicies.ToArray()));
 
         // NULL SUPPRESSION!! (C# expects a nullable type, our return value cant be null because we are making it above)
         return Task.FromResult(policyBuilder.Build())!;

@@ -36,7 +36,7 @@ public sealed class FileService
             return Results.NotFound();
 
         var project = file.Usages.First(usage => usage.ProjectId == projectId);
-        var authorizationResult = await _authorizationService.AuthorizeAsync(principal, project, nameof(AccessArea.ProjectRead));
+        var authorizationResult = await _authorizationService.AuthorizeAsync(principal, project, nameof(Permission.ProjectRead));
         if (!authorizationResult.Succeeded)
             return Results.Unauthorized();
 

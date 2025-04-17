@@ -28,7 +28,7 @@
         if (!userId.HasValue)
             return;
         
-        _projects = await ProjectRepository.ListByPolicy(userId.Value, AccessArea.ProjectRead);
+        _projects = await ProjectRepository.ListByPolicy(userId.Value, Permission.ProjectRead);
     }
 
 }

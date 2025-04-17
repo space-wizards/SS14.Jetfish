@@ -6,7 +6,7 @@ public static class AuthorizationSetupExtension
 {
     public static void AddAuthentication(this WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<IAuthorizationPolicyProvider, AccessAreaPolicyProvider>();
-        builder.Services.AddSingleton<IAuthorizationHandler, AccessAreaAuthorizationHandler>();
+        builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+        builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
     }
 }

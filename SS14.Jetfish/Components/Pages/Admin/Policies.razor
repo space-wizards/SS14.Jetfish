@@ -1,6 +1,6 @@
 ﻿@page "/admin/policies"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Policy = nameof(AccessArea.AdminReadGlobalPolicies))]
+@attribute [Authorize(Policy = nameof(Permission.AdminReadGlobalPolicies))]
 
 <h3>Policies</h3>
 

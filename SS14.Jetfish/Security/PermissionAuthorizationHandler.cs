@@ -7,18 +7,18 @@ using SS14.Jetfish.Helpers;
 
 namespace SS14.Jetfish.Security;
 
-public sealed class AccessAreaAuthorizationHandler : AuthorizationHandler<AccessAreaAuthorizationRequirement>
+public sealed class PermissionAuthorizationHandler : AuthorizationHandler<PermissionAuthorizationRequirement>
 {
     private readonly IServiceScopeFactory _serviceScopeFactory; // Required as this is a singleton
     private readonly ServerConfiguration _serverConfiguration = new();
 
-    public AccessAreaAuthorizationHandler(IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
+    public PermissionAuthorizationHandler(IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
     {
         _serviceScopeFactory = serviceScopeFactory;
         configuration.Bind(ServerConfiguration.Name, _serverConfiguration);
     }
 
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, AccessAreaAuthorizationRequirement requirement)
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionAuthorizationRequirement requirement)
     {
         using var scope           = _serviceScopeFactory.CreateScope();
         await using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -51,7 +51,7 @@ public sealed class AccessAreaAuthorizationHandler : AuthorizationHandler<Access
 
         if (user.ResourcePolicies
             .Any(policy => policy.ResourceId == resourceId
-                    && policy.AccessPolicy.AccessAreas.Any(x => requirement.AccessAreas.Contains(x))))
+                    && policy.AccessPolicy.Permissions.Any(x => requirement.Permissions.Contains(x))))
         {
             context.Succeed(requirement);
             return;
@@ -63,7 +63,7 @@ public sealed class AccessAreaAuthorizationHandler : AuthorizationHandler<Access
             .ThenInclude(policy => policy.AccessPolicy)
             .Any(teamMember =>
             teamMember.UserId == user.Id
-            && teamMember.Role.Policies.Any(policy => policy.AccessPolicy.AccessAreas.Any(x => requirement.AccessAreas.Contains(x))
+            && teamMember.Role.Policies.Any(policy => policy.AccessPolicy.Permissions.Any(x => requirement.Permissions.Contains(x))
             ));
 
         if (hasTeamAccess)
@@ -81,7 +81,7 @@ public sealed class AccessAreaAuthorizationHandler : AuthorizationHandler<Access
            4. Cache the result
 
             Proposal to make querying for permissions less complicated:
-            Create a table that contains an array of allowed actions (AccessAreas) per user and resource (resource = null for resourceless actions)
+            Create a table that contains an array of allowed actions (Permissions) per user and resource (resource = null for resourceless actions)
             Said table needs to be kept up to date through triggers on authorization related tables.
             Changes need to be normalized to added and removed actions per resource.
             This is better than the above because changes to permissions occur much less frequent than querying if a user has permissions for something

@@ -127,6 +127,6 @@ app.MapGet("/test", async (ICommandService commandService) =>
 
     await commandService.Run(debugCommand);
 })
-.RequireAuthorization(nameof(AccessArea.TeamCreate));
+.RequireAuthorization(nameof(Permission.TeamCreate));
 
 app.Run();

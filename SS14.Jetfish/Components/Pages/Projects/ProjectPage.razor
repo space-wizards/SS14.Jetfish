@@ -8,7 +8,7 @@
 }
 else
 {
-<AuthorizeResource ResourceName="project" Policy="@(nameof(AccessArea.ProjectRead))" Resource="@ProjectId">
+<AuthorizeResource ResourceName="project" Policy="@(nameof(Permission.ProjectRead))" Resource="@ProjectId">
     <h3>Project</h3>
 </AuthorizeResource>
 }

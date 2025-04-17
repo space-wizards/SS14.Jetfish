@@ -16,7 +16,7 @@ public sealed class AccessPolicy : IEntityTypeConfiguration<AccessPolicy>, IReco
     /// <summary>
     /// Areas this policy applies to.
     /// </summary>
-    public List<AccessArea> AccessAreas { get; set; } = [];
+    public List<Permission> Permissions { get; set; } = [];
 
     /// <summary>
     /// The name assigned to this policy.
