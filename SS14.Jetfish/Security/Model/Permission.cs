@@ -3,26 +3,39 @@
 namespace SS14.Jetfish.Security.Model;
 
 // When adding new values, ensure that none of the assigned values are changed, DB stores only the numerical value.
+/// <summary>
+/// Permissions used for authorizing actions.
+/// </summary>
+/// <remarks>Resourceless permissions don't apply to any resource and as such use a </remarks>
 public enum Permission : short
 {
     // Assign every "area" with its own 10th digit.
-
-    AdminReadGlobalPolicies = 1,
-    AdminWriteGlobalPolicies = 2,
-
+    /// <remarks>Resourceless permission</remarks>
+    PoliciesRead = 1,
+    /// <summary>Edit and Delete permission for policies</summary> 
+    /// <remarks>Resourceless permission</remarks>
+    PoliciesWrite = 2,
+    
+    /// <remarks>Resourceless permission</remarks>
     TeamCreate = 10,
     TeamEdit = 11,
     TeamDelete = 12,
 
-    ProjectRead = 20,
+    /// <remarks>Resourceless permission</remarks>
+    ProjectCreate = 20,
+    ProjectRead = 21,
+    ProjectEdit = 22,
+    ProjectDelete = 23,
 }
 
 public static class PermissionExtensions
 {
-    /**
-     * Returns a string containing all given permissions concatenated using a ';' as the delimiter.<br/>
-     * This is used to check if any of the given policy applies.
-     */
+    /// <summary>
+    /// Returns a string containing all given permissions concatenated using a ';' as the delimiter.<br/>
+    /// This is used to check if any of the given policies applies.
+    /// </summary>
+    /// <param name="permissions">List of permissions to concatenate</param>
+    /// <returns>The concatenated list of permissions</returns>
     public static string GetPolicyNames(params Permission[] permissions)
     {
         var returnValue = new StringBuilder();
@@ -39,11 +52,12 @@ public static class PermissionExtensions
 
         return returnValue.ToString();
     }
-
-    /**
-     * An extension method version of <see cref="GetPolicyNames"/>
-     * <inheritdoc cref="GetPolicyNames"/>
-     */
+    
+   /// <summary>
+   /// An extension method version of <see cref="GetPolicyNames"/>
+   /// <inheritdoc cref="GetPolicyNames"/>
+   /// </summary>
+   /// <returns>The concatenated list of permissions</returns>
     public static string Or(this Permission permission, params Permission[] additionalPermissions)
     {
         additionalPermissions[additionalPermissions.Length] = permission;

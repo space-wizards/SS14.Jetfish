@@ -18,7 +18,7 @@ public class PermissionTests
         {
             new Permission[]
             {
-                Permission.AdminReadGlobalPolicies,
+                Permission.PoliciesRead,
                 Permission.TeamCreate,
                 Permission.TeamDelete
             }
@@ -27,9 +27,9 @@ public class PermissionTests
         {
             new Permission[]
             {
-                Permission.AdminReadGlobalPolicies,
-                Permission.AdminReadGlobalPolicies,
-                Permission.AdminWriteGlobalPolicies
+                Permission.PoliciesRead,
+                Permission.PoliciesRead,
+                Permission.PoliciesWrite
             }
         };
     }

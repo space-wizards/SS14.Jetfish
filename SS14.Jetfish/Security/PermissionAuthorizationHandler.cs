@@ -50,7 +50,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
         }
 
         if (user.ResourcePolicies
-            .Any(policy => policy.ResourceId == resourceId
+            .Any(policy => (policy.ResourceId == resourceId || policy.Global)
                     && policy.AccessPolicy.Permissions.Any(x => requirement.Permissions.Contains(x))))
         {
             context.Succeed(requirement);
@@ -63,7 +63,9 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             .ThenInclude(policy => policy.AccessPolicy)
             .Any(teamMember =>
             teamMember.UserId == user.Id
-            && teamMember.Role.Policies.Any(policy => policy.AccessPolicy.Permissions.Any(x => requirement.Permissions.Contains(x))
+            && teamMember.Role.Policies.Any(policy => 
+                (policy.ResourceId == resourceId || policy.Global)
+                && policy.AccessPolicy.Permissions.Any(x => requirement.Permissions.Contains(x))
             ));
 
         if (hasTeamAccess)
@@ -73,7 +75,6 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
         }
 
         context.Fail(new AuthorizationFailureReason(this, "User doesn't have access"));
-        // TODO: FINISH
         /*
          * 1. Check if user is superadmin (DONE)
            2. Check if the user has been granted access directly
