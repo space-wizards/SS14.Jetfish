@@ -1,0 +1,42 @@
+@page "/Teams"
+<MudText Typo="Typo.h3" Class="ma-4">Teams</MudText>
+
+<MudPaper Class="p-4">
+    <MudDataGrid RowStyle="min-height: 61px;" T="Team" ServerData="LoadData" Filterable="false" SortMode="SortMode.None" >
+        <Columns>
+            <PropertyColumn Property="x => x.Name" HeaderStyle="width: 60%;"></PropertyColumn>
+            <TemplateColumn Title="Members">
+                <CellTemplate>
+                    <MudAvatarGroup Max="20" Spacing="2" MaxColor="Color.Primary" MaxSize="Size.Small">
+                        @if (context.Item != null)
+                            @foreach (var member in context.Item.TeamMembers)
+                        {
+                            <MudAvatar Size="Size.Small">
+                                <MudTooltip Text="@member.User.DisplayName">
+                                    <MudImage Src="https://static.wikitide.net/rainworldwiki/2/29/Artificer_portrait.png" Width="32" Height="32"></MudImage>
+                                </MudTooltip>
+                            </MudAvatar>
+                        }
+                    </MudAvatarGroup>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Actions" CellStyle="min-height: 61px;" CellClass="d-flex justify-end" HeaderClass="d-flex justify-end">
+                <CellTemplate>
+                    <AuthorizeView Resource="@context.Item.Id" Policy="@(nameof(Permission.TeamEdit))">
+                        <Authorized Context="auth_context">
+                            <MudIconButton Class="mx-2" Size="Size.Small" Icon="@Icons.Material.Filled.Edit" aria-label="delete"/>
+                        </Authorized>
+                    </AuthorizeView>
+                    <AuthorizeView Resource="@context.Item.Id" Policy="@(nameof(Permission.TeamDelete))">
+                        <Authorized Context="auth_context">
+                            <MudIconButton Class="mx-2" Size="Size.Small" Color="Color.Secondary" Icon="@Icons.Material.Filled.Delete" aria-label="delete"/>
+                        </Authorized>
+                    </AuthorizeView>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="Team" />
+        </PagerContent>
+    </MudDataGrid>
+</MudPaper>

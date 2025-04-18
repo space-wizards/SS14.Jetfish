@@ -7,7 +7,7 @@ using SS14.Jetfish.Database;
 using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Security.Model;
 
-namespace SS14.Jetfish;
+namespace SS14.Jetfish.Security;
 
 public class LoginHandler
 {

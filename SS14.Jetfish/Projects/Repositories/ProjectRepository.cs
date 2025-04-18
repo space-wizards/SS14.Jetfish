@@ -32,23 +32,29 @@ public class ProjectRepository : IResourceRepository<Project, Guid>
         throw new NotImplementedException();
     }
 
-    public async Task<ICollection<Project>> ListByPolicy(Guid userId, Permission policy)
+    public async Task<ICollection<Project>> ListByPolicy(Guid userId, Permission policy, int? limit = null, int? offset = null)
     {
         var teamQuery = _context.Project.Where(project =>
             _context.TeamMember.Include(member => member.Role)
                 .Any(member => member.User.Id == userId
                                && member.Role.Policies.Any(resourcePolicy =>
-                                   resourcePolicy.ResourceId == project.Id
+                                   (resourcePolicy.ResourceId == project.Id || resourcePolicy.Global)
                                    && resourcePolicy.AccessPolicy.Permissions.Contains(policy))));
 
         var query = _context.Project.Where(project =>
                 _context.User.Any(user =>
                     user.Id == userId
                     && user.ResourcePolicies.Any(resourcePolicy =>
-                        resourcePolicy.ResourceId == project.Id
+                        (resourcePolicy.ResourceId == project.Id || resourcePolicy.Global)
                         && resourcePolicy.AccessPolicy.Permissions.Contains(policy))))
             .Union(teamQuery);
 
-        return await query.ToListAsync();
+        if (offset.HasValue)
+            query = query.Skip(offset.Value);
+        
+        if (limit.HasValue)
+            query = query.Take(limit.Value);
+        
+        return await query.OrderBy(x => x.Id).ToListAsync();
     }
 }

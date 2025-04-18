@@ -7,7 +7,7 @@
                     <FocusOnNavigate RouteData="routeData" Selector="h1"/>
                 </Authorized>
                 <NotAuthorized>
-                    <RouteView RouteData="new RouteData(typeof(Pages.Login), routeData.RouteValues)" DefaultLayout="typeof(Layout.LoginLayout)"/>
+                    <RouteView RouteData="new RouteData(typeof(Pages.Login), new Dictionary<string, object?>())" DefaultLayout="typeof(Layout.LoginLayout)"/>
                     <FocusOnNavigate RouteData="routeData" Selector="h1"/>
                 </NotAuthorized>
             </AuthorizeView>

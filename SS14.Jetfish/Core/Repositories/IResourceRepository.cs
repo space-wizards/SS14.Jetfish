@@ -5,5 +5,5 @@ namespace SS14.Jetfish.Core.Repositories;
 
 public interface IResourceRepository<T, TKey> : IRepository<T, TKey> where T : class, IResource, IRecord<TKey>
 {
-    public Task<ICollection<T>> ListByPolicy(Guid userId, Permission policy);
+    public Task<ICollection<T>> ListByPolicy(Guid userId, Permission policy, int? limit = null, int? offset = null);
 }

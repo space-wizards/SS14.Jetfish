@@ -2,7 +2,7 @@
 
 namespace SS14.Jetfish.Security.Model;
 
-// When adding new values, ensure that none of the assigned values are changed, DB stores only the numerical value.
+// When adding new values, ensure that none of the assigned values are changed, DB stores only the numerical value. ඞ
 /// <summary>
 /// Permissions used for authorizing actions.
 /// </summary>
@@ -18,8 +18,9 @@ public enum Permission : short
     
     /// <remarks>Resourceless permission</remarks>
     TeamCreate = 10,
-    TeamEdit = 11,
-    TeamDelete = 12,
+    TeamRead = 11,
+    TeamEdit = 12,
+    TeamDelete = 13,
 
     /// <remarks>Resourceless permission</remarks>
     ProjectCreate = 20,
