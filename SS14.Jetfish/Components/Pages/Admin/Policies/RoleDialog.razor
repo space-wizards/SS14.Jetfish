@@ -67,6 +67,12 @@
 
     private void Save()
     {
+        if (string.IsNullOrEmpty(_roleName)
+            || _roleName.Length > Role.MaxDisplayNameLength
+            || _roleIdpMapping.Length > Role.MaxIdpNameLength
+           )
+            return;
+
         Role ??= new Role();
 
         Role.DisplayName = _roleName;

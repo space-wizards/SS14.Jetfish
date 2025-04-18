@@ -72,6 +72,11 @@
 
     private void Save()
     {
+        if (string.IsNullOrEmpty(_policyName)
+            || _policyName.Length > AccessPolicy.AccessPolicyMaxNameLength
+            )
+            return;
+
         Debug.Assert(Policy != null, "Attempted to save policy with uninitialized component!");
 
         Policy.AccessPolicy.Permissions = _permissions.ToList();
