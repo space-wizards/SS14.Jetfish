@@ -1,0 +1,72 @@
+﻿@using SS14.Jetfish.Helpers
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Create" Class="mr-3 mb-n1"/>
+            Add Role
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField
+            T="string"
+            Placeholder="Name..."
+            Label="Name"
+            Required="true"
+            @bind-Value="@_policyName"
+            Counter="AccessPolicy.AccessPolicyMaxNameLength"
+            Immediate="true"
+            Validation="@(new Func<string, IEnumerable<string>>(MaxCharactersPolicyName))"
+            HelperText="The name of this policy."
+        />
+
+        <MudSelect T="Permission"
+                   Label="Select Permissions"
+                   MultiSelection="true"
+                   @bind-SelectedValues="_permissions">
+            @foreach (var option in Enum.GetValues(typeof(Permission)).Cast<Permission>())
+            {
+                <MudSelectItem Value="option">@option</MudSelectItem>
+            }
+        </MudSelect>
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="Save">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public required Role Role { get; set; }
+    [Parameter]
+    public required int PolicyId { get; set; }
+    private AccessPolicy Policy { get; set; } = null!;
+
+    private IEnumerable<Permission> _permissions = new List<Permission>();
+    private string _policyName = "";
+
+    protected override void OnParametersSet()
+    {
+        Policy = Role.Policies
+            .First(x => x.AccessPolicy.Id == PolicyId).AccessPolicy;
+
+        _permissions = Policy.Permissions;
+        _policyName = Policy.Name;
+    }
+
+    private IEnumerable<string> MaxCharactersPolicyName(string ch) => BlazorUtility.MaxCharacters(ch, AccessPolicy.AccessPolicyMaxNameLength);
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Save()
+    {
+        Policy.Permissions = _permissions.ToList();
+        Policy.Name = _policyName;
+
+        MudDialog.Close(DialogResult.Ok(Role));
+    }
+}

@@ -1,6 +1,8 @@
 ﻿@page "/admin/policies"
 
+@using SS14.Jetfish.Core.Commands
 @using SS14.Jetfish.Core.Services.Interfaces
+@using SS14.Jetfish.Core.Types
 @using SS14.Jetfish.Security
 @using SS14.Jetfish.Security.Commands
 @using SS14.Jetfish.Security.Repositories
@@ -15,8 +17,15 @@
 
 <h3>Policies</h3>
 
-<MudPaper Class="p-4">
-    <MudTable Items="_roles" Hover="true">
+<div style="display:contents">
+    <MudPaper Class="p-4">
+    <MudTable
+        Items="_roles"
+        Hover="true"
+        Height="600"
+        FixedHeader="true"
+        FixedFooter="true"
+        >
         <ToolBarContent>
             <MudText Typo="Typo.h6">Global Policies</MudText>
             <MudSpacer />
@@ -24,41 +33,57 @@
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>IDP Mapping</MudTh>
-            <MudTh>Policies</MudTh>
-            @if (_editMode)
-            {
-                <MudTh>Edit</MudTh>
-            }
+            <MudTh Class="fixed-column-policies">Policies</MudTh>
+            <MudTh Class="fixed-column-action"></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd>@context.DisplayName</MudTd>
-            <MudTd>@context.IdpName</MudTd>
             <MudTd>
+                <div class="fixed-column-scroll">
+                    @context.DisplayName
+                </div>
+            </MudTd>
+            <MudTd>
+                <div class="fixed-column-scroll">
+                    @context.IdpName
+                </div>
+            </MudTd>
+            <MudTd Class="fixed-column-policies">
                 <MudExpansionPanels>
                     <MudExpansionPanel Expanded="true" Text="Permissions">
                         <MudList Dense="true" T="object">
                             @foreach (var policy in context.Policies)
                             {
-                                <MudListItem T="object" OnClick="@((e) => EditPolicy(policy.AccessPolicy, context))">
-                                    <MudText>@policy.AccessPolicy.Name</MudText>
-                                    <MudText>@PermissionExtensions.GetPolicyNames(policy.AccessPolicy.Permissions.ToArray())</MudText>
-                                    @if (_editMode)
-                                    {
-                                        <MudIcon Icon="@Icons.Material.Filled.Edit"/>
-                                    }
+                                <MudListItem T="object">
+                                    <div class="permissions-container">
+                                        <div>
+                                            <MudText>@policy.AccessPolicy.Name</MudText>
+                                            <MudText>@PermissionExtensions.GetPolicyNames(policy.AccessPolicy.Permissions.ToArray())</MudText>
+                                        </div>
+                                        @if (_editMode)
+                                        {
+                                            <div>
+                                                <MudIconButton OnClick="@((e) => EditPolicy(policy.AccessPolicy, context))" Icon="@Icons.Material.Filled.Edit" />
+                                                <MudIconButton OnClick="@((e) => DeletePolicy(policy, context))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error"/>
+                                            </div>
+                                        }
+                                    </div>
                                 </MudListItem>
                             }
                         </MudList>
                     </MudExpansionPanel>
                 </MudExpansionPanels>
             </MudTd>
-            @if (_editMode)
-            {
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@((e) => EditRole(context))"/>
-            }
+            <MudTd Class="fixed-column">
+                @if (_editMode)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@((e) => EditRole(context))"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error" OnClick="@((e) => DeleteRole(context))" />
+                }
+            </MudTd>
         </RowTemplate>
     </MudTable>
 </MudPaper>
+</div>
 
 <AuthorizeResource DisplayError="false" Policy="@nameof(Permission.PoliciesWrite)">
     <MudButtonGroup Color="Color.Primary" Size="Size.Medium" Variant="Variant.Filled" Class="mt-2">
@@ -91,7 +116,7 @@
         if (result == null || result.Canceled)
             return;
 
-        await SaveChanges(result);
+        await SaveChangesUpdate((Role) result.Data!);
     }
 
     private bool _editMode = false;
@@ -116,14 +141,18 @@
         if (result == null || result.Canceled)
             return;
 
-        await SaveChanges(result);
+        await SaveChangesUpdate((Role) result.Data!);
     }
 
-    private async Task SaveChanges(DialogResult result)
+    private async Task SaveChangesUpdate(Role role)
     {
-        var resultRole = (Role) result.Data!;
-        var command = new CreateOrUpdateRole(resultRole);
+        var command = new CreateOrUpdateRoleCommand(role);
         var commandResult = await CommandService.Run(command);
+        await SaveChangesFinal(commandResult);
+    }
+
+    private async Task SaveChangesFinal(ICommand<Result<Role, Exception>>? commandResult)
+    {
         if (!commandResult!.Result!.IsSuccess)
         {
             await DialogService.ShowMessageBox(
@@ -135,11 +164,66 @@
             NavigationManager.Refresh(true);
         }
 
-        Snackbar.Add("Role Saved!", Severity.Success);
+        Snackbar.Add("Changes Saved!", Severity.Success);
+        _roles = PolicyRepository.GetAllGlobal();
+        StateHasChanged();
     }
 
-    private Task EditPolicy(AccessPolicy policy, Role context)
+    private async Task EditPolicy(AccessPolicy policy, Role role)
     {
-        throw new NotImplementedException();
+        if (!_editMode)
+            return;
+
+        var parameters = new DialogParameters<PolicyDialog> {
+        {
+            x => x.Role, role
+        },
+        {
+            x => x.PolicyId, policy.Id
+        } };
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+        };
+        var dialog = await DialogService.ShowAsync<PolicyDialog>("Edit Policy", parameters, options);
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
+
+        await SaveChangesUpdate((Role) result.Data!);
+    }
+
+    private async Task DeletePolicy(ResourcePolicy policyAccessPolicy, Role context)
+    {
+        if (!await ConfirmDelete())
+            return;
+
+        context.Policies.Remove(policyAccessPolicy);
+        await SaveChangesUpdate(context);
+    }
+
+    private async Task DeleteRole(Role context)
+    {
+        if (!await ConfirmDelete())
+            return;
+
+        var command = new DeleteRoleCommand(context);
+        var commandResult = await CommandService.Run(command);
+        await SaveChangesFinal(commandResult);
+    }
+
+    private async Task<bool> ConfirmDelete()
+    {
+        var result = await DialogService.ShowMessageBox(
+            "Warning",
+            "Deleting can not be undone!",
+            yesText:"Delete!", cancelText:"Cancel");
+
+        if (!result.HasValue || !result.Value)
+            return false;
+
+        return true;
     }
 }

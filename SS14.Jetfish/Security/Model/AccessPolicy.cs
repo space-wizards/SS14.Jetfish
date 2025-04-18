@@ -10,6 +10,8 @@ namespace SS14.Jetfish.Security.Model;
 /// </summary>
 public sealed class AccessPolicy : IEntityTypeConfiguration<AccessPolicy>, IRecord<int>
 {
+    public const int AccessPolicyMaxNameLength = 200;
+
     public int Id { get; set; }
     public int Version { get; set; }
 
@@ -21,7 +23,7 @@ public sealed class AccessPolicy : IEntityTypeConfiguration<AccessPolicy>, IReco
     /// <summary>
     /// The name assigned to this policy.
     /// </summary>
-    [MaxLength(200)]
+    [MaxLength(AccessPolicyMaxNameLength)]
     public string Name { get; set; } = string.Empty;
 
     public void Configure(EntityTypeBuilder<AccessPolicy> builder)

@@ -1,4 +1,5 @@
-﻿@inject ISnackbar Snackbar
+﻿@using SS14.Jetfish.Helpers
+@inject ISnackbar Snackbar
 
 <MudDialog>
     <TitleContent>
@@ -59,14 +60,10 @@
 
     private void Cancel() => MudDialog.Cancel();
 
-    private IEnumerable<string> MaxCharactersRoleName(string ch) => MaxCharacters(ch, Role.MaxDisplayNameLength);
-    private IEnumerable<string> MaxCharactersIdpMapping(string ch) => MaxCharacters(ch, Role.MaxIdpNameLength);
+    private IEnumerable<string> MaxCharactersRoleName(string ch) => BlazorUtility.MaxCharacters(ch, Role.MaxDisplayNameLength);
+    private IEnumerable<string> MaxCharactersIdpMapping(string ch) => BlazorUtility.MaxCharacters(ch, Role.MaxIdpNameLength);
 
-    private IEnumerable<string> MaxCharacters(string ch, int max)
-    {
-        if (!string.IsNullOrEmpty(ch) && max < ch.Length)
-            yield return $"Max {max} characters";
-    }
+
 
     private void Save()
     {
