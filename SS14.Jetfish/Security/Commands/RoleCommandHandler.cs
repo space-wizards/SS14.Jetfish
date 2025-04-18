@@ -17,11 +17,11 @@ public class RoleCommandHandler : BaseCommandHandler<CreateOrUpdateRole, Result<
 
     public override string CommandName => nameof(CreateOrUpdateRole);
 
-    protected override Task<CreateOrUpdateRole> Handle(CreateOrUpdateRole command)
+    protected override async Task<CreateOrUpdateRole> Handle(CreateOrUpdateRole command)
     {
-        var result  = _policyRepository.AddOrUpdate(command.Role);
+        var result  = await _policyRepository.AddOrUpdate(command.Role);
         command.Result = result;
 
-        return Task.FromResult(command);
+        return command;
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
@@ -8,10 +7,8 @@ using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Security.Repositories;
 
-public class PolicyRepository : IRepository<Role, Guid>
+public class PolicyRepository : BaseRepository<Role, Guid>
 {
-    public const string ConcurrencyError = "Concurrency version error";
-
     private readonly ApplicationDbContext _context;
 
     public PolicyRepository(ApplicationDbContext context)
@@ -19,32 +16,20 @@ public class PolicyRepository : IRepository<Role, Guid>
         _context = context;
     }
 
-    public Result<Role, Exception> AddOrUpdate(Role record)
+    public override async Task<Result<Role, Exception>> AddOrUpdate(Role record)
     {
         _context.Entry(record).State = record.Id != Guid.Empty ?
             EntityState.Modified : EntityState.Added;
 
-        try
-        {
-            _context.SaveChanges();
-        }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx)
-        {
-            if (pgEx.MessageText != ConcurrencyError)
-                throw;
-
-            return Result<Role, Exception>.Failure(pgEx);
-        }
-
-        return Result<Role, Exception>.Success(record);
+        return await SaveChanges(record, _context);
     }
 
-    public bool TryGet(Guid id, [NotNullWhen(true)] out Role? result)
+    public override bool TryGet(Guid id, [NotNullWhen(true)] out Role? result)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Role?> GetAsync(Guid id)
+    public override Task<Role?> GetAsync(Guid id)
     {
         throw new NotImplementedException();
     }

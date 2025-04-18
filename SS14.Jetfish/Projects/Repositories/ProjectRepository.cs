@@ -17,7 +17,7 @@ public class ProjectRepository : IResourceRepository<Project, Guid>
         _context = context;
     }
 
-    public Result<Project, Exception> AddOrUpdate(Project record)
+    public Task<Result<Project, Exception>> AddOrUpdate(Project record)
     {
         throw new NotImplementedException();
     }
