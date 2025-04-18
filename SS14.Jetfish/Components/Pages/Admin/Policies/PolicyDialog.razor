@@ -1,9 +1,10 @@
-﻿@using SS14.Jetfish.Helpers
+﻿@using System.Diagnostics
+@using SS14.Jetfish.Helpers
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.Create" Class="mr-3 mb-n1"/>
-            Add Role
+            @MudDialog.Title
         </MudText>
     </TitleContent>
     <DialogContent>
@@ -43,8 +44,8 @@
     [Parameter]
     public required Role Role { get; set; }
     [Parameter]
-    public required int PolicyId { get; set; }
-    private AccessPolicy Policy { get; set; } = null!;
+    public int? PolicyId { get; set; }
+    private ResourcePolicy? Policy { get; set; }
 
     private IEnumerable<Permission> _permissions = new List<Permission>();
     private string _policyName = "";
@@ -52,10 +53,17 @@
     protected override void OnParametersSet()
     {
         Policy = Role.Policies
-            .First(x => x.AccessPolicy.Id == PolicyId).AccessPolicy;
+            .FirstOrDefault(x => x.AccessPolicy.Id == PolicyId) ?? new ResourcePolicy()
+        {
+            AccessPolicy = new AccessPolicy()
+            {
 
-        _permissions = Policy.Permissions;
-        _policyName = Policy.Name;
+            },
+            Global = true
+        };
+
+        _permissions = Policy.AccessPolicy.Permissions;
+        _policyName = Policy.AccessPolicy.Name;
     }
 
     private IEnumerable<string> MaxCharactersPolicyName(string ch) => BlazorUtility.MaxCharacters(ch, AccessPolicy.AccessPolicyMaxNameLength);
@@ -64,8 +72,15 @@
 
     private void Save()
     {
-        Policy.Permissions = _permissions.ToList();
-        Policy.Name = _policyName;
+        Debug.Assert(Policy != null, "Attempted to save policy with uninitialized component!");
+
+        Policy.AccessPolicy.Permissions = _permissions.ToList();
+        Policy.AccessPolicy.Name = _policyName;
+
+        if (PolicyId == null)
+        {
+            Role.Policies.Add(Policy);
+        }
 
         MudDialog.Close(DialogResult.Ok(Role));
     }

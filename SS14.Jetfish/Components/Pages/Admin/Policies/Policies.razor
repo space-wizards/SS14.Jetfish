@@ -50,26 +50,34 @@
             <MudTd Class="fixed-column-policies">
                 <MudExpansionPanels>
                     <MudExpansionPanel Expanded="true" Text="Permissions">
-                        <MudList Dense="true" T="object">
-                            @foreach (var policy in context.Policies)
+                        <TitleContent>
+                            @if (_editMode)
                             {
-                                <MudListItem T="object">
-                                    <div class="permissions-container">
-                                        <div>
-                                            <MudText>@policy.AccessPolicy.Name</MudText>
-                                            <MudText>@PermissionExtensions.GetPolicyNames(policy.AccessPolicy.Permissions.ToArray())</MudText>
-                                        </div>
-                                        @if (_editMode)
-                                        {
-                                            <div>
-                                                <MudIconButton OnClick="@((e) => EditPolicy(policy.AccessPolicy, context))" Icon="@Icons.Material.Filled.Edit" />
-                                                <MudIconButton OnClick="@((e) => DeletePolicy(policy, context))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error"/>
-                                            </div>
-                                        }
-                                    </div>
-                                </MudListItem>
+                                <MudIconButton OnClick="args => AddPolicy(context)" Icon="@Icons.Material.Filled.Add"/>
                             }
-                        </MudList>
+                        </TitleContent>
+                        <ChildContent>
+                            <MudList Dense="true" T="object">
+                                @foreach (var policy in context.Policies)
+                                {
+                                    <MudListItem T="object">
+                                        <div class="permissions-container">
+                                            <div>
+                                                <MudText>@policy.AccessPolicy.Name</MudText>
+                                                <MudText>@PermissionExtensions.GetPolicyNames(policy.AccessPolicy.Permissions.ToArray())</MudText>
+                                            </div>
+                                            @if (_editMode)
+                                            {
+                                                <div>
+                                                    <MudIconButton OnClick="@((e) => EditPolicy(policy.AccessPolicy, context))" Icon="@Icons.Material.Filled.Edit"/>
+                                                    <MudIconButton OnClick="@((e) => DeletePolicy(policy, context))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error"/>
+                                                </div>
+                                            }
+                                        </div>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        </ChildContent>
                     </MudExpansionPanel>
                 </MudExpansionPanels>
             </MudTd>
@@ -87,7 +95,7 @@
 
 <AuthorizeResource DisplayError="false" Policy="@nameof(Permission.PoliciesWrite)">
     <MudButtonGroup Color="Color.Primary" Size="Size.Medium" Variant="Variant.Filled" Class="mt-2">
-        <MudButton OnClick="CreatePolicy" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
+        <MudButton OnClick="CreateRole" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
             Create Role
         </MudButton>
         <MudButton OnClick="ToggleEdit" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit">
@@ -104,7 +112,7 @@
         _roles = PolicyRepository.GetAllGlobal();
     }
 
-    private async Task CreatePolicy()
+    private async Task CreateRole()
     {
         var options = new DialogOptions
         {
@@ -225,5 +233,28 @@
             return false;
 
         return true;
+    }
+
+    private async Task AddPolicy(Role context)
+    {
+        if (!_editMode)
+            return;
+
+        var parameters = new DialogParameters<PolicyDialog> {
+            {
+                x => x.Role, context
+            }};
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+        };
+        var dialog = await DialogService.ShowAsync<PolicyDialog>("Add Policy", parameters, options);
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
+
+        await SaveChangesUpdate((Role) result.Data!);
     }
 }
