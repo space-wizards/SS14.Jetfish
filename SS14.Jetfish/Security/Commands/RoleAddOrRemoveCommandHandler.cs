@@ -6,18 +6,18 @@ using SS14.Jetfish.Security.Repositories;
 
 namespace SS14.Jetfish.Security.Commands;
 
-public class RoleCommandHandler : BaseCommandHandler<CreateOrUpdateRole, Result<Role, Exception>>
+public class RoleAddOrRemoveCommandHandler : BaseCommandHandler<CreateOrUpdateRoleCommand, Result<Role, Exception>>
 {
     private readonly PolicyRepository _policyRepository;
 
-    public RoleCommandHandler(PolicyRepository policy)
+    public RoleAddOrRemoveCommandHandler(PolicyRepository policy)
     {
         _policyRepository = policy;
     }
 
-    public override string CommandName => nameof(CreateOrUpdateRole);
+    public override string CommandName => nameof(CreateOrUpdateRoleCommand);
 
-    protected override async Task<CreateOrUpdateRole> Handle(CreateOrUpdateRole command)
+    protected override async Task<CreateOrUpdateRoleCommand> Handle(CreateOrUpdateRoleCommand command)
     {
         var result  = await _policyRepository.AddOrUpdate(command.Role);
         command.Result = result;
