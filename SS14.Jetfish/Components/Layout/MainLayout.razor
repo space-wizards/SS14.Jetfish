@@ -14,14 +14,17 @@
     <MudAppBar>
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())"/>
         <MudSpacer/>
-        <MudImage Src="assets/logo.png" Alt="SS14 Logo" Height="48" Width="48"/>
-        <MudText Typo="Typo.h5" Class="ml-3">Jetfish</MudText>
+        <MudText HtmlTag="h2" Typo="Typo.h4" Class="mx-4">
+            <SectionOutlet SectionName="page-title"/>
+        </MudText>
+        <MudSpacer/>
+        <MudAvatar Color="Color.Tertiary">JG</MudAvatar>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
         <NavigationMenu/>
     </MudDrawer>
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge" style="overflow: auto;max-height: 100vh;">
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pt-4" style="overflow: auto;max-height: 100vh;">
             @Body
         </MudContainer>
     </MudMainContent>

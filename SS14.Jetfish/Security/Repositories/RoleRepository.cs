@@ -7,11 +7,11 @@ using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Security.Repositories;
 
-public class PolicyRepository : BaseRepository<Role, Guid>
+public class RoleRepository : BaseRepository<Role, Guid>
 {
     private readonly ApplicationDbContext _context;
 
-    public PolicyRepository(ApplicationDbContext context)
+    public RoleRepository(ApplicationDbContext context)
     {
         _context = context;
     }
@@ -24,7 +24,7 @@ public class PolicyRepository : BaseRepository<Role, Guid>
         return await SaveChanges(record, _context);
     }
 
-    public async Task<Result<Role, Exception>> Delete(Role record)
+    public override async Task<Result<Role, Exception>> Delete(Role record)
     {
         _context.Role.Remove(record);
 

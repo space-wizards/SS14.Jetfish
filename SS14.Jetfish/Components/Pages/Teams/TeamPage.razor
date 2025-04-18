@@ -1,0 +1,12 @@
+@page "/team/{teamId:guid}"
+
+@if(Team == null)
+{
+    <p>Team not found</p>
+}
+else
+{
+    <AuthorizeResource ResourceName="team" Policy="@(nameof(Permission.TeamRead))" Resource="@TeamId">
+        <SectionContent SectionName="page-title">Team: @Team.Name</SectionContent>
+    </AuthorizeResource>
+}

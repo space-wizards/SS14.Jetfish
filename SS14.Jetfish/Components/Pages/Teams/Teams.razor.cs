@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
+using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Helpers;
+using SS14.Jetfish.Security.Commands;
 using SS14.Jetfish.Security.Model;
 using SS14.Jetfish.Security.Repositories;
 
@@ -9,8 +11,19 @@ namespace SS14.Jetfish.Components.Pages.Teams;
 
 public partial class Teams : ComponentBase
 {
+    private MudDataGrid<Team> _dataGrid = null!;
+
     [Inject]
     public TeamRepository TeamRepository { get; set; } = null!;
+    
+    [Inject]
+    public ICommandService CommandService { get; set; } = null!;
+    
+    [Inject]
+    public IDialogService DialogService { get; set; } = null!;
+    
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = null!;
     
     [CascadingParameter]
     public Task<AuthenticationState>? AuthenticationState { get; set; }
@@ -39,5 +52,20 @@ public partial class Teams : ComponentBase
             Items = teams,
             TotalItems = count
         };
+    }
+
+    private async Task OnDelete(Team team)
+    {
+        if (!await BlazorUtility.ConfirmDelete(DialogService, "team"))
+            return;
+        
+        var command = new DeleteTeamCommand(team);
+        await CommandService.Run(command);
+        await _dataGrid.ReloadServerData();
+    }
+
+    private void OnRowClick(DataGridRowClickEventArgs<Team> arg)
+    {
+        NavigationManager.NavigateTo($"/team/{arg.Item.Id}");
     }
 }

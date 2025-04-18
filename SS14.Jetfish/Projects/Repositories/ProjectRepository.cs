@@ -32,6 +32,11 @@ public class ProjectRepository : IResourceRepository<Project, Guid>
         throw new NotImplementedException();
     }
 
+    public Task<Result<Project, Exception>> Delete(Project record)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<ICollection<Project>> ListByPolicy(Guid userId, Permission policy, int? limit = null, int? offset = null)
     {
         var teamQuery = _context.Project.Where(project =>

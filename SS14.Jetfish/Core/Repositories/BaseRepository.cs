@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SS14.Jetfish.Core.Types;
+using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Core.Repositories;
 
@@ -12,6 +13,8 @@ public abstract class BaseRepository<T, TKey> : IRepository<T, TKey> where T : c
     public abstract  bool TryGet(TKey id, [NotNullWhen(true)] out T? result);
 
     public abstract Task<T?> GetAsync(TKey id);
+    
+    public abstract Task<Result<T, Exception>> Delete(T record);
 
     protected async Task<Result<T, Exception>> SaveChanges(T record, DbContext context)
     {

@@ -29,9 +29,15 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
         throw new NotImplementedException();
     }
 
-    public override Task<Team?> GetAsync(Guid id)
+    public override async Task<Team?> GetAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _context.Team.SingleOrDefaultAsync(t => t.Id == id);
+    }
+
+    public override async Task<Result<Team, Exception>> Delete(Team record)
+    {
+        _context.Team.Remove(record);
+        return await SaveChanges(record, _context);
     }
 
     public async Task<int> CountByPolicy(Guid userId, Permission policy)
