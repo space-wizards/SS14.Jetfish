@@ -1,15 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security;
 using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.FileHosting.Model;
 
-public sealed class UploadedFile : IEntityTypeConfiguration<UploadedFile>, IResource
+public sealed class UploadedFile : IEntityTypeConfiguration<UploadedFile>, IResource, IRecord<Guid>
 {
     public Guid Id { get; set; }
+    
+    public int Version { get; set; }
 
     // ඞ
     [MaxLength(260)]
