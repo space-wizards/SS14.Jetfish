@@ -9,11 +9,11 @@ public static class EntityRecordExtension
 {
     public static void ConfigureRowVersionGuid<T>(this EntityTypeBuilder<T> builder) where T : class, IRecord<Guid>
     {
-        builder.Property(x => x.Version).IsConcurrencyToken();
+        builder.Property(x => x.Version).IsRowVersion();
     }
 
     public static void ConfigureRowVersionInt<T>(this EntityTypeBuilder<T> builder) where T : class, IRecord<int>
     {
-        builder.Property(x => x.Version).IsConcurrencyToken();
+        builder.Property(x => x.Version).IsRowVersion();
     }
 }
