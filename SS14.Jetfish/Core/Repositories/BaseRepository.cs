@@ -12,7 +12,7 @@ public abstract class BaseRepository<T, TKey> : IRepository<T, TKey> where T : c
     public abstract  bool TryGet(TKey id, [NotNullWhen(true)] out T? result);
 
     public abstract Task<T?> GetAsync(TKey id);
-    
+
     protected async Task<Result<T, Exception>> SaveChanges(T record, DbContext context)
     {
         try
@@ -25,6 +25,10 @@ public abstract class BaseRepository<T, TKey> : IRepository<T, TKey> where T : c
                 throw;
 
             return Result<T, Exception>.Failure(pgEx);
+        }
+        catch (DbUpdateConcurrencyException concurEx)
+        {
+            return Result<T, Exception>.Failure(concurEx);
         }
 
         return Result<T, Exception>.Success(record);

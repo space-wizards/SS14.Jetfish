@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SS14.Jetfish.Core.Extensions;
 using SS14.Jetfish.Core.Repositories;
 
 namespace SS14.Jetfish.Security.Model;
@@ -25,5 +26,6 @@ public sealed class Role : IEntityTypeConfiguration<Role>, IRecord<Guid>
 
     public void Configure(EntityTypeBuilder<Role> builder)
     {
+        builder.ConfigureRowVersionGuid();
     }
 }

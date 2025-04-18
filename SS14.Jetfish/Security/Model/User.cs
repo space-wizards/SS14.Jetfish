@@ -20,6 +20,6 @@ public sealed class User : IEntityTypeConfiguration<User>, IRecord<Guid>
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.OwnsMany(p => p.ResourcePolicies);
-        builder.ConfigureRowVersion();
+        builder.ConfigureRowVersionGuid();
     }
 }

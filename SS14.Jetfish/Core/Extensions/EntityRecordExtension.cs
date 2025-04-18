@@ -7,9 +7,13 @@ namespace SS14.Jetfish.Core.Extensions;
 
 public static class EntityRecordExtension
 {
-    public static void ConfigureRowVersion<T>(this EntityTypeBuilder<T> builder) where T : class, IRecord<Guid>
+    public static void ConfigureRowVersionGuid<T>(this EntityTypeBuilder<T> builder) where T : class, IRecord<Guid>
     {
         builder.Property(x => x.Version).IsConcurrencyToken();
-            
+    }
+
+    public static void ConfigureRowVersionInt<T>(this EntityTypeBuilder<T> builder) where T : class, IRecord<int>
+    {
+        builder.Property(x => x.Version).IsConcurrencyToken();
     }
 }

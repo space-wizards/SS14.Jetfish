@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SS14.Jetfish.Core.Extensions;
 using SS14.Jetfish.Core.Repositories;
 
 namespace SS14.Jetfish.Security.Model;
@@ -29,5 +30,6 @@ public sealed class AccessPolicy : IEntityTypeConfiguration<AccessPolicy>, IReco
     public void Configure(EntityTypeBuilder<AccessPolicy> builder)
     {
         builder.HasKey(x => x.Id);
+        builder.ConfigureRowVersionInt();
     }
 }
