@@ -1,10 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
+using SS14.Jetfish.Core.Types;
 
 namespace SS14.Jetfish.Core.Repositories;
 
-public interface IRepository <T, TKey> where T : IRecord<TKey>
+public interface IRepository <T, TKey> where T : class, IRecord<TKey>
 {
-    public bool TryAdd(T record, [NotNullWhen(true)] out T? result);
+    public Result<T, Exception> AddOrUpdate(T record);
     public bool TryGet(TKey id, [NotNullWhen(true)] out T? result);
     public Task<T?> GetAsync(TKey id);
 }

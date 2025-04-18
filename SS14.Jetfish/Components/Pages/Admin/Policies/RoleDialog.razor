@@ -13,8 +13,7 @@
             Placeholder="Project Manager"
             Label="Role Name"
             Required="true"
-            bind-Value="@_roleName"
-            Value="@(Role?.DisplayName ?? null)"
+            @bind-Value="@_roleName"
             Counter="Role.MaxDisplayNameLength"
             Immediate="true"
             Validation="@(new Func<string, IEnumerable<string>>(MaxCharactersRoleName))"
@@ -24,8 +23,7 @@
             T="string"
             Placeholder="PROJECT_MANAGER"
             Label="IDP Role Mapping"
-            bind-Value="@_roleIdpMapping"
-            Value="@(Role?.IdpName ?? null)"
+            @bind-Value="@_roleIdpMapping"
             Counter="Role.MaxIdpNameLength"
             Immediate="true"
             Validation="@(new Func<string, IEnumerable<string>>(MaxCharactersIdpMapping))"
@@ -53,6 +51,12 @@
     private string _roleName = "";
     private string _roleIdpMapping = "";
 
+    protected override void OnParametersSet()
+    {
+        _roleName = Role?.DisplayName ?? "";
+        _roleIdpMapping = Role?.IdpName ?? "";
+    }
+
     private void Cancel() => MudDialog.Cancel();
 
     private IEnumerable<string> MaxCharactersRoleName(string ch) => MaxCharacters(ch, Role.MaxDisplayNameLength);
@@ -66,19 +70,11 @@
 
     private void Save()
     {
-        if (Role == null)
-        {
-            // we are making a new role
+        Role ??= new Role();
 
-            Snackbar.Add("Role Created!", Severity.Success);
-            MudDialog.Close(DialogResult.Ok(true));
-        }
-        else
-        {
-            Role.DisplayName = _roleName;
-            Role.IdpName = !string.IsNullOrEmpty(_roleIdpMapping) ? _roleIdpMapping : null;
+        Role.DisplayName = _roleName;
+        Role.IdpName = !string.IsNullOrEmpty(_roleIdpMapping) ? _roleIdpMapping : null;
 
-            MudDialog.Close(DialogResult.Ok(Role));
-        }
+        MudDialog.Close(DialogResult.Ok(Role));
     }
 }

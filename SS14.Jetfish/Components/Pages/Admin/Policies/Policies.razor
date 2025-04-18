@@ -1,13 +1,16 @@
 ﻿@page "/admin/policies"
 
-@using Microsoft.AspNetCore.Authorization
+@using SS14.Jetfish.Core.Services.Interfaces
 @using SS14.Jetfish.Security
+@using SS14.Jetfish.Security.Commands
 
 @attribute [Authorize(Policy = nameof(Permission.PoliciesRead))]
 
 @inject PolicyRepository PolicyRepository
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject ICommandService CommandService
+@inject NavigationManager NavigationManager
 
 <h3>Policies</h3>
 
@@ -35,9 +38,13 @@
                         <MudList Dense="true" T="object">
                             @foreach (var policy in context.Policies)
                             {
-                                <MudListItem T="object">
+                                <MudListItem T="object" OnClick="@((e) => EditPolicy(policy.AccessPolicy, context))">
                                     <MudText>@policy.AccessPolicy.Name</MudText>
                                     <MudText>@PermissionExtensions.GetPolicyNames(policy.AccessPolicy.Permissions.ToArray())</MudText>
+                                    @if (_editMode)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.Edit"/>
+                                    }
                                 </MudListItem>
                             }
                         </MudList>
@@ -52,7 +59,7 @@
     </MudTable>
 </MudPaper>
 
-<AuthorizeResource Policy="@nameof(Permission.PoliciesWrite)">
+<AuthorizeResource DisplayError="false" Policy="@nameof(Permission.PoliciesWrite)">
     <MudButtonGroup Color="Color.Primary" Size="Size.Medium" Variant="Variant.Filled" Class="mt-2">
         <MudButton OnClick="CreatePolicy" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
             Create Role
@@ -71,13 +78,19 @@
         _roles = PolicyRepository.GetAllGlobal();
     }
 
-    private Task CreatePolicy()
+    private async Task CreatePolicy()
     {
         var options = new DialogOptions
         {
             CloseOnEscapeKey = true,
         };
-        return DialogService.ShowAsync<RoleDialog>("Add Role", options);
+        var dialog = await DialogService.ShowAsync<RoleDialog>("Add Role", options);
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
+
+        await SaveChanges(result);
     }
 
     private bool _editMode = false;
@@ -102,8 +115,30 @@
         if (result == null || result.Canceled)
             return;
 
+        await SaveChanges(result);
+    }
+
+    private async Task SaveChanges(DialogResult result)
+    {
         var resultRole = (Role) result.Data!;
+        var command = new CreateOrUpdateRole(resultRole);
+        var commandResult = await CommandService.Run(command);
+        if (!commandResult!.Result!.IsSuccess)
+        {
+            await DialogService.ShowMessageBox(
+                "Error",
+                "The resource has been modified by someone else. Please reload the page to restore state.",
+                yesText: "Reload Page"
+            );
+
+            NavigationManager.Refresh(true);
+        }
 
         Snackbar.Add("Role Saved!", Severity.Success);
+    }
+
+    private Task EditPolicy(AccessPolicy policy, Role context)
+    {
+        throw new NotImplementedException();
     }
 }

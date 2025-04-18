@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using SS14.Jetfish.Core.Repositories;
+using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security.Model;
@@ -16,7 +17,7 @@ public class ProjectRepository : IResourceRepository<Project, Guid>
         _context = context;
     }
 
-    public bool TryAdd(Project record, [NotNullWhen(true)] out Project? result)
+    public Result<Project, Exception> AddOrUpdate(Project record)
     {
         throw new NotImplementedException();
     }
@@ -33,11 +34,11 @@ public class ProjectRepository : IResourceRepository<Project, Guid>
 
     public async Task<ICollection<Project>> ListByPolicy(Guid userId, Permission policy)
     {
-        var teamQuery = _context.Project.Where(project => 
+        var teamQuery = _context.Project.Where(project =>
             _context.TeamMember.Include(member => member.Role)
-                .Any(member => member.User.Id == userId 
-                               && member.Role.Policies.Any(resourcePolicy => 
-                                   resourcePolicy.ResourceId == project.Id 
+                .Any(member => member.User.Id == userId
+                               && member.Role.Policies.Any(resourcePolicy =>
+                                   resourcePolicy.ResourceId == project.Id
                                    && resourcePolicy.AccessPolicy.Permissions.Contains(policy))));
 
         var query = _context.Project.Where(project =>
