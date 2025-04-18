@@ -6,7 +6,7 @@ using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Security.Model;
 
-namespace SS14.Jetfish.Security;
+namespace SS14.Jetfish.Security.Repositories;
 
 public class PolicyRepository : IRepository<Role, Guid>
 {

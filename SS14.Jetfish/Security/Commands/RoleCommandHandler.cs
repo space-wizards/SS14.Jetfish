@@ -2,6 +2,7 @@
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Security.Model;
+using SS14.Jetfish.Security.Repositories;
 
 namespace SS14.Jetfish.Security.Commands;
 

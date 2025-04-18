@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace SS14.Jetfish;
+namespace SS14.Jetfish.Security;
 
 public static class OidcSetupExtension
 {
