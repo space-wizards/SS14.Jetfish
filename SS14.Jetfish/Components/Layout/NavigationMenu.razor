@@ -1,8 +1,9 @@
-﻿<MudNavMenu>
+﻿<MudNavMenu Style="display: flex; flex-direction: column; height: 100%;">
     <MudNavLink Href="/" Match="NavLinkMatch.All">Overview</MudNavLink>
     <MudNavGroup Title="Admin" Expanded="true" Class="nav-group-hide-empty">
         <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.PoliciesRead))">
             <MudNavLink Href="/admin/policies"  Match="NavLinkMatch.Prefix">Policies</MudNavLink>
         </AuthorizeResource>
     </MudNavGroup>
+    <Footer></Footer>
 </MudNavMenu>

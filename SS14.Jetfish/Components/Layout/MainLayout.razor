@@ -37,14 +37,14 @@
     private bool _isDarkMode;
     private MudThemeProvider _mudThemeProvider = null!;
 
-    
+
     private bool _drawerOpen = false;
 
     private void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
     }
-    
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
