@@ -8,12 +8,13 @@ namespace SS14.Jetfish.Security.Model;
 public sealed class Role : IEntityTypeConfiguration<Role>, IRecord<Guid>
 {
     public const int MaxDisplayNameLength = 30;
+    public const int MaxIdpNameLength = 300;
 
     public Guid Id { get; set; }
     public int Version { get; set; }
 
     // PROJECT_MANAGER
-    [MaxLength(300)]
+    [MaxLength(MaxIdpNameLength)]
     public string? IdpName { get; set; }
 
     // PROJECT_MANAGER -> Project Manager; PM

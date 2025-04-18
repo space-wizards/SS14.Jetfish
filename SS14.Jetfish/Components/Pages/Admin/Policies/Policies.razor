@@ -6,49 +6,104 @@
 @attribute [Authorize(Policy = nameof(Permission.PoliciesRead))]
 
 @inject PolicyRepository PolicyRepository
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <h3>Policies</h3>
 
-<MudDataGrid @ref="_dataGrid" Items="_globalPolicies" MultiSelection="true" Filterable="true" Hideable="true" Groupable="true" GroupExpanded="false">
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Global Policies</MudText>
-        <MudSpacer />
-    </ToolBarContent>
-    <Columns>
-        <PropertyColumn Property="x => x.Role.DisplayName" StickyLeft="true" Grouping="true"/>
-        <PropertyColumn Property="x => x.Role.IdpName"/>
-        <PropertyColumn Property="x => x.Policy.AccessPolicy.Name"/>
-        <PropertyColumn Property="x => PermissionExtensions.GetPolicyNames(x.Policy.AccessPolicy.Permissions.ToArray())"/>
-    </Columns>
-</MudDataGrid>
+<MudPaper Class="p-4">
+    <MudTable Items="_roles" Hover="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Global Policies</MudText>
+            <MudSpacer />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>IDP Mapping</MudTh>
+            <MudTh>Policies</MudTh>
+            @if (_editMode)
+            {
+                <MudTh>Edit</MudTh>
+            }
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.DisplayName</MudTd>
+            <MudTd>@context.IdpName</MudTd>
+            <MudTd>
+                <MudExpansionPanels>
+                    <MudExpansionPanel Expanded="true" Text="Permissions">
+                        <MudList Dense="true" T="object">
+                            @foreach (var policy in context.Policies)
+                            {
+                                <MudListItem T="object">
+                                    <MudText>@policy.AccessPolicy.Name</MudText>
+                                    <MudText>@PermissionExtensions.GetPolicyNames(policy.AccessPolicy.Permissions.ToArray())</MudText>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+            </MudTd>
+            @if (_editMode)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@((e) => EditRole(context))"/>
+            }
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+<AuthorizeResource Policy="@nameof(Permission.PoliciesWrite)">
+    <MudButtonGroup Color="Color.Primary" Size="Size.Medium" Variant="Variant.Filled" Class="mt-2">
+        <MudButton OnClick="CreatePolicy" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
+            Create Role
+        </MudButton>
+        <MudButton OnClick="ToggleEdit" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit">
+            Toggle Edit
+        </MudButton>
+    </MudButtonGroup>
+</AuthorizeResource>
 
 @code {
-    private class GlobalPolicy
-    {
-        public Role Role { get; set; } = null!;
-        public ResourcePolicy Policy { get; set; } = null!;
-    }
-
-    private List<GlobalPolicy> _globalPolicies = [];
-    private MudDataGrid<GlobalPolicy> _dataGrid = null!;
-
     private IEnumerable<Role> _roles = [];
-
 
     protected override void OnInitialized()
     {
         _roles = PolicyRepository.GetAllGlobal();
+    }
 
-        foreach (var role in _roles)
+    private Task CreatePolicy()
+    {
+        var options = new DialogOptions
         {
-            foreach (var resourcePolicy in role.Policies)
-            {
-                _globalPolicies.Add(new GlobalPolicy()
-                {
-                    Role = role,
-                    Policy = resourcePolicy,
-                });
-            }
-        }
+            CloseOnEscapeKey = true,
+        };
+        return DialogService.ShowAsync<RoleDialog>("Add Role", options);
+    }
+
+    private bool _editMode = false;
+
+    private void ToggleEdit()
+    {
+        _editMode = !_editMode;
+        StateHasChanged();
+    }
+
+    private async Task EditRole(Role role)
+    {
+        var parameters = new DialogParameters<RoleDialog> { { x => x.Role, role } };
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+        };
+        var dialog = await DialogService.ShowAsync<RoleDialog>("Edit Role", parameters, options);
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
+
+        var resultRole = (Role) result.Data!;
+
+        Snackbar.Add("Role Saved!", Severity.Success);
     }
 }

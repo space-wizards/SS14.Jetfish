@@ -1,0 +1,84 @@
+﻿@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Create" Class="mr-3 mb-n1"/>
+            Add Role
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField
+            T="string"
+            Placeholder="Project Manager"
+            Label="Role Name"
+            Required="true"
+            bind-Value="@_roleName"
+            Value="@(Role?.DisplayName ?? null)"
+            Counter="Role.MaxDisplayNameLength"
+            Immediate="true"
+            Validation="@(new Func<string, IEnumerable<string>>(MaxCharactersRoleName))"
+            HelperText="The name of this role."
+            />
+        <MudTextField
+            T="string"
+            Placeholder="PROJECT_MANAGER"
+            Label="IDP Role Mapping"
+            bind-Value="@_roleIdpMapping"
+            Value="@(Role?.IdpName ?? null)"
+            Counter="Role.MaxIdpNameLength"
+            Immediate="true"
+            Validation="@(new Func<string, IEnumerable<string>>(MaxCharactersIdpMapping))"
+            HelperText="Optional role from your IDP. If set, any person with this role claim will receive the permissions granted by this role."
+        />
+        <MudSpacer/>
+
+        <MudAlert Severity="Severity.Warning" Variant="Variant.Filled">
+            Note that any permission checks with resources (Accessing a Project, for example) will not be covered by global permissions.
+        </MudAlert>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="Save">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public Role? Role { get; set; }
+
+    private string _roleName = "";
+    private string _roleIdpMapping = "";
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private IEnumerable<string> MaxCharactersRoleName(string ch) => MaxCharacters(ch, Role.MaxDisplayNameLength);
+    private IEnumerable<string> MaxCharactersIdpMapping(string ch) => MaxCharacters(ch, Role.MaxIdpNameLength);
+
+    private IEnumerable<string> MaxCharacters(string ch, int max)
+    {
+        if (!string.IsNullOrEmpty(ch) && max < ch.Length)
+            yield return $"Max {max} characters";
+    }
+
+    private void Save()
+    {
+        if (Role == null)
+        {
+            // we are making a new role
+
+            Snackbar.Add("Role Created!", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Role.DisplayName = _roleName;
+            Role.IdpName = !string.IsNullOrEmpty(_roleIdpMapping) ? _roleIdpMapping : null;
+
+            MudDialog.Close(DialogResult.Ok(Role));
+        }
+    }
+}
