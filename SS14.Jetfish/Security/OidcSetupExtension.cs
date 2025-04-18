@@ -39,7 +39,7 @@ public static class OidcSetupExtension
                 options.Scope.Add("profile");
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.TokenValidationParameters.NameClaimType = "name";
-                options.TokenValidationParameters.RoleClaimType = builder.Configuration["Server:RoleClaim"];
+                options.TokenValidationParameters.RoleClaimType = builder.Configuration["Server:RoleClaim"] ?? "role";
 
                 options.Events.OnTokenValidated = async ctx =>
                 {
@@ -62,7 +62,7 @@ public static class OidcSetupExtension
     {
         app.MapGet("/login", (string? returnUrl) => Results.Challenge(new AuthenticationProperties
         {
-            RedirectUri = returnUrl,
+            RedirectUri = returnUrl ?? "/",
         }, [OpenIdConnectDefaults.AuthenticationScheme]));
 
         app.MapGet("/logout", async (string? returnUrl, HttpContext context) =>

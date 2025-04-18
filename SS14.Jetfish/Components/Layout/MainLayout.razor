@@ -1,8 +1,7 @@
 ﻿@inherits LayoutComponentBase
-@using SS14.Jetfish.Components.Layout
 
 @* Required *@
-<MudThemeProvider />
+<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode"/>
 <MudPopoverProvider />
 
 @* Needed for dialogs *@
@@ -11,13 +10,11 @@
 @* Needed for snackbars *@
 <MudSnackbarProvider />
 
-<MudThemeProvider />
-
 <MudLayout>
     <MudAppBar>
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())"/>
         <MudSpacer/>
-        <MudImage Src="assets/logo.png" Alt="SS14 Logo" Elevation="25" Height="48" Width="48"/>
+        <MudImage Src="assets/logo.png" Alt="SS14 Logo" Height="48" Width="48"/>
         <MudText Typo="Typo.h5" Class="ml-3">Jetfish</MudText>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
@@ -37,10 +34,31 @@
 </div>
 
 @code {
+    private bool _isDarkMode;
+    private MudThemeProvider _mudThemeProvider = null!;
+
+    
     private bool _drawerOpen = false;
 
     private void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+            StateHasChanged();
+        }
+    }
+
+    private Task OnSystemPreferenceChanged(bool newValue)
+    {
+        _isDarkMode = newValue;
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 }
