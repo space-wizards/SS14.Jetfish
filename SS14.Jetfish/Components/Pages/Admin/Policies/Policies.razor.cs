@@ -68,13 +68,7 @@ public partial class Policies : ComponentBase
     {
         if (!commandResult!.Result!.IsSuccess)
         {
-            await DialogService.ShowMessageBox(
-                "Error",
-                "The resource has been modified by someone else. Please reload the page to restore state.",
-                yesText: "Reload Page"
-            );
-
-            NavigationManager.Refresh(true);
+            await BlazorUtility.DisplayModifiedPopup(DialogService, NavigationManager);
         }
 
         Snackbar.Add("Changes Saved!", Severity.Success);

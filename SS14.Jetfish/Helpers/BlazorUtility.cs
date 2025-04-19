@@ -1,4 +1,5 @@
-﻿using MudBlazor;
+﻿using Microsoft.AspNetCore.Components;
+using MudBlazor;
 
 namespace SS14.Jetfish.Helpers;
 
@@ -9,7 +10,7 @@ public static class BlazorUtility
         if (!string.IsNullOrEmpty(ch) && max < ch.Length)
             yield return $"Max {max} characters";
     }
-    
+
     public static async Task<bool> ConfirmDelete(IDialogService dialogService, string name)
     {
         var result = await dialogService.ShowMessageBox(
@@ -21,5 +22,16 @@ public static class BlazorUtility
             return false;
 
         return true;
+    }
+
+    public static async Task DisplayModifiedPopup(IDialogService dialogService, NavigationManager navigationManager)
+    {
+        await dialogService.ShowMessageBox(
+            "Error",
+            "The resource has been modified by someone else. Please reload the page to restore state.",
+            yesText: "Reload Page"
+        );
+
+        navigationManager.Refresh(true);
     }
 }
