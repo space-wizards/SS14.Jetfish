@@ -66,6 +66,6 @@ public partial class Teams : ComponentBase
 
     private void OnRowClick(DataGridRowClickEventArgs<Team> arg)
     {
-        NavigationManager.NavigateTo($"/team/{arg.Item.Id}");
+        NavigationManager.NavigateTo($"/teams/{arg.Item.Id}");
     }
 }

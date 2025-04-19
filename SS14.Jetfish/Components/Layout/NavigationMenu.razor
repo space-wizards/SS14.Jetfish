@@ -1,9 +1,11 @@
 ﻿<MudNavMenu Style="display: flex; flex-direction: column; height: 100%;">
     <MudStack Row="true" Justify="Justify.Center" Class="ma-4">
-        <MudImage Src="assets/logo.png" Alt="SS14 Logo" Height="48" Width="48"/>
-        <MudText HtmlTag="h1" Typo="Typo.h4">Jetfish</MudText>
+        <MudImage Style="image-rendering: smooth" Src="images/ss14_logo_omni_web_thick_lines.svg" Alt="SS14 Logo" Height="52" Width="52"/>
+        <MudText HtmlTag="h1" Class="font-site-title" Typo="Typo.h4">Jetfish</MudText>
     </MudStack>
     <MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>
+    <MudNavLink Href="/projects" Match="NavLinkMatch.Prefix">Projects</MudNavLink>
+    <MudNavLink Href="/teams" Match="NavLinkMatch.Prefix">Teams</MudNavLink>
     <MudNavGroup Title="Admin" Expanded="true" Class="nav-group-hide-empty">
         <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.PoliciesRead))">
             <MudNavLink Href="/admin/policies" Match="NavLinkMatch.Prefix">Policies</MudNavLink>

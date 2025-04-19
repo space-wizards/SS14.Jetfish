@@ -1,7 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
 @* Required *@
-<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode"/>
+<Theme />
 <MudPopoverProvider />
 
 @* Needed for dialogs *@
@@ -14,7 +14,7 @@
     <MudAppBar>
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())"/>
         <MudSpacer/>
-        <MudText HtmlTag="h2" Typo="Typo.h4" Class="mx-4">
+        <MudText HtmlTag="h2" Typo="Typo.h5" Class="mx-4">
             <SectionOutlet SectionName="page-title"/>
         </MudText>
         <MudSpacer/>
@@ -37,31 +37,10 @@
 </div>
 
 @code {
-    private bool _isDarkMode;
-    private MudThemeProvider _mudThemeProvider = null!;
-
-
     private bool _drawerOpen = false;
 
     private void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
-            await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
-            StateHasChanged();
-        }
-    }
-
-    private Task OnSystemPreferenceChanged(bool newValue)
-    {
-        _isDarkMode = newValue;
-        StateHasChanged();
-        return Task.CompletedTask;
     }
 }

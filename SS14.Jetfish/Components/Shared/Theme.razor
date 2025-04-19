@@ -1,0 +1,45 @@
+<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="@_theme"/>
+
+@code {
+    private bool _isDarkMode;
+    private MudThemeProvider _mudThemeProvider = null!;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+            StateHasChanged();
+        }
+    }
+
+    private Task OnSystemPreferenceChanged(bool newValue)
+    {
+        _isDarkMode = newValue;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private static readonly string[] SignikaStack = ["Signika", "Helvetica", "Arial", "sans-serif", "Noto Color Emoji", "Noto Emoji"];
+    private static readonly string[] ExoStack = ["Exo", "Helvetica", "Arial", "sans-serif"];
+    private static readonly string[] NotoSansStack = ["Noto Sans", "Helvetica", "Arial", "sans-serif", "Noto Color Emoji", "Noto Emoji"];
+    
+    private MudTheme _theme = new()
+    {
+        Typography = new Typography
+        {
+            Default = new DefaultTypography
+            {
+                FontFamily = SignikaStack
+            },
+            H1 = new H1Typography { FontFamily = ExoStack},
+            H2 = new H2Typography { FontFamily = ExoStack},
+            H3 = new H3Typography { FontFamily = NotoSansStack},
+            H4 = new H4Typography { FontFamily = NotoSansStack},
+            H5 = new H5Typography { FontFamily = NotoSansStack},
+            H6 = new H6Typography { FontFamily = NotoSansStack}
+        }
+    };
+
+}

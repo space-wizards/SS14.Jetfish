@@ -1,0 +1,36 @@
+@font-face {
+    font-family: "Exo";
+    src: url("fonts/Exo/Exo-VariableFont_wght.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Noto Sans";
+    src: url("fonts/Noto_Sans/NotoSans-VariableFont_wdth,wght.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Signika";
+    src: url("fonts/Signika/Signika-VariableFont_GRAD,wght.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Noto Emoji";
+    src: url("fonts/Noto_Emoji/NotoEmoji-VariableFont_wght.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Noto Color Emoji";
+    src: url("fonts/Noto_Color_Emoji/NotoColorEmoji-Regular.ttf") format("truetype");
+}
+
+body {
+    --mud-typography-h4-family: "Exo", sans-serif;
+    --mud-typography-h5-family: "Noto Sans", sans-serif;
+}
+
+.font-site-title {
+    font-family: "Exo", sans-serif !important;
+    font-optical-sizing: auto;
+    font-weight: 700 !important;
+    font-style: normal;
+}
