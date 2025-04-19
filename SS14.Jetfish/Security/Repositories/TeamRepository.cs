@@ -44,24 +44,33 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
     {
         return await ListByPolicyQuery(userId, policy).CountAsync();
     }
-    
+
+    /// <summary>
+    /// Returns all teams a user has access to.
+    /// </summary>
+    public async Task<ICollection<Team>> ListByMembership(Guid userId, Permission policy)
+    {
+        return await ListByPolicyQuery(userId, policy).ToListAsync();
+    }
+
     public async Task<ICollection<Team>> ListByPolicy(Guid userId, Permission policy, int? limit = null, int? offset = null)
     {
         var query = ListByPolicyQuery(userId, policy).OrderBy(x => x.Id);
 
-        IQueryable<Team>? skipTakeQuery = null; 
+        IQueryable<Team>? skipTakeQuery = null;
         if (offset.HasValue)
             skipTakeQuery = query.Skip(offset.Value);
-        
+
         if (limit.HasValue)
             skipTakeQuery = skipTakeQuery != null ? skipTakeQuery.Take(limit.Value) : query.Take(limit.Value);
-        
+
         return skipTakeQuery != null ? await skipTakeQuery.ToListAsync() : await query.ToListAsync();
     }
-    
+
     private IQueryable<Team> ListByPolicyQuery(Guid userId, Permission policy)
     {
         var teamQuery = _context.Team
+            .Include(t => t.Projects)
             .Include(t => t.TeamMembers)
             .ThenInclude(tm => tm.User)
             .Where(team => _context.TeamMember
@@ -73,6 +82,7 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
                 .Any(resourcePolicy => resourcePolicy.AccessPolicy.Permissions.Contains(policy))));
 
         var query = _context.Team
+            .Include(t => t.Projects)
             .Include(t => t.TeamMembers)
             .ThenInclude(tm => tm.User)
             .Where(team => _context.User
@@ -81,7 +91,7 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
             .Any(user => user.ResourcePolicies
                 .Where(resourcePolicy => resourcePolicy.ResourceId == team.Id || resourcePolicy.Global)
                 .Any(resourcePolicy => resourcePolicy.AccessPolicy.Permissions.Contains(policy))));
-        
+
         return query.Union(teamQuery);
     }
 }

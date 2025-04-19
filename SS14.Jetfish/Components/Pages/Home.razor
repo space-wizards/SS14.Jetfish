@@ -1,7 +1,26 @@
 ﻿@page "/"
 
+@using SS14.Jetfish.Components.Shared.ProjectCards
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Jetfish</PageTitle>
+<SectionContent SectionName="page-title">Jetfish</SectionContent>
 
-<h1>Hello, world!</h1>
-Welcome to your new app.
+
+@if (_teams.Count == 0)
+{
+    <MudAlert Severity="Severity.Warning">You are not part of any team.</MudAlert>
+}
+<MudStack>
+    @foreach (var team in _teams)
+    {
+        <MudDivider/>
+        <MudText Typo="Typo.h5">@team.Name</MudText>
+        <MudStack AlignItems="AlignItems.Start" Wrap="Wrap.Wrap" Spacing="4" Row="true">
+            @foreach (var teamProject in team.Projects)
+            {
+                <ProjectCard Project="teamProject"/>
+            }
+            <ProjectCardCreate/>
+        </MudStack>
+    }
+</MudStack>

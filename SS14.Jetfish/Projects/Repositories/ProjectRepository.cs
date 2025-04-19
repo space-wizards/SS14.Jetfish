@@ -56,10 +56,10 @@ public class ProjectRepository : IResourceRepository<Project, Guid>
 
         if (offset.HasValue)
             query = query.Skip(offset.Value);
-        
+
         if (limit.HasValue)
             query = query.Take(limit.Value);
-        
+
         return await query.OrderBy(x => x.Id).ToListAsync();
     }
 }

@@ -1,0 +1,13 @@
+﻿::deep .project-card {
+    width: 300px;
+    height: 180px;
+    border-radius: 5px;
+    transition: all .2s ease;
+    cursor: pointer;
+    overflow: visible;
+    color: #282828;
+}
+
+::deep .project-card:hover {
+    transform: translateY(-5px);
+}
