@@ -22,6 +22,7 @@ public sealed class Role : IEntityTypeConfiguration<Role>, IRecord<Guid>
     [MaxLength(MaxDisplayNameLength)]
     public string DisplayName { get; set; } = null!;
 
+    public Guid? TeamId { get; set; }
     public ICollection<ResourcePolicy> Policies { get; set; } = [];
 
     public void Configure(EntityTypeBuilder<Role> builder)

@@ -24,6 +24,8 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
         using var scope           = _serviceScopeFactory.CreateScope();
         await using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+        #region Admin Claim
+
         // Admin claim is for first setup, it has access to everything
         if (!string.IsNullOrEmpty(_serverConfiguration.AdminClaim)
             && context.User.HasClaim(c => c.Type == _serverConfiguration.AdminClaim))
@@ -39,6 +41,11 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             _ => null
         };
 
+        #endregion
+
+
+        #region Idp Roles
+        
         var roles = context.User.Claims.Where(c => c.Type == _serverConfiguration.RoleClaim)
             .Select(c => c.Value)
             .ToList();
@@ -61,9 +68,10 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
                 return;
             }
         }
-
-
-
+        
+        #endregion
+        
+        #region User
         var user = await dbContext.User
             .Include(user => user.ResourcePolicies)
             .ThenInclude(resourcePolicy => resourcePolicy.AccessPolicy)
@@ -74,6 +82,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             context.Fail(new AuthorizationFailureReason(this, "User not found in database (Not logged in?)"));
             return;
         }
+        
 
         if (user.ResourcePolicies
             .Any(policy => (policy.ResourceId == resourceId || policy.Global)
@@ -82,18 +91,17 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             context.Succeed(requirement);
             return;
         }
+        #endregion
 
         var hasTeamAccess = dbContext.TeamMember
             .Include(teamMember => teamMember.Role)
             .ThenInclude(role => role.Policies)
             .ThenInclude(policy => policy.AccessPolicy)
-            .Any(teamMember =>
-            teamMember.UserId == user.Id
-            && teamMember.Role.Policies.Any(policy =>
-                (policy.ResourceId == resourceId || policy.Global)
-                && requirement.Permissions.Intersect(policy.AccessPolicy.Permissions).Any()
-            ));
-
+            .Where(teamMember => teamMember.UserId == user.Id)
+            .Any(teamMember => teamMember.Role.Policies
+                .Where(policy => policy.ResourceId == resourceId || policy.Global)
+                .Any(policy => requirement.Permissions.Intersect(policy.AccessPolicy.Permissions).Any()));
+                               
         if (hasTeamAccess)
         {
             context.Succeed(requirement);

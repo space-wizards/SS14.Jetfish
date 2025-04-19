@@ -47,7 +47,6 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
     
     public async Task<ICollection<Team>> ListByPolicy(Guid userId, Permission policy, int? limit = null, int? offset = null)
     {
-        
         var query = ListByPolicyQuery(userId, policy).OrderBy(x => x.Id);
 
         IQueryable<Team>? skipTakeQuery = null; 

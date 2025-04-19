@@ -10,6 +10,8 @@ public sealed class Project : IEntityTypeConfiguration<Project>, IResource, IRec
     public Guid Id { get; set; }
     public int Version { get; set; }
     
+    // TODO: Implement properties
+    
     public void Configure(EntityTypeBuilder<Project> builder)
     {
     }
