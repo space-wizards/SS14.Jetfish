@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
 using SS14.Jetfish.Core.Services.Interfaces;
+using SS14.Jetfish.FileHosting.Services;
 using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security.Commands;
@@ -19,6 +21,8 @@ public partial class CreateProjectDialog : ComponentBase
     public IDialogService DialogService { get; set; } = null!;
     [Inject]
     public NavigationManager NavigationManager { get; set; } = null!;
+    [Inject]
+    public FileService FileService { get; set; } = null!;
 
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = null!;
@@ -34,7 +38,9 @@ public partial class CreateProjectDialog : ComponentBase
     public string ProjectName { get; set; } = "";
 
     public string ProjectBackgroundColor { get; set; } = $"#{new Random().Next(0x1000000):X6}";
-    // TODO: Background image
+    public IBrowserFile? ProjectBackgroundFile { get; set; }
+
+    private bool _displayProgressbar = false;
 
     private void Cancel() => MudDialog.Cancel();
 

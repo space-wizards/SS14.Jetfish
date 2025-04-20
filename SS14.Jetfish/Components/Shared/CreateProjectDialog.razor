@@ -7,6 +7,10 @@
                 <MudIcon Icon="@Icons.Material.Filled.Create" Class="mr-3 mb-n1"/>
                 @MudDialog.Title
             </MudText>
+            @if (_displayProgressbar)
+            {
+                <MudProgressLinear Color="Color.Primary" Indeterminate="true"/>
+            }
         </TitleContent>
         <DialogContent>
             <MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors">
@@ -34,7 +38,7 @@
                 }
                 else
                 {
-                    <MudFileUpload T="IBrowserFile" Required="true" Accept=".webp">
+                    <MudFileUpload @bind-Files="ProjectBackgroundFile" MaximumFileCount="1" T="IBrowserFile" Required="true" Accept=".webp .png .jpg .jpeg">
                         <ActivatorContent>
                             <MudFab Color="Color.Secondary"
                                     StartIcon="@Icons.Material.Filled.Image"
