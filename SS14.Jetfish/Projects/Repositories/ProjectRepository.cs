@@ -8,7 +8,7 @@ using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Projects.Repositories;
 
-public class ProjectRepository : IResourceRepository<Project, Guid>
+public class ProjectRepository : BaseRepository<Project, Guid>, IResourceRepository<Project, Guid>
 {
     private readonly ApplicationDbContext _context;
 
@@ -17,22 +17,25 @@ public class ProjectRepository : IResourceRepository<Project, Guid>
         _context = context;
     }
 
-    public Task<Result<Project, Exception>> AddOrUpdate(Project record)
+    public override async Task<Result<Project, Exception>> AddOrUpdate(Project record)
+    {
+        _context.Entry(record).State = record.Id != Guid.Empty ?
+            EntityState.Modified : EntityState.Added;
+
+        return await SaveChanges(record, _context);
+    }
+
+    public override bool TryGet(Guid id, [NotNullWhen(true)] out Project? result)
     {
         throw new NotImplementedException();
     }
 
-    public bool TryGet(Guid id, [NotNullWhen(true)] out Project? result)
+    public override Task<Project?> GetAsync(Guid id)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Project?> GetAsync(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Result<Project, Exception>> Delete(Project record)
+    public override Task<Result<Project, Exception>> Delete(Project record)
     {
         throw new NotImplementedException();
     }
