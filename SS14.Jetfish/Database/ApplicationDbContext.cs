@@ -1,6 +1,9 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using SS14.Jetfish.Core;
+using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.FileHosting.Model;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security.Model;
@@ -28,26 +31,36 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 
+    public async Task<(bool success, IReadOnlyCollection<ValidationResult> errors)> ValidateAndSaveAsync(CancellationToken ct = new())
+    {
+        var errors = ValidateChanges();
+        if (errors.Count != 0)
+            return (false, errors);
+
+        await SaveChangesAsync(ct);
+        return (true, errors);
+    }
+    
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
     {
-        ValidateChanges();
+        if (ValidateChanges().Count > 0)
+            throw new ValidationException();
+            
         return base.SaveChangesAsync(cancellationToken);
     }
 
-    private void ValidateChanges()
+    private List<ValidationResult> ValidateChanges()
     {
         var entries = ChangeTracker
             .Entries()
-            .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+            .Where(e => e.State is EntityState.Added or EntityState.Modified);
 
+        var validationErrors = new List<ValidationResult>();
         foreach (var entry in entries)
         {
-            var entity = entry.Entity;
-
-            if (entity is not IEntityValidator validator)
-                continue;
-
-            validator.Validate();
+            Validator.TryValidateObject(entry.Entity, new ValidationContext(entry.Entity), validationErrors, true);
         }
+        
+        return validationErrors;
     }
 }

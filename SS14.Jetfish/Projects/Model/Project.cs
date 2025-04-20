@@ -12,7 +12,7 @@ using SS14.Jetfish.Security;
 
 namespace SS14.Jetfish.Projects.Model;
 
-public sealed partial class Project : IEntityTypeConfiguration<Project>, IResource, IRecord<Guid>, IEntityValidator
+public sealed partial class Project : IEntityTypeConfiguration<Project>, IResource, IRecord<Guid>, IValidatableObject
 {
     public const int ProjectNameMaxLength = 64;
 
@@ -36,18 +36,20 @@ public sealed partial class Project : IEntityTypeConfiguration<Project>, IResour
         builder.ConfigureRowVersionGuid();
     }
 
-    public void Validate()
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (BackgroundSpecifier == ProjectBackgroundSpecifier.Color)
-        {
-            // Validate that the background is a valid hex color
-            var isValidColor = HexColor().IsMatch(Background);
+        if (BackgroundSpecifier != ProjectBackgroundSpecifier.Color || HexColor().IsMatch(Background))
+            return  [];
 
-            if (!isValidColor)
-                throw new EntityValidationFailedException(nameof(Background), "Background specifier is set to color, but background is not a valid color.");
-        }
+        return
+        [
+            new ValidationResult(
+                "Background specifier is set to color, but background is not a valid color.",
+                [nameof(Background)])
+        ];
     }
-
+    
     [GeneratedRegex(@"^#(?:[0-9a-fA-F]{3,4}){1,2}$")]
     private static partial Regex HexColor();
+
 }

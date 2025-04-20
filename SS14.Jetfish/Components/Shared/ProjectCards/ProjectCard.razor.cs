@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Components;
 using SS14.Jetfish.Projects.Model;
 
 namespace SS14.Jetfish.Components.Shared.ProjectCards;
@@ -10,8 +11,8 @@ public partial class ProjectCard : ComponentBase
 
     private string GetBackground()
     {
-        Project.Validate();
-
+        Validator.ValidateObject(Project, new ValidationContext(Project), true);
+        
         if (Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Color)
         {
             return $"background: {Project.Background};";

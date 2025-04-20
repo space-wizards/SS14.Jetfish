@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using Microsoft.Extensions.FileProviders;
 using SS14.Jetfish.FileHosting.Services;
 
 namespace SS14.Jetfish.FileHosting;
