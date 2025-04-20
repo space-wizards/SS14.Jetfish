@@ -29,6 +29,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="data\uploads\" />
       <Folder Include="wwwroot\fonts\" />
     </ItemGroup>
 

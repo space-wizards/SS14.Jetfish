@@ -1,9 +1,13 @@
-﻿using System.Security.Claims;
+﻿using System.Net;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using Serilog;
 using SS14.Jetfish.Configuration;
+using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.FileHosting.Model;
 using SS14.Jetfish.Helpers;
@@ -24,6 +28,46 @@ public sealed class FileService
         configuration.Bind(ServerConfiguration.Name, _serverConfiguration);
     }
 
+    public async Task<Result<UploadedFile, Exception>> UploadFileForProject(IBrowserFile file, Guid userId, Guid projectId, Guid? cardId = null)
+    {
+        var fileId = Guid.NewGuid();
+        var fileName = $"{fileId}{Path.GetExtension(file.Name)}";
+
+        try
+        {
+            var resolvedPath = Path.Combine(_serverConfiguration.UserContentDirectory, fileName);
+            await using FileStream fs = new(resolvedPath, FileMode.Create);
+            await file.OpenReadStream(_serverConfiguration.MaxUploadSize).CopyToAsync(fs);
+        }
+        catch (IOException e)
+        {
+            return Result<UploadedFile, Exception>.Failure(e);
+        }
+
+        var createdFile = await _dbContext.UploadedFile.AddAsync(new UploadedFile()
+        {
+            RelativePath = fileName,
+            Name = WebUtility.HtmlEncode(file.Name),
+            Id = fileId,
+            MimeType = file.ContentType,
+            Etag = $"{fileId.GetHashCode():X}{DateTime.Now.GetHashCode():X}",
+            UploadedById = userId,
+            Usages = new List<FileUsage>()
+            {
+                new()
+                {
+                    ProjectId = projectId,
+                    UploadedFileId = fileId,
+                    CardId = cardId
+                }
+            }
+        });
+
+        await _dbContext.SaveChangesAsync();
+
+        return Result<UploadedFile, Exception>.Success(createdFile.Entity);
+    }
+
     public async Task<IResult> GetProjectFileAsResult(ClaimsPrincipal principal, Guid projectId, Guid fileId)
     {
         var file = await _dbContext.UploadedFile
@@ -42,15 +86,15 @@ public sealed class FileService
 
         return InternalGetFileResult(file);
     }
-    
+
     /*
      * Gets a file uploaded by the given user principal
      */
     public async Task<IResult> GetUserFileAsResult(ClaimsPrincipal principal, Guid fileId)
     {
-        var file = await _dbContext.UploadedFile.FirstOrDefaultAsync(file => 
+        var file = await _dbContext.UploadedFile.FirstOrDefaultAsync(file =>
             file.Id == fileId && file.UploadedBy.Id == principal.Claims.GetUserId());
-        
+
         if (file == null)
             return Results.NotFound();
 

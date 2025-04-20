@@ -58,4 +58,6 @@ public class ServerConfiguration
     /// The directory where user uploaded files are stored.
     /// </summary>
     public string UserContentDirectory { get; set; } = "data/uploads";
+
+    public long MaxUploadSize { get; set; } = 20971520; // 20mb (probably, not sure)
 }

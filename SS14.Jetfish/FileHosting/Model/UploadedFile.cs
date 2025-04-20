@@ -11,7 +11,7 @@ namespace SS14.Jetfish.FileHosting.Model;
 public sealed class UploadedFile : IEntityTypeConfiguration<UploadedFile>, IResource, IRecord<Guid>
 {
     public Guid Id { get; set; }
-    
+
     public int Version { get; set; }
 
     // ඞ
@@ -28,9 +28,12 @@ public sealed class UploadedFile : IEntityTypeConfiguration<UploadedFile>, IReso
     public required string Name { get; set; }
 
     public DateTimeOffset LastModified { get; }
-    
-    public required User UploadedBy { get; set; } 
-    
+
+    public User UploadedBy { get; set; } = null!;
+
+    [Required]
+    public Guid UploadedById { get; set; }
+
     public required ICollection<FileUsage> Usages { get; set; }
 
     public void Configure(EntityTypeBuilder<UploadedFile> builder)
@@ -38,7 +41,11 @@ public sealed class UploadedFile : IEntityTypeConfiguration<UploadedFile>, IReso
         builder.HasMany(file => file.Usages)
             .WithOne()
             .HasForeignKey(usage => usage.UploadedFileId);
-        
+
+        builder.HasOne(file => file.UploadedBy)
+            .WithMany()
+            .HasForeignKey(file => file.UploadedById);
+
         builder.Property(e => e.LastModified)
             .ValueGeneratedOnAddOrUpdate()
             .HasColumnType("timestamp with time zone")

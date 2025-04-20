@@ -13,6 +13,7 @@ public static class AuthorizationSetupExtension
         builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
         builder.Services.AddScoped<RoleRepository>();
         builder.Services.AddScoped<TeamRepository>();
+        builder.Services.AddScoped<UserRepository>();
         builder.Services.AddScoped<ICommandHandler, RoleAddOrRemoveCommandHandler>();
         builder.Services.AddScoped<ICommandHandler, DeleteRoleCommandHandler>();
         builder.Services.AddScoped<ICommandHandler, DeleteTeamCommandHandler>();

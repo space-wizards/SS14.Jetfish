@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
+using Serilog;
 using SS14.Jetfish.Core.Services.Interfaces;
+using SS14.Jetfish.FileHosting.Model;
 using SS14.Jetfish.FileHosting.Services;
 using SS14.Jetfish.Helpers;
+using SS14.Jetfish.Projects.Commands;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security.Commands;
 using SS14.Jetfish.Security.Model;
@@ -28,6 +32,9 @@ public partial class CreateProjectDialog : ComponentBase
     private IMudDialogInstance MudDialog { get; set; } = null!;
     private MudForm _form = null!;
 
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthenticationState { get; set; }
+
     [Parameter]
     public Team Team { get; set; } = null!;
 
@@ -51,21 +58,81 @@ public partial class CreateProjectDialog : ComponentBase
         if (_errors.Length > 0)
             return;
 
-        Team.Projects.Add(new Project()
+        var project = new Project()
         {
             Background = ProjectBackgroundColor,
             Name = ProjectName,
-            BackgroundSpecifier = SelectedBackgroundSpecifier,
-        });
+            BackgroundSpecifier = ProjectBackgroundSpecifier.Color,
+        };
 
-        var command = new CreateOrUpdateTeamCommand(Team);
-        var commandResult = await CommandService.Run(command);
-        if (!commandResult!.Result!.IsSuccess)
+        var createOrUpdateProjectCommand = new CreateOrUpdateProjectCommand(project);
+        var createOrUpdateProjectResult = await CommandService.Run(createOrUpdateProjectCommand);
+        if (!createOrUpdateProjectResult!.Result!.IsSuccess)
+        {
+            await BlazorUtility.DisplayModifiedPopup(DialogService, NavigationManager);
+            return;
+        }
+
+        project = createOrUpdateProjectResult.Result.Value;
+
+        try
+        {
+            _displayProgressbar = true; // TODO: Make progress bar work
+            StateHasChanged();
+
+            if (SelectedBackgroundSpecifier == ProjectBackgroundSpecifier.Image)
+            {
+                var file = await UploadImageForProject(project);
+                project.BackgroundSpecifier = ProjectBackgroundSpecifier.Image;
+                // Null suppression because only way this is null is when it throws or no file is selected.
+                project.Background = file!.Id.ToString();
+
+                createOrUpdateProjectCommand = new CreateOrUpdateProjectCommand(project);
+                createOrUpdateProjectResult = await CommandService.Run(createOrUpdateProjectCommand);
+                if (!createOrUpdateProjectResult!.Result!.IsSuccess)
+                {
+                    await BlazorUtility.DisplayModifiedPopup(DialogService, NavigationManager);
+                    return;
+                }
+
+                project = createOrUpdateProjectResult.Result.Value;
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Error("Failed uploading file: {error}", e);
+            Snackbar.Add("File upload failed, solid color used as fallback!", Severity.Error);
+        }
+        finally
+        {
+            Team.Projects.Add(project);
+        }
+
+        var createOrUpdateTeamCommand = new CreateOrUpdateTeamCommand(Team);
+        var createOrUpdateTeamResult = await CommandService.Run(createOrUpdateTeamCommand);
+        if (!createOrUpdateTeamResult!.Result!.IsSuccess)
         {
             await BlazorUtility.DisplayModifiedPopup(DialogService, NavigationManager);
         }
 
         Snackbar.Add("Changes Saved!", Severity.Success);
         MudDialog.Close();
+    }
+
+    private async Task<UploadedFile?> UploadImageForProject(Project project)
+    {
+        if (ProjectBackgroundFile == null)
+            return null;
+
+        var auth = await AuthenticationState!; // If this comp is used, I expect some other auth check to have already passed
+        var userId = auth.User.Claims.GetUserId()!; // same here fuck you
+
+        var result = await FileService.UploadFileForProject(ProjectBackgroundFile, userId.Value,  project.Id);
+        if (!result.IsSuccess)
+        {
+            throw result.Error!;
+        }
+
+        return result.Value;
     }
 }

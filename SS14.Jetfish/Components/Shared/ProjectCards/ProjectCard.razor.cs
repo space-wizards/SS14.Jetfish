@@ -18,7 +18,7 @@ public partial class ProjectCard : ComponentBase
         }
         else
         {
-            throw new NotImplementedException("Background images not supported");
+            return $"background: center / cover url(\"project-file/{Project.Id}/file/{Project.Background}\")";
         }
     }
 }
