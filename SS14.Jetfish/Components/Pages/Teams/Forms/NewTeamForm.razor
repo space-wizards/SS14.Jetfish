@@ -1,0 +1,52 @@
+@using System.Diagnostics.CodeAnalysis
+@using SS14.Jetfish.Security.Model.FormModel
+<EditForm @ref="_editForm" Model="_model">
+    <DataAnnotationsValidator/>
+    <MudTextField Immediate="true" DebounceInterval="500" Label="Name" 
+                  HelperText="@($"Min. {NewTeamFormModel.NameMinLength} characters")"
+                  @bind-Value="_model.Name" For="@(() => _model.Name)" Counter="NewTeamFormModel.NameMaxLength"/>
+
+    <MudTextField Immediate="true" DebounceInterval="500" Label="Manager role name"
+                  @bind-Value="_model.ManagerRoleName" For="@(() => _model.ManagerRoleName)" 
+                  Counter="Role.MaxDisplayNameLength"/>
+    
+    <MudTextField Immediate="true" DebounceInterval="500" Label="Member role name"
+                  @bind-Value="_model.MemberRoleName" For="@(() => _model.MemberRoleName)" 
+                  Counter="Role.MaxDisplayNameLength"/>
+    
+    <MudCheckBox Label="Add self as manager" Disabled="_disableAddSelf" @bind-Value="_model.AddSelf" For="() => _model.AddSelf"/>
+    <MudAlert Severity="Severity.Info" Variant="Variant.Filled">
+        Setting a manager role name is required when enabling add self.
+    </MudAlert>
+</EditForm>
+@code {
+    private readonly NewTeamFormModel _model = new();
+    private EditForm _editForm = null!;
+    private bool _disableAddSelf = true;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+        
+        _editForm.EditContext!.OnFieldChanged += (_, arg) =>
+        {
+            if (arg.FieldIdentifier.FieldName != "ManagerRoleName")
+                return;
+            
+            _disableAddSelf = string.IsNullOrEmpty(_model.ManagerRoleName);
+            StateHasChanged();
+        };
+    }
+
+    /// <summary>
+    /// Validates the model before returning it
+    /// </summary>
+    /// <returns>False if the model is invalid</returns>
+    public bool TryGetModel([NotNullWhen(true)] out NewTeamFormModel? model)
+    {
+        var valid = _editForm.EditContext?.Validate() ?? false;
+        model = valid ? _model : null;
+        return valid;
+    }
+}

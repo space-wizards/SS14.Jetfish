@@ -37,24 +37,6 @@ This is a work in progress.
 - Made in a real programing language (C#)
 - Not look like absolute ass
 
-# System Design
-
-*scream*
-
-- Base/Program.cs
-  - Configuration
-  - Services
-  - DB setup
-  - Auth setup
-  - Server configuration setup
-    - CORS
-    - Startup migration
-    - Forward headers
-    - UseHttps
-    - PathBase
-    - Language
-  - Systemd
-- Base/Database
-    - Postgres
-    - Tables:
-      - TODO
+## Things to consider after v1.0
+ 
+- Localization using [Fluent.net](https://www.nuget.org/packages/Fluent.Net) by implementing [IStringLocalizer](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.localization.istringlocalizer?view=netstandard-2.0-pp)

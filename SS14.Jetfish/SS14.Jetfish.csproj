@@ -32,4 +32,8 @@
       <Folder Include="wwwroot\fonts\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Components\Shared\Forms\NewTeamForm.razor" />
+    </ItemGroup>
+
 </Project>

@@ -16,5 +16,6 @@ public static class AuthorizationSetupExtension
         builder.Services.AddScoped<ICommandHandler, RoleAddOrRemoveCommandHandler>();
         builder.Services.AddScoped<ICommandHandler, DeleteRoleCommandHandler>();
         builder.Services.AddScoped<ICommandHandler, DeleteTeamCommandHandler>();
+        builder.Services.AddScoped<ICommandHandler, CreateTeamCommandHandler>();
     }
 }

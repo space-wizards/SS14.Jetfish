@@ -44,8 +44,6 @@ if (serverConfiguration.CorsOrigins != null)
     });
 }
 
-
-
 //Forwarded headers
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {

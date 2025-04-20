@@ -2,7 +2,7 @@
 <SectionContent SectionName="page-title">Teams</SectionContent>
 
 <MudPaper Class="p-4">
-    <MudDataGrid Hover="true" Style="cursor: pointer" RowClick="OnRowClick" @ref="_dataGrid" RowStyle="min-height: 61px;" T="Team" ServerData="LoadData" Filterable="false" SortMode="SortMode.None" >
+    <MudDataGrid Hover="true" Style="cursor: pointer" RowClick="OnRowClick" @ref="_dataGrid" RowStyle="min-height: 61px;" T="Team" ServerData="LoadData" Filterable="false" SortMode="SortMode.None">
         <Columns>
             <PropertyColumn Property="x => x.Name" HeaderStyle="width: 60%;"></PropertyColumn>
             <TemplateColumn Title="Members">
@@ -31,7 +31,14 @@
             </TemplateColumn>
         </Columns>
         <PagerContent>
-            <MudDataGridPager T="Team" />
+            <MudStack Row="true" StretchItems="StretchItems.All">
+                <MudToolBar Dense="true" Class="mud-table-pagination-toolbar pl-4">
+                    <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.TeamCreate))">
+                        <MudButton OnClick="CreateTeam" Variant="Variant.Text" StartIcon="@Icons.Material.Outlined.Add" Color="Color.Primary">New Team</MudButton>
+                    </AuthorizeResource>
+                </MudToolBar>
+                <MudDataGridPager T="Team"/>
+            </MudStack>
         </PagerContent>
     </MudDataGrid>
 </MudPaper>
