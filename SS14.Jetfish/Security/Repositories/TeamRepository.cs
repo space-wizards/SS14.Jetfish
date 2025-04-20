@@ -48,9 +48,13 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
     /// <summary>
     /// Returns all teams a user has access to.
     /// </summary>
-    public async Task<ICollection<Team>> ListByMembership(Guid userId, Permission policy)
+    public async Task<ICollection<Team>> ListByMembership(Guid userId)
     {
-        return await ListByPolicyQuery(userId, policy).ToListAsync();
+        return await _context.Team
+            .Include(t => t.Projects)
+            .Include(t => t.TeamMembers)
+            .Where(t => t.TeamMembers.Any(tm => tm.UserId == userId))
+            .ToListAsync();
     }
 
     public async Task<ICollection<Team>> ListByPolicy(Guid userId, Permission policy, int? limit = null, int? offset = null)

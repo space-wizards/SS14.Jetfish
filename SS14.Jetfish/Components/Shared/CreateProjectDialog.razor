@@ -1,0 +1,52 @@
+﻿@using SS14.Jetfish.Projects.Model
+
+<div style="display:contents">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Create" Class="mr-3 mb-n1"/>
+                @MudDialog.Title
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors">
+                <MudTextField @bind-Value="ProjectName" T="string" Label="Name" Required="true" RequiredError="Project Name is required."/>
+                <MudText Typo="Typo.subtitle1">Background</MudText>
+                <div class="d-flex">
+                    <MudRadioGroup @bind-Value="SelectedBackgroundSpecifier" T="ProjectBackgroundSpecifier" Required="true" RequiredError="Project Background is required.">
+                        <MudRadio Value="ProjectBackgroundSpecifier.Color">Color</MudRadio>
+                        <MudRadio Value="ProjectBackgroundSpecifier.Image">Image</MudRadio>
+                    </MudRadioGroup>
+                </div>
+                @if (SelectedBackgroundSpecifier == ProjectBackgroundSpecifier.Color)
+                {
+                    <MudColorPicker
+                        Required="true"
+                        Label="Background Color"
+                        ColorPickerMode="ColorPickerMode.HEX"
+                        ShowModeSwitch="false"
+                        ShowToolbar="true"
+                        ThrottleInterval="100"
+                        PickerVariant="PickerVariant.Inline"
+                        @bind-Text="ProjectBackgroundColor"
+                        ShowAlpha="false"
+                        />
+                }
+                else
+                {
+                    <MudFileUpload T="IBrowserFile" Required="true" Accept=".webp">
+                        <ActivatorContent>
+                            <MudFab Color="Color.Secondary"
+                                    StartIcon="@Icons.Material.Filled.Image"
+                                    Label="Upload Background" />
+                        </ActivatorContent>
+                    </MudFileUpload>
+                }
+            </MudForm>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Color="Color.Success" OnClick="Save">Save</MudButton>
+        </DialogActions>
+    </MudDialog>
+</div>

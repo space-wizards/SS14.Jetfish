@@ -20,6 +20,12 @@ public partial class Home : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadData();
+        await base.OnInitializedAsync();
+    }
+
+    private async Task LoadData()
+    {
         if (AuthenticationState == null)
             throw new InvalidOperationException("AuthenticationState is null");
 
@@ -28,6 +34,6 @@ public partial class Home : ComponentBase
         if (!userId.HasValue)
             throw new InvalidOperationException("UserId is null");
 
-        _teams = await UserRepository.ListByMembership(userId.Value, Permission.TeamRead);
+        _teams = await UserRepository.ListByMembership(userId.Value);
     }
 }

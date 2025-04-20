@@ -20,7 +20,9 @@
             {
                 <ProjectCard Project="teamProject"/>
             }
-            <ProjectCardCreate/>
+            <AuthorizeResource Policy="@nameof(Permission.ProjectCreate)" Resource="team" DisplayError="false">
+                <ProjectCardCreate Team="team" OnCreate="LoadData"/>
+            </AuthorizeResource>
         </MudStack>
     }
 </MudStack>

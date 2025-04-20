@@ -9,4 +9,7 @@ public partial class ProjectCardTemplate : ComponentBase
 
     [Parameter]
     public string? Style { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
 }
