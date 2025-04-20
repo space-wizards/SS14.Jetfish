@@ -14,7 +14,7 @@
         </TitleContent>
         <DialogContent>
             <MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors">
-                <MudTextField @bind-Value="ProjectName" T="string" Label="Name" Required="true" RequiredError="Project Name is required."/>
+                <MudTextField @bind-Value="ProjectName" T="string" Label="Name" Required="true" RequiredError="Project Name is required." MaxLength="@Project.ProjectNameMaxLength"/>
                 <MudText Typo="Typo.subtitle1">Background</MudText>
                 <div class="d-flex">
                     <MudRadioGroup @bind-Value="SelectedBackgroundSpecifier" T="ProjectBackgroundSpecifier" Required="true" RequiredError="Project Background is required.">
