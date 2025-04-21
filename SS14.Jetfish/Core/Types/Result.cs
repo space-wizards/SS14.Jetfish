@@ -6,6 +6,7 @@ namespace SS14.Jetfish.Core.Types;
 public record Result<TResult, TError>(TResult? Value, TError? Error) where TResult : class where TError : class
 {
     [PublicAPI]
+    [MemberNotNullWhen(false, nameof(Error))]
     [MemberNotNullWhen(true, nameof(Value))]
     public bool IsSuccess => Error == null;
 
