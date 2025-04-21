@@ -40,11 +40,20 @@
                 {
                     <MudFileUpload @bind-Files="ProjectBackgroundFile" MaximumFileCount="1" T="IBrowserFile" Required="true" Accept=".webp, .png, .jpg, .jpeg, .gif">
                         <ActivatorContent>
-                            <MudFab Color="Color.Secondary"
-                                    StartIcon="@Icons.Material.Filled.Image"
-                                    Label="Upload Background" />
+                            <MudButton
+                                Variant="Variant.Filled"
+                                Color="Color.Primary"
+                                StartIcon="@Icons.Material.Filled.Image">
+                                Upload Background
+                            </MudButton>
                         </ActivatorContent>
                     </MudFileUpload>
+                    @if (ProjectBackgroundFile != null)
+                    {
+                        <MudText Typo="Typo.subtitle2">
+                            Selected @ProjectBackgroundFile.Name
+                        </MudText>
+                    }
                 }
             </MudForm>
         </DialogContent>
