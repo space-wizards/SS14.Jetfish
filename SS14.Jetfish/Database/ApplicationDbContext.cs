@@ -1,9 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
-using SS14.Jetfish.Core;
-using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.FileHosting.Model;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security.Model;

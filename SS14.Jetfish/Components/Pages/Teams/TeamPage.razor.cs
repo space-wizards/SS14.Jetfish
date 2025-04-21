@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security.Model;
 using SS14.Jetfish.Security.Repositories;
 
@@ -20,5 +21,15 @@ public partial class TeamPage : ComponentBase
     protected override async Task OnParametersSetAsync()
     {
         Team = await TeamRepository.GetAsync(TeamId);
+    }
+
+    private Task EditRoles()
+    {
+        return Task.CompletedTask;
+    }
+
+    private Task OnProjectDelete(Project contextItem)
+    {
+        return Task.CompletedTask;
     }
 }

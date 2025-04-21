@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
@@ -31,7 +32,15 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
 
     public override async Task<Team?> GetAsync(Guid id)
     {
-        return await _context.Team.SingleOrDefaultAsync(t => t.Id == id);
+        return await _context.Team
+            .AsSplitQuery()
+            .Include(t => t.TeamMembers)
+            .ThenInclude(t => t.User)
+            .Include(t => t.TeamMembers)
+            .ThenInclude(t => t.Role)
+            .Include(t => t.Roles)
+            .Include(t => t.Projects)
+            .SingleOrDefaultAsync(t => t.Id == id);
     }
 
     public override async Task<Result<Team, Exception>> Delete(Team record)

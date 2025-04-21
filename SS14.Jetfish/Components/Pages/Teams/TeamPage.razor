@@ -1,12 +1,93 @@
 @page "/teams/{teamId:guid}"
+@using SS14.Jetfish.Projects.Model
+@using SS14.Jetfish.Components.Shared.ProjectCards
 
 @if(Team == null)
 {
     <p>Team not found</p>
+    return;
 }
-else
-{
-    <AuthorizeResource ResourceName="team" Policy="@(nameof(Permission.TeamRead))" Resource="@TeamId">
-        <SectionContent SectionName="page-title">Team: @Team.Name</SectionContent>
-    </AuthorizeResource>
-}
+<div style="display: contents">
+<AuthorizeResource DisplayError="true" ResourceName="team" Policy="@(nameof(Permission.TeamRead))" Resource="@TeamId">
+    <SectionContent SectionName="page-title">Team</SectionContent>
+    <MudGrid Spacing="3" Class="pb-4">
+        <MudItem md="4" xs="12">
+            <MudCard Elevation="1" Class="min-height-80">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText HtmlTag="H3" Typo="Typo.h6">@Team.Name</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Default" />
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudStack>
+                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+                            <MudText Typo="Typo.body1">Members:</MudText>
+                            <MudText Typo="Typo.body1">@Team.TeamMembers.Count</MudText>
+                        </MudStack>
+                        <MudStack Row="true" Justify="Justify.SpaceBetween">
+                            <MudText Typo="Typo.body1">Projects:</MudText>
+                            <MudText Typo="Typo.body1">@Team.Projects.Count</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudCardContent>
+                <MudCardActions>
+                    <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.TeamDelete))" Resource="Team">
+                        <MudButton OnClick="EditRoles" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.DeleteForever" Color="Color.Error">Delete Team</MudButton>
+                    </AuthorizeResource>
+                    <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.TeamEdit))" Resource="Team">
+                        <MudButton OnClick="EditRoles" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.AdminPanelSettings" Color="Color.Primary">Edit Roles</MudButton>
+                    </AuthorizeResource>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem md="8" xs="12">
+            <MudPaper Elevation="1" Class="min-height-80">
+                <MudDataGrid T="TeamMember" Dense="true" Items="Team.TeamMembers" Elevation="0">
+                    <Columns>
+                        <TemplateColumn Title="Users">
+                            <CellTemplate>
+                                <MudAvatar Size="Size.Small" Color="Color.Tertiary">@((context.Item?.User.DisplayName ?? "")[..2].ToUpper())</MudAvatar>
+                            </CellTemplate>
+                        </TemplateColumn>
+                        <PropertyColumn Title="Name" Property="t => t.User.DisplayName"/>
+                        <PropertyColumn Title="Role" Property="t => t.Role.DisplayName"/>
+                    </Columns>
+                </MudDataGrid>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            @*<MudText Class="px-4" HtmlTag="h4" Typo="Typo.h6">Projects</MudText>
+            <MudStack AlignItems="AlignItems.Center" Class="min-height-80 pa-4">
+                <MudGrid Class="min-height-80 pa-4" Spacing="4">
+                    @foreach (var teamProject in Team.Projects)
+                    {
+                        <MudItem lg="3" sm="6" xs="12" Class="d-flex justify-center">
+                            <ProjectCard Project="teamProject"/>
+                        </MudItem>
+                    }
+                </MudGrid>
+            </MudStack>*@
+            <MudPaper Elevation="1" Class="min-height-80">
+                <MudToolBar Dense="true">
+                    <MudText HtmlTag="h4" Typo="Typo.h6">Projects</MudText>
+                </MudToolBar>
+                <MudDataGrid HeaderClass="" T="Project" Items="Team.Projects" Elevation="0">
+                    <Columns>
+                        <PropertyColumn Title="Name" Property="t => t.Name" />
+                        <TemplateColumn Title="Actions" CellStyle="min-height: 61px;" CellClass="d-flex justify-end" HeaderClass="d-flex justify-end">
+                            <CellTemplate>
+                                <AuthorizeResource Policy="@nameof(Permission.ProjectDelete)" Resource="context.Item">
+                                    <MudIconButton OnClick="@(() => OnProjectDelete(@context.Item))" Class="mx-2" Size="Size.Small" Color="Color.Secondary" Icon="@Icons.Material.Filled.DeleteForever" aria-label="delete"/>
+                                </AuthorizeResource>
+                            </CellTemplate>
+                        </TemplateColumn>
+                    </Columns>
+                </MudDataGrid>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</AuthorizeResource>
+</div>
