@@ -1,7 +1,7 @@
 ﻿@using SS14.Jetfish.Projects.Model
 
 <div style="display:contents">
-    <MudDialog>
+    <MudDialog Style="min-height: 330px; min-width: 308px">
         <TitleContent>
             <MudText Typo="Typo.h6">
                 <MudIcon Icon="@Icons.Material.Filled.Create" Class="mr-3 mb-n1"/>
@@ -13,16 +13,23 @@
             }
         </TitleContent>
         <DialogContent>
-            <MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors">
-                <MudTextField @bind-Value="ProjectName" T="string" Label="Name" Required="true" RequiredError="Project Name is required." MaxLength="@Project.ProjectNameMaxLength"/>
+            <EditForm @ref="_form" Model="_model">
+                <DataAnnotationsValidator/>
+                <MudTextField
+                    @bind-Value="_model.Name"
+                    T="string"
+                    Label="Name"
+                    Required="true"
+                    RequiredError="Project Name is required."
+                    MaxLength="@Project.ProjectNameMaxLength"/>
                 <MudText Typo="Typo.subtitle1">Background</MudText>
                 <div class="d-flex">
-                    <MudRadioGroup @bind-Value="SelectedBackgroundSpecifier" T="ProjectBackgroundSpecifier" Required="true" RequiredError="Project Background is required.">
+                    <MudRadioGroup @bind-Value="_model.BackgroundSpecifier" T="ProjectBackgroundSpecifier" Required="true" RequiredError="Project Background is required.">
                         <MudRadio Value="ProjectBackgroundSpecifier.Color">Color</MudRadio>
                         <MudRadio Value="ProjectBackgroundSpecifier.Image">Image</MudRadio>
                     </MudRadioGroup>
                 </div>
-                @if (SelectedBackgroundSpecifier == ProjectBackgroundSpecifier.Color)
+                @if (_model.BackgroundSpecifier == ProjectBackgroundSpecifier.Color)
                 {
                     <MudColorPicker
                         Required="true"
@@ -32,30 +39,37 @@
                         ShowToolbar="true"
                         ThrottleInterval="100"
                         PickerVariant="PickerVariant.Inline"
-                        @bind-Text="ProjectBackgroundColor"
-                        ShowAlpha="false"
-                        />
+                        @bind-Text="_model.BackgroundColor"
+                        ShowAlpha="false"/>
                 }
                 else
                 {
-                    <MudFileUpload @bind-Files="ProjectBackgroundFile" MaximumFileCount="1" T="IBrowserFile" Required="true" Accept=".webp, .png, .jpg, .jpeg, .gif">
+                    <MudFileUpload OnFilesChanged="@FilesChanges" @bind-Files="_model.BackgroundFile" MaximumFileCount="1" T="IBrowserFile" Required="true" Accept=".webp, .png, .jpg, .jpeg, .gif">
                         <ActivatorContent>
                             <MudButton
                                 Variant="Variant.Filled"
                                 Color="Color.Primary"
-                                StartIcon="@Icons.Material.Filled.Image">
+                                StartIcon="@Icons.Material.Filled.Image"
+                                FullWidth="true"
+                                >
                                 Upload Background
                             </MudButton>
                         </ActivatorContent>
                     </MudFileUpload>
-                    @if (ProjectBackgroundFile != null)
+                    @if (_model.BackgroundFile != null)
                     {
                         <MudText Typo="Typo.subtitle2">
-                            Selected @ProjectBackgroundFile.Name
+                            Selected @_model.BackgroundFile.Name
                         </MudText>
                     }
+                    @if (!string.IsNullOrEmpty(_fileError))
+                    {
+                        <MudAlert Severity="Severity.Error">
+                            @_fileError
+                        </MudAlert>
+                    }
                 }
-            </MudForm>
+            </EditForm>
         </DialogContent>
         <DialogActions>
             <MudButton OnClick="Cancel">Cancel</MudButton>

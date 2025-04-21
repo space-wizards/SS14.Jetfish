@@ -8,5 +8,6 @@ public static class ProjectSetupExtensions
     public static void AddProjects(this WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<ICommandHandler, CreateOrUpdateProjectCommandHandler>();
+        builder.Services.AddScoped<ICommandHandler, CreateProjectCommandHandler>();
     }
 }
