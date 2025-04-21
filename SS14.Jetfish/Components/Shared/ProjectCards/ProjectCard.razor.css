@@ -13,3 +13,8 @@
     overflow: hidden;
     overflow-wrap: anywhere;
 }
+
+::deep .skeleton-no-transform {
+    /* Mud Skeleton applies a transform scale, we need 100% on width and height tho, and that scale messes with that */
+    transform: initial;
+}
