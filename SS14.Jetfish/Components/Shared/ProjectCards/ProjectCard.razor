@@ -2,9 +2,9 @@
 
 <div style="display:contents">
     <ProjectCardTemplate Style="@GetBackground()">
+        <MudSkeleton Style="@(_displaySkeleton ? "" : "display: none;")" Width="100%" Height="100%" Animation="Animation.Wave" Class="skeleton-no-transform"/>
         @if (!_isImageLoaded && Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Image)
         {
-            <MudSkeleton Width="100%" Height="100%" Animation="Animation.Wave" Class="skeleton-no-transform" />
         }
 
         @if (Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Image)
@@ -12,7 +12,7 @@
             <!-- We load the image here to detect when it finishes loading into the browser cache, to then set the background -->
             <img src="project-file/@Project.Id/file/@Project.Background"
                  style="display:none"
-                 @onload="OnImageLoaded" />
+                 @onload="OnImageLoaded"/>
         }
         <div class="card-content">
             <MudText Class="">@Project.Name</MudText>

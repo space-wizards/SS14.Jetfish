@@ -8,12 +8,17 @@ public partial class ProjectCard : ComponentBase
 {
     [Parameter]
     public required Project Project { get; set; }
+    private bool _displaySkeleton = true;
 
     private bool _isImageLoaded = false;
     protected override void OnParametersSet()
     {
         Validator.ValidateObject(Project, new ValidationContext(Project), true);
-        base.OnParametersSet();
+        if (Project.BackgroundSpecifier != ProjectBackgroundSpecifier.Color)
+            return;
+        
+        _displaySkeleton = false;
+        StateHasChanged();
     }
 
     private string GetBackground()
@@ -31,6 +36,7 @@ public partial class ProjectCard : ComponentBase
     private void OnImageLoaded()
     {
         _isImageLoaded = true;
+        _displaySkeleton = false;
         StateHasChanged(); // trigger re-render
     }
 }
