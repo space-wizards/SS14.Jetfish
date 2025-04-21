@@ -1,6 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
@@ -23,11 +21,6 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
             EntityState.Modified : EntityState.Added;
 
         return await SaveChanges(record, _context);
-    }
-
-    public override bool TryGet(Guid id, [NotNullWhen(true)] out Team? result)
-    {
-        throw new NotImplementedException();
     }
 
     public override async Task<Team?> GetAsync(Guid id)

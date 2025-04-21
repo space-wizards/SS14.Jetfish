@@ -19,7 +19,7 @@ public sealed class FileService
 {
     private readonly IAuthorizationService _authorizationService;
     private readonly ApplicationDbContext _dbContext;
-    private readonly ServerConfiguration _serverConfiguration = new ServerConfiguration();
+    private readonly ServerConfiguration _serverConfiguration = new();
 
     public FileService(IAuthorizationService authorizationService, ApplicationDbContext context, IConfiguration configuration)
     {

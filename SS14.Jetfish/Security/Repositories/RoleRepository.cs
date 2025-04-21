@@ -31,11 +31,6 @@ public class RoleRepository : BaseRepository<Role, Guid>
         return await SaveChanges(record, _context);
     }
 
-    public override bool TryGet(Guid id, [NotNullWhen(true)] out Role? result)
-    {
-        throw new NotImplementedException();
-    }
-
     public override Task<Role?> GetAsync(Guid id)
     {
         throw new NotImplementedException();

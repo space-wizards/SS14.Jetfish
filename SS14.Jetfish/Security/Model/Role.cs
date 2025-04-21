@@ -6,7 +6,7 @@ using SS14.Jetfish.Core.Repositories;
 
 namespace SS14.Jetfish.Security.Model;
 
-public sealed class Role : IEntityTypeConfiguration<Role>, IRecord<Guid>
+public sealed class Role : IEntityTypeConfiguration<Role>, IRecord<Guid>, IEquatable<Role?>
 {
     public const int MaxDisplayNameLength = 30;
     public const int MaxIdpNameLength = 300;
@@ -28,5 +28,22 @@ public sealed class Role : IEntityTypeConfiguration<Role>, IRecord<Guid>
     public void Configure(EntityTypeBuilder<Role> builder)
     {
         builder.ConfigureRowVersionGuid();
+    }
+
+    public bool Equals(Role? other)
+    {
+        if (other is null) return false;
+        return Id.Equals(other.Id) && Version == other.Version;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Role role && Equals(role);
+    }
+
+    public override int GetHashCode()
+    {
+        // ReSharper disable once NonReadonlyMemberInGetHashCodeS
+        return HashCode.Combine(Id, Version);
     }
 }

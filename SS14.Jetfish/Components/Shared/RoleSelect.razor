@@ -1,0 +1,35 @@
+@using System.Linq.Expressions
+<MudSelect T="Role" Value="Value" ValueChanged="OnValueChanged" Required="Required" For="For" Label="@Label">
+    @foreach(var role in Roles)
+    {
+        <MudSelectItem Value="role">@role.DisplayName</MudSelectItem>
+    }
+</MudSelect>
+@code {
+    [Parameter]
+    public bool Required { get; set; }
+    
+    /// <inheritdoc cref="MudSelect{T}.For"/>
+    [Parameter]
+    [Category("Validation")]
+    public Expression<Func<Role>>? For { get; set; }
+    
+    [Parameter]
+    [Category("Behavior")]
+    public string? Label { get; set; }
+    
+    [Parameter]
+    public IEnumerable<Role> Roles { get; set; } = [];
+    
+    [Parameter]
+    public Role? Value { get; set; }
+    
+    [Parameter]
+    public EventCallback<Role?> ValueChanged { get; set; }
+
+    private async Task OnValueChanged(Role role)
+    {
+        await ValueChanged.InvokeAsync(role);
+    }
+
+}

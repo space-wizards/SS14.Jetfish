@@ -18,16 +18,11 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
     }
 
     public override async Task<Result<Project, Exception>> AddOrUpdate(Project record)
-    {
+    { 
         _context.Entry(record).State = record.Id != Guid.Empty ?
             EntityState.Modified : EntityState.Added;
 
         return await SaveChanges(record, _context);
-    }
-
-    public override bool TryGet(Guid id, [NotNullWhen(true)] out Project? result)
-    {
-        throw new NotImplementedException();
     }
 
     public override Task<Project?> GetAsync(Guid id)

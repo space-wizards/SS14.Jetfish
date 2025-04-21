@@ -12,8 +12,6 @@ public abstract class BaseRepository<T, TKey> : IRepository<T, TKey> where T : c
 {
     public abstract Task<Result<T, Exception>> AddOrUpdate(T record);
 
-    public abstract  bool TryGet(TKey id, [NotNullWhen(true)] out T? result);
-
     public abstract Task<T?> GetAsync(TKey id);
     
     public abstract Task<Result<T, Exception>> Delete(T record);

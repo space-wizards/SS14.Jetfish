@@ -1,0 +1,45 @@
+@using System.Diagnostics.CodeAnalysis
+@using SS14.Jetfish.Security.Model.FormModel
+@using SS14.Jetfish.Security.Repositories
+<EditForm @ref="_editForm" Model="_model">
+    <DataAnnotationsValidator/>
+    <MudAutocomplete T="User" ValueChanged="user => _model.UserId = user.Id" SearchFunc="UserSearch" CoerceText="true" Converter="UserConverter"></MudAutocomplete>
+    <RoleSelect Value="@(Team.Roles.SingleOrDefault(x => x.Id == _model.RoleId))" Roles="Team.Roles" Label="Role" ValueChanged="OnRoleChanged" Required></RoleSelect>
+</EditForm>
+@code {
+    [Inject]
+    private UserRepository UserRepository { get; set; } = null!;
+    
+    private readonly NewMemberFormModel _model = new();
+    private EditForm _editForm = null!;
+
+    [Parameter]
+    public Team Team { get; set; } = null!;
+
+    private MudBlazor.Converter<User, string> UserConverter => new()
+    {
+        SetFunc = user => user?.DisplayName ?? ""
+    };
+
+    /// <summary>
+    /// Validates the model before returning it
+    /// </summary>
+    /// <returns>False if the model is invalid</returns>
+    public bool TryGetModel([NotNullWhen(true)] out NewMemberFormModel? model)
+    {
+        var valid = _editForm.EditContext?.Validate() ?? false;
+        model = valid ? _model : null;
+        return valid;
+    }
+
+    private void OnRoleChanged(Role? role)
+    {
+        _model.RoleId = role?.Id ?? null;
+    }
+
+    private Task<IEnumerable<User>>? UserSearch(string? search, CancellationToken ct)
+    {
+        return UserRepository.FindByName(search, 10, ct: ct);
+    }
+
+}

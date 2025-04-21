@@ -1,0 +1,85 @@
+@using SS14.Jetfish.Components.Pages.Teams.Dialogs
+@using SS14.Jetfish.Core.Services.Interfaces
+@using SS14.Jetfish.Security.Commands
+<MudDataGrid T="TeamMember" CommittedItemChanges="OnEditedMember" ReadOnly="false" Dense="true" Items="TeamMembers" EditMode="DataGridEditMode.Form" Elevation="0">
+    <Columns>
+        <TemplateColumn Title="Users">
+            <CellTemplate>
+                <MudAvatar Size="Size.Small" Color="Color.Tertiary">@((context.Item?.User.DisplayName ?? "")[..2].ToUpper())</MudAvatar>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Title="Name" Editable="false" Property="t => t.User.DisplayName">
+            <EditTemplate>@*Hide name from editor popup*@</EditTemplate>
+        </PropertyColumn>
+        <PropertyColumn Title="Role" Property="t => t.Role.DisplayName">
+            <EditTemplate>
+                <RoleSelect Roles="Team.Roles" @bind-Value="@context.Item.Role" Required></RoleSelect>
+            </EditTemplate>
+        </PropertyColumn>
+        <TemplateColumn HeaderStyle="height: 59px;" Title="Actions" CellStyle="min-height: 36.8px;" CellClass="d-flex justify-end" HeaderClass="d-flex justify-end">
+            <CellTemplate>
+                <AuthorizeResource Policy="@nameof(Permission.TeamEdit)" Resource="Team">
+                    <MudTooltip Delay="800" Text="Edit Membership">
+                        <MudIconButton OnClick="@context.Actions.StartEditingItemAsync" Class="mx-2" Size="Size.Small" Icon="@Icons.Material.Filled.Edit" aria-label="edit"/>
+                    </MudTooltip>
+                    <MudTooltip Delay="800" Text="Remove From Team">
+                        <MudIconButton OnClick="@(() => OnRemoveMember(context.Item))" Class="mx-2" Size="Size.Small" Color="Color.Secondary" Icon="@Icons.Material.Filled.PersonRemove" aria-label="delete"/>
+                    </MudTooltip>
+                </AuthorizeResource>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudToolBar>
+            <MudSpacer/>
+            <AuthorizeResource Policy="@(nameof(Permission.TeamEdit))" Resource="Team">
+                <MudButton OnClick="AddMember" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.PersonAdd" Color="Color.Success">Add Member</MudButton>
+            </AuthorizeResource>
+        </MudToolBar>
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    [Inject]
+    private ICommandService CommandService { get; set; } = null!;
+
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+    
+    [Inject]
+    private IDialogService DialogService { get; set; } = null!;
+    
+    [Parameter]
+    public Team Team { get; set; } = null!;
+    
+    [Parameter]
+    public IEnumerable<TeamMember> TeamMembers { get; set; } = null!;
+
+    private Task OnRemoveMember(TeamMember contextItem)
+    {
+        return Task.CompletedTask;
+    }
+
+    private async Task OnEditedMember(TeamMember arg)
+    {
+        var command = new ChangeTeamMemberRoleCommand(arg.TeamId, arg.UserId, arg.Role.Id);
+        var result =  await CommandService.Run(command);
+        if (result == null || !result.Result!.IsSuccess)
+        {
+            Snackbar.Add("Failed to save changes!", Severity.Error);
+        }
+        
+        Snackbar.Add("Saved changes!", Severity.Success);
+    }
+
+    private async Task AddMember()
+    {
+        var parameters = new DialogParameters<NewMemberDialog> {{ x => x.Team, Team}};
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+        };
+        var dialog = await DialogService.ShowAsync<NewMemberDialog>("Add Team Member", parameters, options);
+    }
+
+}

@@ -21,11 +21,6 @@ public class UserRepository : BaseRepository<User, Guid>
         throw new NotImplementedException();
     }
 
-    public override bool TryGet(Guid id, [NotNullWhen(true)] out User? result)
-    {
-        throw new NotImplementedException();
-    }
-
     public override async Task<User?> GetAsync(Guid id)
     {
         return await _dbContext.User
@@ -35,5 +30,20 @@ public class UserRepository : BaseRepository<User, Guid>
     public override Task<Result<User, Exception>> Delete(User record)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<IEnumerable<User>> FindByName(string? search, int limit = 0, int offset = 0, CancellationToken ct = new())
+    {
+        var query = _dbContext.User.AsQueryable();
+
+        if (!string.IsNullOrEmpty(search))
+            query = query.Where(user => user.DisplayName.StartsWith(search.Trim()));
+        
+        var skipTakeQuery = query.Skip(offset);
+
+        if (limit == 0)
+            skipTakeQuery = skipTakeQuery.Take(limit);
+
+        return await skipTakeQuery.ToListAsync(ct);
     }
 }

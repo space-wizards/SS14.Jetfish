@@ -1,6 +1,7 @@
 @page "/teams/{teamId:guid}"
 @using SS14.Jetfish.Projects.Model
 @using SS14.Jetfish.Components.Shared.ProjectCards
+@using SS14.Jetfish.Components.Pages.Teams.Components
 
 @if(Team == null)
 {
@@ -45,17 +46,7 @@
         </MudItem>
         <MudItem md="8" xs="12">
             <MudPaper Elevation="1" Class="min-height-80">
-                <MudDataGrid T="TeamMember" Dense="true" Items="Team.TeamMembers" Elevation="0">
-                    <Columns>
-                        <TemplateColumn Title="Users">
-                            <CellTemplate>
-                                <MudAvatar Size="Size.Small" Color="Color.Tertiary">@((context.Item?.User.DisplayName ?? "")[..2].ToUpper())</MudAvatar>
-                            </CellTemplate>
-                        </TemplateColumn>
-                        <PropertyColumn Title="Name" Property="t => t.User.DisplayName"/>
-                        <PropertyColumn Title="Role" Property="t => t.Role.DisplayName"/>
-                    </Columns>
-                </MudDataGrid>
+                <MemberDataGrid Team="Team" TeamMembers="Team.TeamMembers"/>
             </MudPaper>
         </MudItem>
         <MudItem xs="12">
@@ -73,14 +64,28 @@
             <MudPaper Elevation="1" Class="min-height-80">
                 <MudToolBar Dense="true">
                     <MudText HtmlTag="h4" Typo="Typo.h6">Projects</MudText>
+                    <MudSpacer/>
+                    <AuthorizeResource Policy="@(nameof(Permission.ProjectCreate))" Resource="Team">
+                        <MudButton OnClick="OnCreateProject" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success">Create Project</MudButton>
+                    </AuthorizeResource>
                 </MudToolBar>
                 <MudDataGrid HeaderClass="" T="Project" Items="Team.Projects" Elevation="0">
                     <Columns>
                         <PropertyColumn Title="Name" Property="t => t.Name" />
-                        <TemplateColumn Title="Actions" CellStyle="min-height: 61px;" CellClass="d-flex justify-end" HeaderClass="d-flex justify-end">
+                        <TemplateColumn HeaderStyle="height: 59px;" Title="Actions" CellStyle="min-height: 61px;" CellClass="d-flex justify-end" HeaderClass="d-flex justify-end">
                             <CellTemplate>
+                                <MudTooltip Delay="800" Text="Open Project">
+                                    <MudIconButton OnClick="@(() => OnProjectShow(context.Item))" Class="mx-2" Size="Size.Small" Color="Color.Info" Icon="@Icons.Material.Filled.Visibility" aria-label="edit"/>
+                                </MudTooltip>
+                                <AuthorizeResource Policy="@nameof(Permission.ProjectEdit)" Resource="context.Item">
+                                    <MudTooltip Delay="800" Text="Edit">
+                                        <MudIconButton OnClick="@(() => OnProjectEdit(context.Item))" Class="mx-2" Size="Size.Small" Icon="@Icons.Material.Filled.Edit" aria-label="edit"/>
+                                    </MudTooltip>
+                                </AuthorizeResource>
                                 <AuthorizeResource Policy="@nameof(Permission.ProjectDelete)" Resource="context.Item">
-                                    <MudIconButton OnClick="@(() => OnProjectDelete(@context.Item))" Class="mx-2" Size="Size.Small" Color="Color.Secondary" Icon="@Icons.Material.Filled.DeleteForever" aria-label="delete"/>
+                                    <MudTooltip Delay="800" Text="Delete">
+                                        <MudIconButton OnClick="@(() => OnProjectDelete(context.Item))" Class="mx-2" Size="Size.Small" Color="Color.Secondary" Icon="@Icons.Material.Filled.DeleteForever" aria-label="delete"/>
+                                    </MudTooltip>
                                 </AuthorizeResource>
                             </CellTemplate>
                         </TemplateColumn>

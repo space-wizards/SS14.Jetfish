@@ -27,7 +27,7 @@ public class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
-
+    
     public async Task<(bool success, IReadOnlyCollection<ValidationResult> errors)> ValidateAndSaveAsync(CancellationToken ct = new())
     {
         var errors = ValidateChanges();

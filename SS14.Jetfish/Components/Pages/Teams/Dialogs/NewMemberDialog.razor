@@ -1,0 +1,38 @@
+@using SS14.Jetfish.Components.Pages.Teams.Forms
+<MudDialog Style="min-width: 360px">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Create" Class="mr-3 mb-n1"/>
+            @Dialog.Title
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <NewMemberForm @ref="_form" Team="Team"></NewMemberForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="Save">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    private NewMemberForm _form = null!;
+
+    [CascadingParameter]
+    private IMudDialogInstance Dialog { get; set; } = null!;
+
+    [Parameter]
+    public Team Team { get; set; } = null!;
+    
+    private void Cancel() => Dialog.Cancel();
+
+
+    private Task Save()
+    {
+        if (!_form.TryGetModel(out var model))
+            return Task.CompletedTask;
+        
+        Dialog.Close(DialogResult.Ok(model));
+        return Task.CompletedTask;
+    }
+
+}
