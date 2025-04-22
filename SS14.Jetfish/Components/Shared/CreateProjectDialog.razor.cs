@@ -101,7 +101,7 @@ public partial class CreateProjectDialog : ComponentBase
 
             if (commandResult.Result.Error is DbUpdateConcurrencyException)
             {
-                await BlazorUtility.DisplayModifiedPopup(DialogService, NavigationManager);
+                await BlazorUtility.DisplayErrorPopup(DialogService, NavigationManager);
             }
 
             throw commandResult.Result.Error;

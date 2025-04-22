@@ -68,7 +68,7 @@ public partial class Policies : ComponentBase
     {
         if (!commandResult!.Result!.IsSuccess)
         {
-            await BlazorUtility.DisplayModifiedPopup(DialogService, NavigationManager);
+            await BlazorUtility.DisplayErrorPopup(DialogService, NavigationManager);
         }
 
         Snackbar.Add("Changes Saved!", Severity.Success);

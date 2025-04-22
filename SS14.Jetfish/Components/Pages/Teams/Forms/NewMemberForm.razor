@@ -27,6 +27,7 @@
     /// <returns>False if the model is invalid</returns>
     public bool TryGetModel([NotNullWhen(true)] out NewMemberFormModel? model)
     {
+        _model.TeamId = Team.Id;
         var valid = _editForm.EditContext?.Validate() ?? false;
         model = valid ? _model : null;
         return valid;

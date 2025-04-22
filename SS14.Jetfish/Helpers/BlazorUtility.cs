@@ -24,11 +24,13 @@ public static class BlazorUtility
         return true;
     }
 
-    public static async Task DisplayModifiedPopup(IDialogService dialogService, NavigationManager navigationManager)
+    public static async Task DisplayErrorPopup(IDialogService dialogService, NavigationManager navigationManager, Exception? exception = null)
     {
+        var message = exception?.Message ?? "An error occured.";
+        
         await dialogService.ShowMessageBox(
             "Error",
-            "The resource has been modified by someone else. Please reload the page to restore state.",
+            $"{message} Please reload the page to restore state.",
             yesText: "Reload Page"
         );
 

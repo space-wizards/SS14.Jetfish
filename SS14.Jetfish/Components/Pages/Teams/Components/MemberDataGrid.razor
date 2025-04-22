@@ -1,6 +1,9 @@
 @using SS14.Jetfish.Components.Pages.Teams.Dialogs
+@using SS14.Jetfish.Core.Services
 @using SS14.Jetfish.Core.Services.Interfaces
+@using SS14.Jetfish.Helpers
 @using SS14.Jetfish.Security.Commands
+@using SS14.Jetfish.Security.Model.FormModel
 <MudDataGrid T="TeamMember" CommittedItemChanges="OnEditedMember" ReadOnly="false" Dense="true" Items="TeamMembers" EditMode="DataGridEditMode.Form" Elevation="0">
     <Columns>
         <TemplateColumn Title="Users">
@@ -40,14 +43,17 @@
 </MudDataGrid>
 
 @code {
-    [Inject]
-    private ICommandService CommandService { get; set; } = null!;
+    [Inject] private ICommandService CommandService { get; set; } = null!;
 
-    [Inject]
-    private ISnackbar Snackbar { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
     
     [Inject]
     private IDialogService DialogService { get; set; } = null!;
+    
+    [Inject]
+    private UiErrorService UiErrorService { get; set; } = null!;
+
+    [Inject] NavigationManager NavigationManager { get; set; } = null!;
     
     [Parameter]
     public Team Team { get; set; } = null!;
@@ -80,6 +86,21 @@
             CloseOnEscapeKey = true,
         };
         var dialog = await DialogService.ShowAsync<NewMemberDialog>("Add Team Member", parameters, options);
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled || result.Data is not NewMemberFormModel model)
+            return;
+
+        var command = new AddTeamMemberCommand(model);
+        var commandResult = await CommandService.Run(command);
+        if (!commandResult!.Result!.IsSuccess)
+        {
+            await UiErrorService.HandleUiError(commandResult.Result.Error);
+            return;
+        }
+        
+        Snackbar.Add("Member Added!", Severity.Success);
+        StateHasChanged();
     }
 
 }

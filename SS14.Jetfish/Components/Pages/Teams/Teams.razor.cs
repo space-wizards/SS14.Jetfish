@@ -94,7 +94,7 @@ public partial class Teams : ComponentBase
         
         if (!commandResult!.Result!.IsSuccess)
         {
-            await BlazorUtility.DisplayModifiedPopup(DialogService, NavigationManager);
+            await BlazorUtility.DisplayErrorPopup(DialogService, NavigationManager);
         }
 
         await _dataGrid.ReloadServerData();

@@ -7,6 +7,7 @@ using SS14.Jetfish.Components;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Core.Commands;
 using SS14.Jetfish.Core.Extensions;
+using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.FileHosting;
@@ -80,7 +81,7 @@ builder.AddProjects();
 builder.AddCommandHandling();
 builder.AddFileHosting();
 
-builder.Services.AddScoped<ProjectRepository>();
+builder.Services.AddScoped<UiErrorService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
