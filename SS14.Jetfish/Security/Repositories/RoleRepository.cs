@@ -41,19 +41,57 @@ public class RoleRepository : BaseRepository<Role, Guid>
         throw new NotImplementedException();
     }
 
-    public IEnumerable<Role> GetAllGlobal()
-    {
-        return _context.Role
-            .Include(role => role.Policies)
-            .ThenInclude(resourcePolicy => resourcePolicy.AccessPolicy)
-            .Where(x => x.Policies.Count == 0 || x.Policies.Any(y => y.ResourceId == null || y.Global))
-            .ToList();
-    }
-
-    public async Task<IEnumerable<Role>> GetAllForTeam(Guid teamId)
+    public async Task<int> CountAllGlobal()
     {
         return await _context.Role
-            .Where(role => role.TeamId == teamId)
-            .ToListAsync();
+            .AsNoTracking()
+            .Where(x => (x.TeamId == null && x.Policies.Count == 0) || x.Policies.Any(y => y.ResourceId == null || y.Global))
+            .CountAsync();
+    }
+    
+    public async Task<IEnumerable<Role>> GetAllGlobal( int limit = 0, int offset = 0, CancellationToken ct = new())
+    {
+        var query = _context.Role
+            .Include(role => role.Policies)
+            .ThenInclude(resourcePolicy => resourcePolicy.AccessPolicy)
+            .Where(x => (x.TeamId == null && x.Policies.Count == 0) || x.Policies.Any(y => y.ResourceId == null || y.Global))
+            .OrderBy(x => x.Id);
+        
+        var skipTakeQuery = query.Skip(offset);
+
+        if (limit != 0)
+            skipTakeQuery = skipTakeQuery.Take(limit);
+
+        return await skipTakeQuery.ToListAsync(ct);
+    }
+
+    public async Task<int> CountAsync(Guid? teamId)
+    {
+        var query = _context.Role.AsNoTracking();
+
+        if (teamId.HasValue)
+            query = query.Where(role => role.TeamId == teamId.Value);
+        
+        return await query.CountAsync();
+    }
+    
+    public async Task<IEnumerable<Role>> GetAllAsync(Guid? teamId, int limit = 0, int offset = 0, CancellationToken ct = new())
+    {
+        var query = _context.Role
+            .Include(role => role.Policies)
+            .ThenInclude(resourcePolicy => resourcePolicy.AccessPolicy)
+            .AsQueryable();
+
+        if (teamId.HasValue)
+            query = query.Where(role => role.TeamId == teamId.Value);
+
+        query = query.OrderBy(role => role.Id);
+        
+        var skipTakeQuery = query.Skip(offset);
+
+        if (limit != 0)
+            skipTakeQuery = skipTakeQuery.Take(limit);
+
+        return await skipTakeQuery.ToListAsync(ct);
     }
 }

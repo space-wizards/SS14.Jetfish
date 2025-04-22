@@ -8,6 +8,7 @@
     <MudNavLink Href="/teams" Match="NavLinkMatch.Prefix">Teams</MudNavLink>
     <MudNavGroup Title="Admin" Expanded="true" Class="nav-group-hide-empty">
         <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.PoliciesRead))">
+            <MudNavLink Href="/admin/idp-roles" Match="NavLinkMatch.Prefix">Idp Roles</MudNavLink>
             <MudNavLink Href="/admin/policies" Match="NavLinkMatch.Prefix">Policies</MudNavLink>
         </AuthorizeResource>
     </MudNavGroup>

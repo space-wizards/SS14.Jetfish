@@ -12,9 +12,10 @@ public partial class Policies : ComponentBase
 {
     private IEnumerable<Role> _roles = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        _roles = RoleRepository.GetAllGlobal();
+        _roles = await RoleRepository.GetAllGlobal();
+        StateHasChanged();
     }
 
     private async Task CreateRole()
@@ -72,7 +73,7 @@ public partial class Policies : ComponentBase
         }
 
         Snackbar.Add("Changes Saved!", Severity.Success);
-        _roles = RoleRepository.GetAllGlobal();
+        _roles = await RoleRepository.GetAllGlobal();
         StateHasChanged();
     }
 

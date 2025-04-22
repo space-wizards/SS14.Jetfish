@@ -38,10 +38,12 @@ public class UserRepository : BaseRepository<User, Guid>
 
         if (!string.IsNullOrEmpty(search))
             query = query.Where(user => user.DisplayName.StartsWith(search.Trim()));
+
+        query = query.OrderBy(user => user.DisplayName);
         
         var skipTakeQuery = query.Skip(offset);
 
-        if (limit == 0)
+        if (limit != 0)
             skipTakeQuery = skipTakeQuery.Take(limit);
 
         return await skipTakeQuery.ToListAsync(ct);

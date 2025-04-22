@@ -1,6 +1,5 @@
-@page "/Teams"
+@page "/teams"
 <SectionContent SectionName="page-title">Teams</SectionContent>
-
 <MudPaper Class="p-4">
     <MudDataGrid Hover="true" Style="cursor: pointer" RowClick="OnRowClick" @ref="_dataGrid" RowStyle="min-height: 61px;" T="Team" ServerData="LoadData" Filterable="false" SortMode="SortMode.None">
         <Columns>

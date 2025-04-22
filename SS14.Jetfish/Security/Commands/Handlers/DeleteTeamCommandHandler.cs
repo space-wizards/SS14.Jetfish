@@ -21,7 +21,7 @@ public class DeleteTeamCommandHandler : BaseCommandHandler<DeleteTeamCommand, Re
     protected override async Task<DeleteTeamCommand> Handle(DeleteTeamCommand command)
     {
         var deletedTeamId = command.Team.Id;
-        var roles = await _roleRepository.GetAllForTeam(deletedTeamId);
+        var roles = await _roleRepository.GetAllAsync(deletedTeamId);
         await _roleRepository.Delete(roles);
         command.Result = await _teamRepository.Delete(command.Team);
         

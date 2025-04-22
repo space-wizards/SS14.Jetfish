@@ -41,9 +41,10 @@ public partial class TeamPage : ComponentBase
         Team = await TeamRepository.GetAsync(TeamId);
     }
 
-    private Task EditRoles()
+    private async Task EditRoles()
     {
-        return Task.CompletedTask;
+        Navigation.NavigateTo($"/teams/{TeamId}/roles");
+        await Task.CompletedTask;
     }
 
     private Task OnProjectDelete(Project contextItem)

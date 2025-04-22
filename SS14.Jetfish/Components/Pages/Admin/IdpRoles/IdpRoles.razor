@@ -1,0 +1,6 @@
+@page "/admin/idp-roles"
+@attribute [Authorize(Policy = nameof(Permission.PoliciesRead))]
+
+<SectionContent SectionName="page-title">Idp Roles</SectionContent>
+
+<RoleDataGrid Global/>

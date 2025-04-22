@@ -1,0 +1,69 @@
+<MudDataGrid @ref="_grid" T="Role" ServerData="LoadData">
+    <Columns>
+        <HierarchyColumn ButtonDisabledFunc="role => role.Policies.Count == 0"/>
+        <PropertyColumn Title="Name" Property="role => role.DisplayName"/>
+        <PropertyColumn Title="Idp Name" Hidden="@(!Global)" Property="role => role.IdpName"/>
+        <PropertyColumn Title="Policies" Property="role => role.Policies.Count"/>
+        <TemplateColumn HeaderStyle="width: 10%;" CellStyle="min-height: 54px;" CellClass="d-flex justify-end">
+            <CellTemplate>
+                <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="TeamId">
+                    <MudTooltip Delay="800" Text="Add Policy">
+                        <MudIconButton OnClick="@(() => AddPolicy(context.Item))" Class="mx-2" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.AddModerator" aria-label="add policy"/>
+                    </MudTooltip>
+                    <MudTooltip Delay="800" Text="Edit">
+                        <MudIconButton OnClick="@(() => OnRoleEdit(context.Item))" Class="mx-2" Size="Size.Small" Icon="@Icons.Material.Filled.Edit" aria-label="edit"/>
+                    </MudTooltip>
+                    <MudTooltip Delay="800" Text="Delete">
+                        <MudIconButton OnClick="@(() => OnRoleDelete(context.Item))" Class="mx-2" Size="Size.Small" Color="Color.Secondary" Icon="@Icons.Material.Filled.DeleteForever" aria-label="delete"/>
+                    </MudTooltip>
+                </AuthorizeResource>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <ChildRowContent>
+        <MudDataGrid T="ResourcePolicy" Items="@context.Item.Policies" Bordered Elevation="0" Striped Dense>
+            <Columns>
+                <PropertyColumn HeaderStyle="width: 15%;" Title="Name" Property="policy => policy.AccessPolicy.Name"/>
+                <TemplateColumn Title="Permissions" Context="columnContext">
+                    <CellTemplate>
+                        @foreach (var permission in columnContext.Item.AccessPolicy.Permissions)
+                        {
+                            <MudChip Size="Size.Small" Variant="Variant.Outlined">@Enum.GetName(permission)</MudChip>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn HeaderStyle="width: 5%;" Title="Type" Property="policy => GetPolicyType(policy)"/>
+                <TemplateColumn HeaderStyle="width: 10%;" Context="columnContext" CellStyle="min-height: 45px;" CellClass="d-flex justify-end">
+                    <CellTemplate>
+                        <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="TeamId">
+                            <MudTooltip Delay="800" Text="Edit Policy">
+                                <MudIconButton OnClick="@(() => OnPolicyEdit(columnContext.Item))" Class="mx-2" Size="Size.Small" Icon="@Icons.Material.Filled.Edit" aria-label="edit"/>
+                            </MudTooltip>
+                            <MudTooltip Delay="800" Text="Delete Policy">
+                                <MudIconButton OnClick="@(() => OnPolicyDelete(columnContext.Item))" Class="mx-2" Size="Size.Small" Color="Color.Secondary" Icon="@Icons.Material.Filled.DeleteForever" aria-label="delete"/>
+                            </MudTooltip>
+                        </AuthorizeResource>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <PagerContent>
+                <MudToolBar Dense>
+                    <MudSpacer/>
+                    <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="TeamId">
+                        <MudButton OnClick="async () => await AddPolicy(context.Item)" Variant="Variant.Text" StartIcon="@Icons.Material.Outlined.Add" Color="Color.Primary">Add Policy</MudButton>
+                    </AuthorizeResource>
+                </MudToolBar>
+            </PagerContent>
+        </MudDataGrid>
+    </ChildRowContent>
+    <PagerContent>
+        <MudStack Row="true" StretchItems="StretchItems.All">
+            <MudToolBar Dense="true" Class="mud-table-pagination-toolbar pl-4">
+                <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="TeamId">
+                    <MudButton OnClick="CreateRole" Variant="Variant.Text" StartIcon="@Icons.Material.Outlined.Add" Color="Color.Primary">New Role</MudButton>
+                </AuthorizeResource>
+            </MudToolBar>
+            <MudDataGridPager T="Role"/>
+        </MudStack>
+    </PagerContent>
+</MudDataGrid>

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using Serilog;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Helpers;
 
@@ -21,6 +22,9 @@ public sealed class UiErrorService
 
     public async Task HandleUiError(Exception? exception)
     {
+        if (exception != null)
+            Log.Error(exception, "");
+        
         if (exception == null || exception.RequiresReload())
         {
             await BlazorUtility.DisplayErrorPopup(_dialogService, _navigationManager, exception);

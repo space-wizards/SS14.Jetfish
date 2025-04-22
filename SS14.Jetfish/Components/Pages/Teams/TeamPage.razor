@@ -1,8 +1,9 @@
 @page "/teams/{teamId:guid}"
 @using SS14.Jetfish.Projects.Model
-@using SS14.Jetfish.Components.Shared.ProjectCards
 @using SS14.Jetfish.Components.Pages.Teams.Components
 
+<SectionContent SectionName="page-title">Team</SectionContent>
+<BackButton Href="/teams"/>
 @if(Team == null)
 {
     <p>Team not found</p>
@@ -10,7 +11,6 @@
 }
 <div style="display: contents">
 <AuthorizeResource DisplayError="true" ResourceName="team" Policy="@(nameof(Permission.TeamRead))" Resource="@TeamId">
-    <SectionContent SectionName="page-title">Team</SectionContent>
     <MudGrid Spacing="3" Class="pb-4">
         <MudItem md="4" xs="12">
             <MudCard Elevation="1" Class="min-height-80">
@@ -50,17 +50,6 @@
             </MudPaper>
         </MudItem>
         <MudItem xs="12">
-            @*<MudText Class="px-4" HtmlTag="h4" Typo="Typo.h6">Projects</MudText>
-            <MudStack AlignItems="AlignItems.Center" Class="min-height-80 pa-4">
-                <MudGrid Class="min-height-80 pa-4" Spacing="4">
-                    @foreach (var teamProject in Team.Projects)
-                    {
-                        <MudItem lg="3" sm="6" xs="12" Class="d-flex justify-center">
-                            <ProjectCard Project="teamProject"/>
-                        </MudItem>
-                    }
-                </MudGrid>
-            </MudStack>*@
             <MudPaper Elevation="1" Class="min-height-80">
                 <MudToolBar Dense="true">
                     <MudText HtmlTag="h4" Typo="Typo.h6">Projects</MudText>

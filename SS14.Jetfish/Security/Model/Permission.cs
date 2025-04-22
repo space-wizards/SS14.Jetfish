@@ -61,7 +61,8 @@ public static class PermissionExtensions
    /// <returns>The concatenated list of permissions</returns>
     public static string Or(this Permission permission, params Permission[] additionalPermissions)
     {
-        additionalPermissions[additionalPermissions.Length] = permission;
+        Array.Resize(ref additionalPermissions, additionalPermissions.Length + 1);;
+        additionalPermissions[^1] = permission;
         return GetPolicyNames(additionalPermissions);
     }
 }
