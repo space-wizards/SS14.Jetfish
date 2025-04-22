@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 using SS14.Jetfish.Components.Pages.Teams.Dialogs;
+using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Security.Commands;
@@ -29,6 +30,9 @@ public partial class Teams : ComponentBase
     
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
+    
+    [Inject]
+    private UiErrorService UiErrorService { get; set; } = null!;
     
     [CascadingParameter]
     public Task<AuthenticationState>? AuthenticationState { get; set; }
@@ -65,8 +69,15 @@ public partial class Teams : ComponentBase
             return;
         
         var command = new DeleteTeamCommand(team);
-        await CommandService.Run(command);
+        var result = await CommandService.Run(command);
+        if (!result!.Result!.IsSuccess)
+        {
+            await UiErrorService.HandleUiError(result.Result.Error);
+            return;
+        }
+        
         await _dataGrid.ReloadServerData();
+        Snackbar.Add("Team Removed!", Severity.Success);
     }
 
     private void OnRowClick(DataGridRowClickEventArgs<Team> arg)

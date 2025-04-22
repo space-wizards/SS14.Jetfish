@@ -61,9 +61,22 @@
     [Parameter]
     public IEnumerable<TeamMember> TeamMembers { get; set; } = null!;
 
-    private Task OnRemoveMember(TeamMember contextItem)
+    private async Task OnRemoveMember(TeamMember member)
     {
-        return Task.CompletedTask;
+        var confirmed = await BlazorUtility.ConfirmDelete(DialogService, "team member");
+        if (!confirmed)
+            return;
+
+        var command = new DeleteTeamMemberCommand(member);
+        var result = await CommandService.Run(command);
+        if (!result!.Result!.IsSuccess)
+        {
+            await UiErrorService.HandleUiError(result.Result.Error);
+            return;
+        }
+        
+        Snackbar.Add("Member Removed!", Severity.Success);
+        StateHasChanged();
     }
 
     private async Task OnEditedMember(TeamMember arg)

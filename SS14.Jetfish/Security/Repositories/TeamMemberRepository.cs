@@ -36,8 +36,9 @@ public class TeamMemberRepository : BaseRepository<TeamMember, (Guid, Guid)>
             .AnyAsync(t => t.TeamId == id.Item1 && t.UserId == id.Item2);
     }
 
-    public override Task<Result<TeamMember, Exception>> Delete(TeamMember record)
+    public override async Task<Result<TeamMember, Exception>> Delete(TeamMember record)
     {
-        throw new NotImplementedException();
+        _context.TeamMember.Remove(record);
+        return await SaveChanges(record, _context);
     }
 }

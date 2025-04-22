@@ -9,12 +9,10 @@ namespace SS14.Jetfish.Security.Commands.Handlers;
 public class AddTeamMemberCommandHandler : BaseCommandHandler<AddTeamMemberCommand, Result<TeamMember, Exception>>
 {
     private readonly TeamMemberRepository _teamMemberRepository;
-    private readonly ApplicationDbContext _context;
 
-    public AddTeamMemberCommandHandler(TeamMemberRepository teamMemberRepository, ApplicationDbContext context)
+    public AddTeamMemberCommandHandler(TeamMemberRepository teamMemberRepository)
     {
         _teamMemberRepository = teamMemberRepository;
-        _context = context;
     }
 
     public override string CommandName => nameof(AddTeamMemberCommand);
