@@ -1,0 +1,100 @@
+﻿@page "/admin/old_policies"
+@using SS14.Jetfish.Core.Services.Interfaces
+@using SS14.Jetfish.Security.Repositories
+
+@attribute [Authorize(Policy = nameof(Permission.PoliciesRead))]
+
+@inject RoleRepository RoleRepository
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject ICommandService CommandService
+@inject NavigationManager NavigationManager
+
+<SectionContent SectionName="page-title">Policies</SectionContent>
+
+<div style="display:contents">
+    <MudPaper Class="p-4">
+    <MudTable
+        Items="_roles"
+        Hover="true"
+        Height="600"
+        FixedHeader="true"
+        FixedFooter="true"
+        >
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Global Policies</MudText>
+            <MudSpacer />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>IDP Mapping</MudTh>
+            <MudTh Class="fixed-column-policies">Policies</MudTh>
+            <MudTh Class="fixed-column-action"></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <div class="fixed-column-scroll">
+                    @context.DisplayName
+                </div>
+            </MudTd>
+            <MudTd>
+                <div class="fixed-column-scroll">
+                    @context.IdpName
+                </div>
+            </MudTd>
+            <MudTd Class="fixed-column-policies">
+                <MudExpansionPanels>
+                    <MudExpansionPanel Expanded="true" Text="Permissions">
+                        <TitleContent>
+                            @if (_editMode)
+                            {
+                                <MudIconButton OnClick="args => AddPolicy(context)" Icon="@Icons.Material.Filled.Add"/>
+                            }
+                        </TitleContent>
+                        <ChildContent>
+                            <MudList Dense="true" T="object">
+                                @foreach (var policy in context.Policies)
+                                {
+                                    <MudListItem T="object">
+                                        <div class="permissions-container">
+                                            <div>
+                                                <MudText>@policy.AccessPolicy.Name</MudText>
+                                                <MudText>@PermissionExtensions.GetPolicyNames(policy.AccessPolicy.Permissions.ToArray())</MudText>
+                                            </div>
+                                            @if (_editMode)
+                                            {
+                                                <div>
+                                                    <MudIconButton OnClick="@((e) => EditPolicy(policy.AccessPolicy, context))" Icon="@Icons.Material.Filled.Edit"/>
+                                                    <MudIconButton OnClick="@((e) => DeletePolicy(policy, context))" Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error"/>
+                                                </div>
+                                            }
+                                        </div>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        </ChildContent>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+            </MudTd>
+            <MudTd Class="fixed-column">
+                @if (_editMode)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@((e) => EditRole(context))"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Color="Color.Error" OnClick="@((e) => DeleteRole(context))" />
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+</div>
+
+<AuthorizeResource DisplayError="false" Policy="@nameof(Permission.PoliciesWrite)">
+    <MudButtonGroup Color="Color.Primary" Size="Size.Medium" Variant="Variant.Filled" Class="mt-2">
+        <MudButton OnClick="CreateRole" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">
+            Create Role
+        </MudButton>
+        <MudButton OnClick="ToggleEdit" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit">
+            Toggle Edit
+        </MudButton>
+    </MudButtonGroup>
+</AuthorizeResource>

@@ -58,7 +58,7 @@ public partial class RoleDataGrid : ComponentBase
 
     private async Task AddPolicy(Role role)
     {
-        var parameters = new DialogParameters<PolicyDialog> {
+        var parameters = new DialogParameters<APolicyDialog> {
         { x => x.Role, role },
         { x => x.ResourceId, TeamId}
         };
@@ -67,7 +67,7 @@ public partial class RoleDataGrid : ComponentBase
         {
             CloseOnEscapeKey = true,
         };
-        var dialog = await DialogService.ShowAsync<PolicyDialog>("Add Policy", parameters, options);
+        var dialog = await DialogService.ShowAsync<APolicyDialog>("Add Policy", parameters, options);
         var result = await dialog.Result;
 
         if (result == null || result.Canceled)
@@ -81,7 +81,7 @@ public partial class RoleDataGrid : ComponentBase
         if (policy == null)
             return;
         
-        var parameters = new DialogParameters<PolicyDialog> {
+        var parameters = new DialogParameters<APolicyDialog> {
             {
                 x => x.Role, role
             },
@@ -93,7 +93,7 @@ public partial class RoleDataGrid : ComponentBase
         {
             CloseOnEscapeKey = true,
         };
-        var dialog = await DialogService.ShowAsync<PolicyDialog>("Edit Policy", parameters, options);
+        var dialog = await DialogService.ShowAsync<APolicyDialog>("Edit Policy", parameters, options);
         var result = await dialog.Result;
 
         if (result == null || result.Canceled)

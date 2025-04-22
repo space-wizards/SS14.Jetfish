@@ -42,15 +42,28 @@
     private IMudDialogInstance MudDialog { get; set; } = null!;
 
     [Parameter]
-    public AccessPolicy Policy { get; set; } = new();
+    public required Role Role { get; set; }
+    [Parameter]
+    public int? PolicyId { get; set; }
+    [Parameter]
+    public Guid? ResourceId { get; set; }
     
+    private ResourcePolicy? Policy { get; set; }
+
     private IEnumerable<Permission> _permissions = new List<Permission>();
     private string _policyName = "";
 
     protected override void OnParametersSet()
     {
-        _permissions = Policy.Permissions;
-        _policyName = Policy.Name;
+        Policy = Role.Policies.FirstOrDefault(x => x.AccessPolicy.Id == PolicyId) ?? new ResourcePolicy
+        {
+            AccessPolicy = new AccessPolicy(),
+            Global = !ResourceId.HasValue,
+            ResourceId = ResourceId
+        };
+
+        _permissions = Policy.AccessPolicy.Permissions;
+        _policyName = Policy.AccessPolicy.Name;
     }
 
     private IEnumerable<string> MaxCharactersPolicyName(string ch) => BlazorUtility.MaxCharacters(ch, AccessPolicy.AccessPolicyMaxNameLength);
@@ -66,9 +79,14 @@
 
         Debug.Assert(Policy != null, "Attempted to save policy with uninitialized component!");
 
-        Policy.Permissions = _permissions.ToList();
-        Policy.Name = _policyName;
+        Policy.AccessPolicy.Permissions = _permissions.ToList();
+        Policy.AccessPolicy.Name = _policyName;
 
-        MudDialog.Close(DialogResult.Ok(Policy));
+        if (PolicyId == null)
+        {
+            Role.Policies.Add(Policy);
+        }
+
+        MudDialog.Close(DialogResult.Ok(Role));
     }
 }

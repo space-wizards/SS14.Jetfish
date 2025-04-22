@@ -1,30 +1,53 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using SS14.Jetfish.Core.Commands;
+using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Types;
-using SS14.Jetfish.Helpers;
-using SS14.Jetfish.Security.Commands;
 using SS14.Jetfish.Security.Model;
+using SS14.Jetfish.Security.Repositories;
 
 namespace SS14.Jetfish.Components.Pages.Admin.Policies;
 
 public partial class Policies : ComponentBase
 {
-    private IEnumerable<Role> _roles = [];
+    private MudDataGrid<AccessPolicy> _grid = null!;
 
-    protected override async Task OnInitializedAsync()
+    [Inject]
+    private PolicyRepository Repository { get; set; } = null!;
+ 
+    [Inject]
+    private IDialogService DialogService { get; set; } = null!;
+    
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+    
+    [Inject]
+    private UiErrorService UiErrorService { get; set; } = null!;
+    
+    private async Task<GridData<AccessPolicy>> LoadData(GridState<AccessPolicy> arg)
     {
-        _roles = await RoleRepository.GetAllGlobal();
-        StateHasChanged();
+        var count = await Repository.CountAsync();
+        if (count == 0)
+            return new GridData<AccessPolicy>();
+            
+        var policies = await Repository.GetAllAsync(arg.PageSize, arg.Page * arg.PageSize);
+
+        var gridData = new GridData<AccessPolicy>
+        {
+            Items = policies,
+            TotalItems = count
+        };
+
+        return gridData;
     }
 
-    private async Task CreateRole()
+    private async Task AddPolicy()
     {
         var options = new DialogOptions
         {
             CloseOnEscapeKey = true,
         };
-        var dialog = await DialogService.ShowAsync<RoleDialog>("Add Role", options);
+        var dialog = await DialogService.ShowAsync<PolicyDialog>("Add Policy", options);
         var result = await dialog.Result;
 
         if (result == null || result.Canceled)
@@ -33,115 +56,33 @@ public partial class Policies : ComponentBase
         await SaveChangesUpdate((Role) result.Data!);
     }
 
-    private bool _editMode = false;
-
-    private void ToggleEdit()
+    private async Task OnEdit(AccessPolicy policy)
     {
-        _editMode = !_editMode;
-        StateHasChanged();
+        await Task.CompletedTask;
     }
 
-    private async Task EditRole(Role role)
+    private async Task OnDelete(AccessPolicy policy)
     {
-        var parameters = new DialogParameters<RoleDialog> { { x => x.Role, role } };
-
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-        };
-        var dialog = await DialogService.ShowAsync<RoleDialog>("Edit Role", parameters, options);
-        var result = await dialog.Result;
-
-        if (result == null || result.Canceled)
-            return;
-
-        await SaveChangesUpdate((Role) result.Data!);
+        await Task.CompletedTask;
     }
-
+    
     private async Task SaveChangesUpdate(Role role)
     {
-        var command = new CreateOrUpdateRoleCommand(role);
-        var commandResult = await CommandService.Run(command);
-        await SaveChangesFinal(commandResult);
+        //var command = new CreateOrUpdateRoleCommand(role);
+        //var commandResult = await CommandService.Run(command);
+        //await SaveChangesFinal(commandResult);
+        await Task.CompletedTask;
     }
 
-    private async Task SaveChangesFinal(ICommand<Result<Role, Exception>>? commandResult)
+    private async Task SaveChangesFinal(ICommand<Result<AccessPolicy, Exception>>? commandResult)
     {
         if (!commandResult!.Result!.IsSuccess)
         {
-            await BlazorUtility.DisplayErrorPopup(DialogService, NavigationManager);
+            await UiErrorService.HandleUiError(commandResult.Result.Error);
+            return;
         }
 
         Snackbar.Add("Changes Saved!", Severity.Success);
-        _roles = await RoleRepository.GetAllGlobal();
-        StateHasChanged();
-    }
-
-    private async Task EditPolicy(AccessPolicy policy, Role role)
-    {
-        if (!_editMode)
-            return;
-
-        var parameters = new DialogParameters<PolicyDialog> {
-        {
-            x => x.Role, role
-        },
-        {
-            x => x.PolicyId, policy.Id
-        } };
-
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-        };
-        var dialog = await DialogService.ShowAsync<PolicyDialog>("Edit Policy", parameters, options);
-        var result = await dialog.Result;
-
-        if (result == null || result.Canceled)
-            return;
-
-        await SaveChangesUpdate((Role) result.Data!);
-    }
-
-    private async Task DeletePolicy(ResourcePolicy policyAccessPolicy, Role context)
-    {
-        if (!await BlazorUtility.ConfirmDelete(DialogService, "policy"))
-            return;
-
-        context.Policies.Remove(policyAccessPolicy);
-        await SaveChangesUpdate(context);
-    }
-
-    private async Task DeleteRole(Role context)
-    {
-        if (!await BlazorUtility.ConfirmDelete(DialogService, "role"))
-            return;
-
-        var command = new DeleteRoleCommand(context);
-        var commandResult = await CommandService.Run(command);
-        await SaveChangesFinal(commandResult);
-    }
-
-    private async Task AddPolicy(Role context)
-    {
-        if (!_editMode)
-            return;
-
-        var parameters = new DialogParameters<PolicyDialog> {
-            {
-                x => x.Role, context
-            }};
-
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-        };
-        var dialog = await DialogService.ShowAsync<PolicyDialog>("Add Policy", parameters, options);
-        var result = await dialog.Result;
-
-        if (result == null || result.Canceled)
-            return;
-
-        await SaveChangesUpdate((Role) result.Data!);
+        await _grid.ReloadServerData();
     }
 }
