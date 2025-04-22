@@ -16,6 +16,6 @@ public static class UiExceptionExtension
 {
     public static bool RequiresReload(this Exception exception)
     {
-        return exception.Data[UiException.RequiresReloadKey] is true;
+        return exception.Data[UiException.RequiresReloadKey] is null or true;
     }
 }

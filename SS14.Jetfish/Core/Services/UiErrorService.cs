@@ -22,8 +22,8 @@ public sealed class UiErrorService
 
     public async Task HandleUiError(Exception? exception)
     {
-        if (exception != null)
-            Log.Error(exception, "");
+        if (exception is not null and not UiException)
+            Log.Error(exception, "An error occured");
         
         if (exception == null || exception.RequiresReload())
         {

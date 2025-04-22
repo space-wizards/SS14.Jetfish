@@ -15,7 +15,7 @@ public static class BlazorUtility
     {
         var result = await dialogService.ShowMessageBox(
             "Warning ඞ",
-            $"Are you sure you want to delete this {name}?\nThis action cannot be undone!",
+            $"Are you sure you want to delete this {name}? This action cannot be undone!",
             yesText:"Delete!", cancelText:"Cancel");
 
         if (!result.HasValue || !result.Value)
