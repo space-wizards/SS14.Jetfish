@@ -1,7 +1,11 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using SS14.Jetfish.Components.Shared;
+using SS14.Jetfish.Core.Services;
+using SS14.Jetfish.Core.Services.Interfaces;
+using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Projects.Model;
+using SS14.Jetfish.Security.Commands;
 using SS14.Jetfish.Security.Model;
 using SS14.Jetfish.Security.Repositories;
 
@@ -17,6 +21,15 @@ public partial class TeamPage : ComponentBase
     
     [Inject]
     private IDialogService DialogService { get; set; } = null!;
+    
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+    
+    [Inject]
+    private ICommandService CommandService { get; set; } = null!;
+    
+    [Inject]
+    private UiErrorService UiErrorService { get; set; } = null!;
     
     [Parameter]
     public Guid TeamId { get; set; }
@@ -69,5 +82,22 @@ public partial class TeamPage : ComponentBase
             return;
         
         StateHasChanged();
+    }
+
+    private async Task Delete()
+    {
+        if (Team == null || !await BlazorUtility.ConfirmDelete(DialogService, "team"))
+            return;
+        
+        var command = new DeleteTeamCommand(Team);
+        var result = await CommandService.Run(command);
+        if (!result!.Result!.IsSuccess)
+        {
+            await UiErrorService.HandleUiError(result.Result.Error);
+            return;
+        }
+        
+        Snackbar.Add("Team Removed!", Severity.Success);
+        Navigation.NavigateTo("/teams");
     }
 }

@@ -36,7 +36,7 @@
                 </MudCardContent>
                 <MudCardActions>
                     <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.TeamDelete))" Resource="Team">
-                        <MudButton OnClick="EditRoles" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.DeleteForever" Color="Color.Error">Delete Team</MudButton>
+                        <MudButton OnClick="Delete" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.DeleteForever" Color="Color.Error">Delete Team</MudButton>
                     </AuthorizeResource>
                     <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.TeamEdit))" Resource="Team">
                         <MudButton OnClick="EditRoles" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.AdminPanelSettings" Color="Color.Primary">Edit Roles</MudButton>

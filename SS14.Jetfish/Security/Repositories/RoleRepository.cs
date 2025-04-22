@@ -27,8 +27,13 @@ public class RoleRepository : BaseRepository<Role, Guid>
     public override async Task<Result<Role, Exception>> Delete(Role record)
     {
         _context.Role.Remove(record);
-
         return await SaveChanges(record, _context);
+    }
+
+    public async Task Delete(IEnumerable<Role> roles)
+    {
+        _context.Role.RemoveRange(roles);
+        await _context.SaveChangesAsync();
     }
 
     public override Task<Role?> GetAsync(Guid id)
@@ -43,5 +48,12 @@ public class RoleRepository : BaseRepository<Role, Guid>
             .ThenInclude(resourcePolicy => resourcePolicy.AccessPolicy)
             .Where(x => x.Policies.Count == 0 || x.Policies.Any(y => y.ResourceId == null || y.Global))
             .ToList();
+    }
+
+    public async Task<IEnumerable<Role>> GetAllForTeam(Guid teamId)
+    {
+        return await _context.Role
+            .Where(role => role.TeamId == teamId)
+            .ToListAsync();
     }
 }
