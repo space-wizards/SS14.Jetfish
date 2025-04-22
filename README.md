@@ -22,8 +22,11 @@ This is a work in progress.
   - Compression!!!!
   - Animated WebP Support (should work ootb)
 - Administration
-  - Role management only through SSO?
-
+  - IDP claim role mapping for global policies
+  - Fine grained access control using Global and resource-based access policies and roles
+  - Team and user management allowing admin teams, project focused teams etc.
+- Minimal use of PII
+  - Development starts with the assumption that emails won't be required, though no promise is made to keep it that way
 
 ## What does it NOT do?
 
