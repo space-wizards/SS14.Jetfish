@@ -1,26 +1,19 @@
 @font-face {
     font-family: "Exo";
     src: url("fonts/Exo/Exo-VariableFont_wght.ttf") format("truetype");
+    font-display: swap;
 }
 
 @font-face {
     font-family: "Noto Sans";
     src: url("fonts/Noto_Sans/NotoSans-VariableFont_wdth,wght.ttf") format("truetype");
+    font-display: swap;
 }
 
 @font-face {
     font-family: "Signika";
     src: url("fonts/Signika/Signika-VariableFont_GRAD,wght.ttf") format("truetype");
-}
-
-@font-face {
-    font-family: "Noto Emoji";
-    src: url("fonts/Noto_Emoji/NotoEmoji-VariableFont_wght.ttf") format("truetype");
-}
-
-@font-face {
-    font-family: "Noto Color Emoji";
-    src: url("fonts/Noto_Color_Emoji/NotoColorEmoji-Regular.ttf") format("truetype");
+    font-display: swap;
 }
 
 body {

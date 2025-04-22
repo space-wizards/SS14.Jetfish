@@ -35,6 +35,14 @@
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Components\Shared\Forms\NewTeamForm.razor" />
+      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\NotoEmoji-VariableFont_wght.ttf" />
+      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\OFL.txt" />
+      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\README.txt" />
+      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-Bold.ttf" />
+      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-Light.ttf" />
+      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-Medium.ttf" />
+      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-Regular.ttf" />
+      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-SemiBold.ttf" />
     </ItemGroup>
 
 </Project>
