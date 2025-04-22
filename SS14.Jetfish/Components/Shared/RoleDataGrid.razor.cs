@@ -58,12 +58,48 @@ public partial class RoleDataGrid : ComponentBase
 
     private async Task AddPolicy(Role role)
     {
-        await Task.CompletedTask;
+        var parameters = new DialogParameters<PolicyDialog> {
+        { x => x.Role, role },
+        { x => x.ResourceId, TeamId}
+        };
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+        };
+        var dialog = await DialogService.ShowAsync<PolicyDialog>("Add Policy", parameters, options);
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
+
+        await SaveChangesUpdate((Role) result.Data!);
     }
 
-    private async Task OnPolicyEdit(ResourcePolicy? policy)
+    private async Task OnPolicyEdit(ResourcePolicy? policy, Role role)
     {
-        await Task.CompletedTask;
+        if (policy == null)
+            return;
+        
+        var parameters = new DialogParameters<PolicyDialog> {
+            {
+                x => x.Role, role
+            },
+            {
+                x => x.PolicyId, policy.AccessPolicy.Id
+            } };
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+        };
+        var dialog = await DialogService.ShowAsync<PolicyDialog>("Edit Policy", parameters, options);
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
+
+        await SaveChangesUpdate((Role) result.Data!);
     }
 
     private async Task OnPolicyDelete(ResourcePolicy? policy)
@@ -82,7 +118,19 @@ public partial class RoleDataGrid : ComponentBase
 
     private async Task OnRoleEdit(Role role)
     {
-        await Task.CompletedTask;
+        var parameters = new DialogParameters<RoleDialog> { { x => x.Role, role } };
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+        };
+        var dialog = await DialogService.ShowAsync<RoleDialog>("Edit Role", parameters, options);
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
+
+        await SaveChangesUpdate((Role) result.Data!);
     }
 
     private async Task OnRoleDelete(Role role)

@@ -7,6 +7,8 @@ namespace SS14.Jetfish.Security.Model;
 [PublicAPI]
 public sealed class ResourcePolicy
 {
+    public int Id { get; set; }
+    public int AccessPolicyId { get; set; }
     public AccessPolicy AccessPolicy { get; set; } = null!;
     public Guid? ResourceId { get; set; }
     

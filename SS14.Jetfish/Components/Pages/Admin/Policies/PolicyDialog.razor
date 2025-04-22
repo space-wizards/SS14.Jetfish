@@ -45,6 +45,9 @@
     public required Role Role { get; set; }
     [Parameter]
     public int? PolicyId { get; set; }
+    [Parameter]
+    public Guid? ResourceId { get; set; }
+    
     private ResourcePolicy? Policy { get; set; }
 
     private IEnumerable<Permission> _permissions = new List<Permission>();
@@ -52,14 +55,11 @@
 
     protected override void OnParametersSet()
     {
-        Policy = Role.Policies
-            .FirstOrDefault(x => x.AccessPolicy.Id == PolicyId) ?? new ResourcePolicy()
+        Policy = Role.Policies.FirstOrDefault(x => x.AccessPolicy.Id == PolicyId) ?? new ResourcePolicy
         {
-            AccessPolicy = new AccessPolicy()
-            {
-
-            },
-            Global = true
+            AccessPolicy = new AccessPolicy(),
+            Global = !ResourceId.HasValue,
+            ResourceId = ResourceId
         };
 
         _permissions = Policy.AccessPolicy.Permissions;

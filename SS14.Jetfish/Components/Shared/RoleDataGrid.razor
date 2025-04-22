@@ -37,7 +37,7 @@
                     <CellTemplate>
                         <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="TeamId">
                             <MudTooltip Delay="800" Text="Edit Policy">
-                                <MudIconButton OnClick="@(() => OnPolicyEdit(columnContext.Item))" Class="mx-2" Size="Size.Small" Icon="@Icons.Material.Filled.Edit" aria-label="edit"/>
+                                <MudIconButton OnClick="@(() => OnPolicyEdit(columnContext.Item, context.Item))" Class="mx-2" Size="Size.Small" Icon="@Icons.Material.Filled.Edit" aria-label="edit"/>
                             </MudTooltip>
                             <MudTooltip Delay="800" Text="Delete Policy">
                                 <MudIconButton OnClick="@(() => OnPolicyDelete(columnContext.Item))" Class="mx-2" Size="Size.Small" Color="Color.Secondary" Icon="@Icons.Material.Filled.DeleteForever" aria-label="delete"/>
