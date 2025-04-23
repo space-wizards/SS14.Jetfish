@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SS14.Jetfish.Core.Extensions;
@@ -9,11 +10,12 @@ namespace SS14.Jetfish.Security.Model;
 /// <summary>
 /// Controls access policies for various endpoints and actions for Jetfish.
 /// </summary>
-public sealed class AccessPolicy : IEntityTypeConfiguration<AccessPolicy>, IRecord<int>
+public sealed class AccessPolicy : IEntityTypeConfiguration<AccessPolicy>, IRecord<int?>
 {
     public const int AccessPolicyMaxNameLength = 200;
-
-    public int Id { get; set; }
+    
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int? Id { get; set; } = null!;
     public int Version { get; set; }
 
     /// <summary>

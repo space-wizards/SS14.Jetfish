@@ -12,7 +12,7 @@ public static class EntityRecordExtension
         builder.Property(x => x.Version).IsRowVersion();
     }
 
-    public static void ConfigureRowVersionInt<T>(this EntityTypeBuilder<T> builder) where T : class, IRecord<int>
+    public static void ConfigureRowVersionInt<T>(this EntityTypeBuilder<T> builder) where T : class, IRecord<int?>
     {
         builder.Property(x => x.Version).IsRowVersion();
     }

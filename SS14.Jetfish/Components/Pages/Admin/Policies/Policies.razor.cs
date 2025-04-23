@@ -2,7 +2,10 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using SS14.Jetfish.Core.Commands;
 using SS14.Jetfish.Core.Services;
+using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Core.Types;
+using SS14.Jetfish.Helpers;
+using SS14.Jetfish.Security.Commands;
 using SS14.Jetfish.Security.Model;
 using SS14.Jetfish.Security.Repositories;
 
@@ -23,6 +26,9 @@ public partial class Policies : ComponentBase
     
     [Inject]
     private UiErrorService UiErrorService { get; set; } = null!;
+    
+    [Inject]
+    private ICommandService CommandService { get; set; } = null!;
     
     private async Task<GridData<AccessPolicy>> LoadData(GridState<AccessPolicy> arg)
     {
@@ -53,24 +59,42 @@ public partial class Policies : ComponentBase
         if (result == null || result.Canceled)
             return;
 
-        await SaveChangesUpdate((Role) result.Data!);
+        await SaveChangesUpdate((AccessPolicy) result.Data!);
     }
 
     private async Task OnEdit(AccessPolicy policy)
     {
-        await Task.CompletedTask;
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+        };
+        
+        var parameters = new DialogParameters<PolicyDialog> { { x => x.Policy, policy } };
+        
+        var dialog = await DialogService.ShowAsync<PolicyDialog>("Edit Policy", parameters, options);
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
+
+        await SaveChangesUpdate((AccessPolicy) result.Data!);
     }
 
     private async Task OnDelete(AccessPolicy policy)
     {
-        await Task.CompletedTask;
+        if (!await BlazorUtility.ConfirmDelete(DialogService, "policy"))
+            return;
+        
+        var command = new DeletePolicyCommand(policy);
+        var commandResult = await CommandService.Run(command);
+        await SaveChangesFinal(commandResult);
     }
     
-    private async Task SaveChangesUpdate(Role role)
+    private async Task SaveChangesUpdate(AccessPolicy policy)
     {
-        //var command = new CreateOrUpdateRoleCommand(role);
-        //var commandResult = await CommandService.Run(command);
-        //await SaveChangesFinal(commandResult);
+        var command = new CreateOrUpdatePolicyCommand(policy);
+        var commandResult = await CommandService.Run(command);
+        await SaveChangesFinal(commandResult);
         await Task.CompletedTask;
     }
 

@@ -6,7 +6,7 @@ using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Security.Repositories;
 
-public class PolicyRepository : BaseRepository<AccessPolicy, int>
+public class PolicyRepository : BaseRepository<AccessPolicy, int?>
 {
     private readonly ApplicationDbContext _context;
 
@@ -17,12 +17,11 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int>
 
     public override async Task<Result<AccessPolicy, Exception>> AddOrUpdate(AccessPolicy record)
     {
-        var exists = _context.AccessPolicies.AsNoTracking().Any(p => p.Id == record.Id);
-        _context.Entry(record).State = exists  ? EntityState.Modified : EntityState.Added;
+        _context.Entry(record).State = record.Id != null  ? EntityState.Modified : EntityState.Added;
         return await SaveChanges(record, _context);
     }
 
-    public override async Task<AccessPolicy?> GetAsync(int id)
+    public override async Task<AccessPolicy?> GetAsync(int? id)
     {
         return await _context.AccessPolicies.SingleOrDefaultAsync(p => p.Id == id);
     }
