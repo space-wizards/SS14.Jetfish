@@ -1,16 +1,19 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using SS14.Jetfish.Components.Pages.Admin.Policies;
+using SS14.Jetfish.Components.Shared.Dialogs;
 using SS14.Jetfish.Core.Commands;
 using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Helpers;
+using SS14.Jetfish.Security;
 using SS14.Jetfish.Security.Commands;
 using SS14.Jetfish.Security.Model;
+using SS14.Jetfish.Security.Model.FormModel;
 using SS14.Jetfish.Security.Repositories;
 
-namespace SS14.Jetfish.Components.Shared;
+namespace SS14.Jetfish.Components.Shared.Grids;
 
 public partial class RoleDataGrid : ComponentBase
 {
@@ -58,22 +61,42 @@ public partial class RoleDataGrid : ComponentBase
 
     private async Task AddPolicy(Role role)
     {
-        var parameters = new DialogParameters<APolicyDialog> {
-        { x => x.Role, role },
-        { x => x.ResourceId, TeamId}
+        var parameters = new DialogParameters<ResourcePolicyDialog> {
+            { x => x.Global, Global},
+            { x => x.ShowAllPolicies, Global},
+            { x => x.ResourceSearchFunc, SearchResources}
         };
 
         var options = new DialogOptions
         {
             CloseOnEscapeKey = true,
         };
-        var dialog = await DialogService.ShowAsync<APolicyDialog>("Add Policy", parameters, options);
+        //var dialog = await DialogService.ShowAsync<APolicyDialog>("Add Policy", parameters, options);
+        var dialog = await DialogService.ShowAsync<ResourcePolicyDialog>("Apply Policy", parameters, options);
         var result = await dialog.Result;
 
         if (result == null || result.Canceled)
             return;
 
+        //if (role.Policies is not { } _)
+        //    role.Policies = new List<ResourcePolicy>();
+
+        var model = (ResourcePolicyFormModel)result.Data!;
+        var policy = new ResourcePolicy
+        {
+            AccessPolicy = model.Policy!,
+            Global = Global,
+            ResourceId = model.Resource!.Id
+        };
+        
+        role.Policies.Add(policy);
         await SaveChangesUpdate((Role) result.Data!);
+    }
+
+    private async Task<IEnumerable<IResource>> SearchResources(string? searchString, CancellationToken ct)
+    {
+        await Task.CompletedTask;
+        return [];
     }
 
     private async Task OnPolicyEdit(ResourcePolicy? policy, Role role)
@@ -109,11 +132,11 @@ public partial class RoleDataGrid : ComponentBase
 
     private string GetPolicyType(ResourcePolicy policy)
     {
-        return policy.Global
-            ? "Global"
-            : policy.ResourceId.HasValue
-                ? "Resource"
-                : "General";
+        if (policy.Global)
+            return "Global";
+        
+        // TODO: Implement getting the resource name
+        return !policy.ResourceId.HasValue ? "General" : "Resource";
     }
 
     private async Task OnRoleEdit(Role role)

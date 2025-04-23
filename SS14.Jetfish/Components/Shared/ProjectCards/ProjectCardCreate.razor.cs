@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using SS14.Jetfish.Components.Shared.Dialogs;
 using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Components.Shared.ProjectCards;

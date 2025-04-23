@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions.Internal;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
@@ -37,13 +38,17 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int?>
         return await _context.AccessPolicies.AsNoTracking().CountAsync();
     }
     
-    public async Task<IEnumerable<AccessPolicy>> GetAllAsync(int limit = 0, int offset = 0, CancellationToken ct = new())
+    public async Task<IEnumerable<AccessPolicy>> GetAllAsync(string? name = null, int limit = 0, int offset = 0, CancellationToken ct = new())
     {
-        var query = _context.AccessPolicies.OrderBy(role => role.Id).Skip(offset);
+        var query = _context.AccessPolicies.AsQueryable();
 
+        if (name != null)
+            query = query.Where(policy =>  EF.Functions.ILike(policy.Name, $"{name}%"));
+            
+        var finalQuery = query.OrderBy(role => role.Id).Skip(offset);
         if (limit != 0)
-            query = query.Take(limit);
+            finalQuery = finalQuery.Take(limit);
 
-        return await query.ToListAsync(ct);
+        return await finalQuery.ToListAsync(ct);
     }
 }

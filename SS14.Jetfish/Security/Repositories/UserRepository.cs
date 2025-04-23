@@ -37,7 +37,7 @@ public class UserRepository : BaseRepository<User, Guid>
         var query = _dbContext.User.AsQueryable();
 
         if (!string.IsNullOrEmpty(search))
-            query = query.Where(user => user.DisplayName.StartsWith(search.Trim()));
+            query = query.Where(user => EF.Functions.ILike(user.DisplayName, $"{search}%"));
 
         query = query.OrderBy(user => user.DisplayName);
         

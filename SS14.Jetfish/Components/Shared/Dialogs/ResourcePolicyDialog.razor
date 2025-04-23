@@ -1,0 +1,16 @@
+@using SS14.Jetfish.Components.Shared.Forms
+<MudDialog Style="min-height: 213px; min-width: 308px">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Badge" Class="mr-3 mb-n1"/>
+            @Dialog.Title
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <ResourcePolicyForm @ref="_form" Model="Model" Global="Global" ShowAllPolicies="ShowAllPolicies" ResourceSearchFunc="ResourceSearchFunc"/>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="Save">Save</MudButton>
+    </DialogActions>
+</MudDialog>

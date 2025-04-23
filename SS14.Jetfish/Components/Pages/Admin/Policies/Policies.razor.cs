@@ -36,7 +36,7 @@ public partial class Policies : ComponentBase
         if (count == 0)
             return new GridData<AccessPolicy>();
             
-        var policies = await Repository.GetAllAsync(arg.PageSize, arg.Page * arg.PageSize);
+        var policies = await Repository.GetAllAsync(limit: arg.PageSize, offset: arg.Page * arg.PageSize);
 
         var gridData = new GridData<AccessPolicy>
         {

@@ -1,6 +1,7 @@
 @using System.Diagnostics.CodeAnalysis
 @using SS14.Jetfish.Security.Model.FormModel
 @using SS14.Jetfish.Security.Repositories
+@using SS14.Jetfish.Components.Shared.Forms
 <EditForm @ref="_editForm" Model="_model">
     <DataAnnotationsValidator/>
     <MudAutocomplete T="User" ValueChanged="user => _model.UserId = user.Id" SearchFunc="UserSearch" CoerceText="true" Converter="UserConverter"></MudAutocomplete>

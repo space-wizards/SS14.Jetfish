@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using SS14.Jetfish.Components.Shared;
+using SS14.Jetfish.Components.Shared.Dialogs;
 using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Helpers;

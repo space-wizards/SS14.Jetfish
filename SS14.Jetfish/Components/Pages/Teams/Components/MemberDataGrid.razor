@@ -4,6 +4,7 @@
 @using SS14.Jetfish.Helpers
 @using SS14.Jetfish.Security.Commands
 @using SS14.Jetfish.Security.Model.FormModel
+@using SS14.Jetfish.Components.Shared.Forms
 <MudDataGrid T="TeamMember" CommittedItemChanges="OnEditedMember" ReadOnly="false" Dense="true" Items="TeamMembers" EditMode="DataGridEditMode.Form" Elevation="0">
     <Columns>
         <TemplateColumn Title="Users">
@@ -16,7 +17,7 @@
         </PropertyColumn>
         <PropertyColumn Title="Role" Property="t => t.Role.DisplayName">
             <EditTemplate>
-                <RoleSelect Roles="Team.Roles" @bind-Value="@context.Item.Role" Required></RoleSelect>
+                <RoleSelect Roles="Team.Roles" @bind-Value="@context.Item.Role" Required/>
             </EditTemplate>
         </PropertyColumn>
         <TemplateColumn HeaderStyle="height: 59px;" Title="Actions" CellStyle="min-height: 36.8px;" CellClass="d-flex justify-end" HeaderClass="d-flex justify-end">

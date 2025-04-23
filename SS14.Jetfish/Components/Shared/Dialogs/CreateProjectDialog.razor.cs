@@ -6,17 +6,12 @@ using MudBlazor;
 using Serilog;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Core.Services.Interfaces;
-using SS14.Jetfish.FileHosting.Model;
-using SS14.Jetfish.FileHosting.Services;
 using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Projects.Commands;
-using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Projects.Model.FormModel;
-using SS14.Jetfish.Security.Commands;
 using SS14.Jetfish.Security.Model;
-using SS14.Jetfish.Security.Repositories;
 
-namespace SS14.Jetfish.Components.Shared;
+namespace SS14.Jetfish.Components.Shared.Dialogs;
 
 public partial class CreateProjectDialog : ComponentBase
 {
@@ -33,15 +28,7 @@ public partial class CreateProjectDialog : ComponentBase
 
     private ServerConfiguration ServerConfiguration { get; set; } = new();
 
-    protected override async Task OnParametersSetAsync()
-    {
-        Configuration.Bind(ServerConfiguration.Name, ServerConfiguration);
 
-        _model.Team = Team;
-        var auth = await AuthenticationState!; // If this comp is used, I expect some other auth check to have already passed
-        var userId = auth.User.Claims.GetUserId()!; // same here fuck you
-        _model.UserId = userId.Value;
-    }
 
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = null!;
@@ -56,6 +43,16 @@ public partial class CreateProjectDialog : ComponentBase
     private bool _displayProgressbar = false;
 
     private void Cancel() => MudDialog.Cancel();
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        Configuration.Bind(ServerConfiguration.Name, ServerConfiguration);
+
+        _model.Team = Team;
+        var auth = await AuthenticationState!; // If this comp is used, I expect some other auth check to have already passed
+        var userId = auth.User.Claims.GetUserId()!; // same here fuck you
+        _model.UserId = userId.Value;
+    }
 
     private readonly NewProjectFormModel _model = new()
     {

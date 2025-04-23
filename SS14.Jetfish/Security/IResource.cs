@@ -3,5 +3,6 @@
 public interface IResource
 {
     public Guid Id { get; }
-
+    
+    public string Name => "";
 }
