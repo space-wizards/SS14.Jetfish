@@ -68,6 +68,20 @@ public sealed class FileService
         return Result<UploadedFile, Exception>.Success(createdFile.Entity);
     }
 
+    public async Task<IResult> GetGlobalFileAsResult(Guid fileId)
+    {
+        var file = await _dbContext.UploadedFile
+            .Include(file => file.Usages)
+            .FirstOrDefaultAsync(file =>
+                file.Id == fileId && file.Usages.Any(usage => usage.Public)
+            );
+
+        if (file == null)
+            return Results.NotFound();
+
+        return InternalGetFileResult(file);
+    }
+
     public async Task<IResult> GetProjectFileAsResult(ClaimsPrincipal principal, Guid projectId, Guid fileId)
     {
         var file = await _dbContext.UploadedFile

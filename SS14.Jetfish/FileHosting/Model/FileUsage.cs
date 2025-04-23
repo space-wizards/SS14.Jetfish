@@ -18,6 +18,7 @@ namespace SS14.Jetfish.FileHosting.Model;
 [Index(nameof(CardId))]
 [Index(nameof(ProjectId))]
 [Index(nameof(UploadedFileId))]
+[Index(nameof(Public))]
 public sealed class FileUsage : IEntityTypeConfiguration<FileUsage>, IRecord<Guid>
 {
     public Guid Id { get; set; }
@@ -25,20 +26,25 @@ public sealed class FileUsage : IEntityTypeConfiguration<FileUsage>, IRecord<Gui
     // Entries in this entity only get created or deleted.
     [NotMapped]
     public int Version => 0;
-    
+
     public Guid? CardId { get; set; }
     public Guid UploadedFileId { get; set; }
-    public Guid ProjectId { get; set; }
+    public Guid? ProjectId { get; set; }
 
-    public Project Project { get; set; } = null!;
-    public Card Card { get; set; } = null!;
-    
+    /// <summary>
+    /// Indicates that this file is public.
+    /// </summary>
+    public bool Public { get; set; } = false;
+
+    public Project? Project { get; set; }
+    public Card? Card { get; set; }
+
     public void Configure(EntityTypeBuilder<FileUsage> builder)
     {
         builder.HasOne(usage => usage.Project)
             .WithOne()
             .HasForeignKey<FileUsage>(usage => usage.ProjectId);
-        
+
         builder.HasOne(usage => usage.Card)
             .WithOne()
             .HasForeignKey<FileUsage>(usage => usage.CardId);

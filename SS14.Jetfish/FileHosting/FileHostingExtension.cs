@@ -11,14 +11,17 @@ public static class FileHostingExtension
         builder.Services.AddScoped<FileService>();
         builder.Services.AddScoped<FileRepository>();
     }
-    
+
     public static void UseFileHosting(this WebApplication app)
     {
         app.MapGet("/project-file/{projectId:guid}/file/{fileId:guid}",
             async (Guid fileId, Guid projectId, FileService fileService, ClaimsPrincipal user) =>
                 await fileService.GetProjectFileAsResult(user, projectId, fileId));
-                
-        app.MapGet("/user-file/{fileId:guid}", async (Guid fileId, FileService fileService, ClaimsPrincipal user) => 
+
+        app.MapGet("/user-file/{fileId:guid}", async (Guid fileId, FileService fileService, ClaimsPrincipal user) =>
             await fileService.GetUserFileAsResult(user, fileId));
+
+        app.MapGet("/global-file/{fileId:guid}", async (Guid fileId, FileService fileService) =>
+            await fileService.GetGlobalFileAsResult(fileId));
     }
 }
