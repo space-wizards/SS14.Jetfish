@@ -7,6 +7,7 @@ using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Helpers;
+using SS14.Jetfish.Projects.Repositories;
 using SS14.Jetfish.Security;
 using SS14.Jetfish.Security.Commands;
 using SS14.Jetfish.Security.Model;
@@ -20,13 +21,16 @@ public partial class RoleDataGrid : ComponentBase
     private MudDataGrid<Role> _grid = null!;
 
     [Parameter]
-    public Guid? TeamId { get; set; }
+    public Team? Team { get; set; }
     
     [Parameter]
     public bool Global { get; set; }
     
     [Inject]
     private RoleRepository Repository { get; set; } = null!;
+    
+    [Inject]
+    private ProjectRepository ProjectRepository { get; set; } = null!;
     
     [Inject]
     private ICommandService CommandService { get; set; } = null!;
@@ -44,11 +48,11 @@ public partial class RoleDataGrid : ComponentBase
     {
         var roles = Global
             ? await Repository.GetAllGlobal(arg.PageSize, arg.Page * arg.PageSize)
-            : await Repository.GetAllAsync(TeamId, arg.PageSize, arg.Page * arg.PageSize);
+            : await Repository.GetAllAsync(Team?.Id, arg.PageSize, arg.Page * arg.PageSize);
         
         var count = Global
             ? await Repository.CountAllGlobal()
-            : await Repository.CountAsync(TeamId);
+            : await Repository.CountAsync(Team?.Id);
 
         var gridData = new GridData<Role>
         {
@@ -86,17 +90,22 @@ public partial class RoleDataGrid : ComponentBase
         {
             AccessPolicy = model.Policy!,
             Global = Global,
-            ResourceId = model.Resource!.Id
+            ResourceId = model.Resource?.Id
         };
         
         role.Policies.Add(policy);
-        await SaveChangesUpdate((Role) result.Data!);
+        await SaveChangesUpdate(role);
     }
 
     private async Task<IEnumerable<IResource>> SearchResources(string? searchString, CancellationToken ct)
     {
-        await Task.CompletedTask;
-        return [];
+        var resources = new List<IResource>();
+        resources.AddRange(await ProjectRepository.Search(Team?.Id, search: searchString, limit: 10, ct: ct));
+
+        if (Team != null && (string.IsNullOrEmpty(searchString) || Team.Name.StartsWith(searchString, StringComparison.InvariantCultureIgnoreCase)))
+            resources.Add(Team);
+
+        return resources;
     }
 
     private async Task OnPolicyEdit(ResourcePolicy? policy, Role role)
@@ -125,9 +134,13 @@ public partial class RoleDataGrid : ComponentBase
         await SaveChangesUpdate((Role) result.Data!);
     }
 
-    private async Task OnPolicyDelete(ResourcePolicy? policy)
+    private async Task OnPolicyDelete(ResourcePolicy? policy, Role role)
     {
-        await Task.CompletedTask;
+        if (policy == null || !await BlazorUtility.ConfirmDelete(DialogService, "policy"))
+            return;
+        
+        role.Policies.Remove(policy);
+        await SaveChangesUpdate(role);
     }
 
     private string GetPolicyType(ResourcePolicy policy)
@@ -180,7 +193,7 @@ public partial class RoleDataGrid : ComponentBase
             return;
 
         var role = (Role) result.Data!;
-        role.TeamId = TeamId;
+        role.TeamId = Team?.Id;
         await SaveChangesUpdate((Role) result.Data!);
     }
     

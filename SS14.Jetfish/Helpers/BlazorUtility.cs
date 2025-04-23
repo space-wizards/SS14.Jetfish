@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 
 namespace SS14.Jetfish.Helpers;
@@ -35,5 +36,29 @@ public static class BlazorUtility
         );
 
         navigationManager.Refresh(true);
+    }
+
+    /// <summary>
+    /// Get the userId from the authentication state task usually provided as a cascading parameter
+    /// </summary>
+    /// <param name="AuthenticationState">The Authentication state tasl</param>
+    /// <returns>The <see cref="Guid"/> of the authenticated user</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the <paramref name="AuthenticationState"/> is null, or if the UserId cannot be determined from the user claims.
+    /// </exception>
+    /// <remarks>
+    /// This method should not be called where it's not certain the user is already authenticated
+    /// </remarks>
+    public static async Task<Guid> GetUserId(this Task<AuthenticationState>? AuthenticationState)
+    {
+        if (AuthenticationState == null)
+            throw new InvalidOperationException("AuthenticationState is null");
+
+        var auth = await AuthenticationState;
+        var userId = auth.User.Claims.GetUserId();
+        if (!userId.HasValue)
+            throw new InvalidOperationException("UserId is null");
+
+        return userId.Value;
     }
 }

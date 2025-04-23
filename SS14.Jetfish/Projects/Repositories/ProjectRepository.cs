@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
@@ -34,7 +35,33 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
     {
         throw new NotImplementedException();
     }
+    
+    public async Task<ICollection<Project>> Search(Guid? teamId, string? search, int? limit = null, int? offset = null, CancellationToken ct = default)
+    {
+        IQueryable<Project> query;
+        
+        // Rider doesn't like this being a ternary when using efcore functions later on
+        if (teamId != null)
+        { 
+            query = _context.Team.Where(x => x.Id == teamId).SelectMany(x => x.Projects);
+        }
+        else
+        {
+            query = _context.Project.AsQueryable();
+        }
+            
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(x => EF.Functions.ILike(x.Name, $"{search}%"));
 
+        if (offset.HasValue)
+            query = query.Skip(offset.Value);
+
+        if (limit.HasValue)
+            query = query.Take(limit.Value);
+
+        return await query.OrderBy(x => x.Id).ToListAsync(ct);
+    }
+    
     public async Task<ICollection<Project>> ListByPolicy(Guid userId, Permission policy, int? limit = null, int? offset = null)
     {
         var teamQuery = _context.Project.Where(project =>

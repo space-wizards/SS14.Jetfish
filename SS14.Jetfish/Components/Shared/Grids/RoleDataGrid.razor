@@ -6,7 +6,7 @@
         <PropertyColumn Title="Policies" Property="role => role.Policies.Count"/>
         <TemplateColumn HeaderStyle="width: 10%;" CellStyle="min-height: 54px;" CellClass="d-flex justify-end">
             <CellTemplate>
-                <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="TeamId">
+                <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="Team?.Id">
                     <MudTooltip Delay="800" Text="Add Policy">
                         <MudIconButton OnClick="@(() => AddPolicy(context.Item))" Class="mx-2" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.AddModerator" aria-label="add policy"/>
                     </MudTooltip>
@@ -35,12 +35,12 @@
                 <PropertyColumn HeaderStyle="width: 5%;" Title="Type" Property="policy => GetPolicyType(policy)"/>
                 <TemplateColumn HeaderStyle="width: 10%;" Context="columnContext" CellStyle="min-height: 45px;" CellClass="d-flex justify-end">
                     <CellTemplate>
-                        <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="TeamId">
+                        <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="Team?.Id">
                             <MudTooltip Delay="800" Text="Edit Policy">
                                 <MudIconButton OnClick="@(() => OnPolicyEdit(columnContext.Item, context.Item))" Class="mx-2" Size="Size.Small" Icon="@Icons.Material.Filled.Edit" aria-label="edit"/>
                             </MudTooltip>
                             <MudTooltip Delay="800" Text="Delete Policy">
-                                <MudIconButton OnClick="@(() => OnPolicyDelete(columnContext.Item))" Class="mx-2" Size="Size.Small" Color="Color.Secondary" Icon="@Icons.Material.Filled.DeleteForever" aria-label="delete"/>
+                                <MudIconButton OnClick="@(() => OnPolicyDelete(columnContext.Item, context.Item))" Class="mx-2" Size="Size.Small" Color="Color.Secondary" Icon="@Icons.Material.Filled.DeleteForever" aria-label="delete"/>
                             </MudTooltip>
                         </AuthorizeResource>
                     </CellTemplate>
@@ -49,7 +49,7 @@
             <PagerContent>
                 <MudToolBar Dense>
                     <MudSpacer/>
-                    <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="TeamId">
+                    <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="Team?.Id">
                         <MudButton OnClick="async () => await AddPolicy(context.Item)" Variant="Variant.Text" StartIcon="@Icons.Material.Outlined.Add" Color="Color.Primary">Add Policy</MudButton>
                     </AuthorizeResource>
                 </MudToolBar>
@@ -59,7 +59,7 @@
     <PagerContent>
         <MudStack Row="true" StretchItems="StretchItems.All">
             <MudToolBar Dense="true" Class="mud-table-pagination-toolbar pl-4">
-                <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="TeamId">
+                <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="Team?.Id">
                     <MudButton OnClick="CreateRole" Variant="Variant.Text" StartIcon="@Icons.Material.Outlined.Add" Color="Color.Primary">New Role</MudButton>
                 </AuthorizeResource>
             </MudToolBar>
