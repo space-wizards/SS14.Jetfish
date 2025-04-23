@@ -23,11 +23,11 @@
         @if (!Global)
         {
             <MudAutocomplete Label="Resource" T="IResource" Adornment="Adornment.End" AdornmentColor="Color.Primary" 
-                             AdornmentIcon="@(_model.Resource?.GetResourceTyp().GetIcon() ?? "")" @bind-Value="_model.Resource"
+                             AdornmentIcon="@(_model.Resource?.GetResourceType().GetIcon() ?? "")" @bind-Value="_model.Resource"
                              SearchFunc="ResourceSearch" CoerceText="true" Converter="ResourceConverter" For="() => _model.Resource!">
                 <ItemTemplate Context="itemContext">
                     <MudText>
-                        <MudIcon Icon="@itemContext.GetResourceTyp().GetIcon()" Class="mb-n1 mr-3"/>@itemContext.Name
+                        <MudIcon Icon="@itemContext.GetResourceType().GetIcon()" Class="mb-n1 mr-3"/>@itemContext.Name
                     </MudText>
                 </ItemTemplate>
             </MudAutocomplete>

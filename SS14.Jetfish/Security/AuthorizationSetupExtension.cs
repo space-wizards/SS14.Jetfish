@@ -2,6 +2,7 @@
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Security.Commands.Handlers;
 using SS14.Jetfish.Security.Repositories;
+using SS14.Jetfish.Security.Services;
 
 namespace SS14.Jetfish.Security;
 
@@ -11,6 +12,7 @@ public static class AuthorizationSetupExtension
     {
         builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
         builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        builder.Services.AddScoped<ResourceService>();
         builder.Services.AddScoped<RoleRepository>();
         builder.Services.AddScoped<TeamRepository>();
         builder.Services.AddScoped<UserRepository>();

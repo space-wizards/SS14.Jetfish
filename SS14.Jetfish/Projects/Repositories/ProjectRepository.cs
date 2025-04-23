@@ -26,9 +26,9 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
         return await SaveChanges(record, _context);
     }
 
-    public override Task<Project?> GetAsync(Guid id)
+    public override async Task<Project?> GetAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _context.Project.FindAsync(id);
     }
 
     public override Task<Result<Project, Exception>> Delete(Project record)

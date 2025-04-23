@@ -32,7 +32,12 @@
                         }
                     </CellTemplate>
                 </TemplateColumn>
-                <PropertyColumn HeaderStyle="width: 5%;" Title="Type" Property="policy => GetPolicyType(policy)"/>
+                <TemplateColumn HeaderStyle="width: 15%;" Title="Resource" Context="columnContext">
+                    <CellTemplate>
+                        <AsyncIcon Class="mb-n1" Size="Size.Small" Icon="async () => await GetPolicyResourceIcon(columnContext.Item)" />
+                        <AsyncText Text="async () => await GetPolicyResourceName(columnContext.Item)"/>
+                    </CellTemplate>
+                </TemplateColumn>
                 <TemplateColumn HeaderStyle="width: 10%;" Context="columnContext" CellStyle="min-height: 45px;" CellClass="d-flex justify-end">
                     <CellTemplate>
                         <AuthorizeResource Policy="@Permission.PoliciesWrite.Or(Permission.TeamEdit)" Resource="Team?.Id">

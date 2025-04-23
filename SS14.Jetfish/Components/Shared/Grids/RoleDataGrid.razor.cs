@@ -13,6 +13,7 @@ using SS14.Jetfish.Security.Commands;
 using SS14.Jetfish.Security.Model;
 using SS14.Jetfish.Security.Model.FormModel;
 using SS14.Jetfish.Security.Repositories;
+using SS14.Jetfish.Security.Services;
 
 namespace SS14.Jetfish.Components.Shared.Grids;
 
@@ -43,6 +44,9 @@ public partial class RoleDataGrid : ComponentBase
     
     [Inject]
     private UiErrorService UiErrorService { get; set; } = null!;
+    
+    [Inject]
+    private ResourceService ResourceService { get; set; } = null!;
     
     private async Task<GridData<Role>> LoadData(GridState<Role> arg)
     {
@@ -75,22 +79,21 @@ public partial class RoleDataGrid : ComponentBase
         {
             CloseOnEscapeKey = true,
         };
-        //var dialog = await DialogService.ShowAsync<APolicyDialog>("Add Policy", parameters, options);
+        
         var dialog = await DialogService.ShowAsync<ResourcePolicyDialog>("Apply Policy", parameters, options);
         var result = await dialog.Result;
 
         if (result == null || result.Canceled)
             return;
 
-        //if (role.Policies is not { } _)
-        //    role.Policies = new List<ResourcePolicy>();
 
         var model = (ResourcePolicyFormModel)result.Data!;
         var policy = new ResourcePolicy
         {
             AccessPolicy = model.Policy!,
             Global = Global,
-            ResourceId = model.Resource?.Id
+            ResourceId = model.Resource?.Id,
+            ResourceType = model.Resource?.GetResourceType()
         };
         
         role.Policies.Add(policy);
@@ -113,23 +116,34 @@ public partial class RoleDataGrid : ComponentBase
         if (policy == null)
             return;
         
-        var parameters = new DialogParameters<APolicyDialog> {
+        
+        
+        var parameters = new DialogParameters<ResourcePolicyDialog> {
+            { x => x.Global, Global},
+            { x => x.ShowAllPolicies, Global},
+            { x => x.ResourceSearchFunc, SearchResources},
             {
-                x => x.Role, role
-            },
-            {
-                x => x.PolicyId, policy.AccessPolicy.Id
-            } };
+                x => x.Model, new ResourcePolicyFormModel
+                {
+                    Policy = policy.AccessPolicy,
+                    Resource = await ResourceService.GetResource(policy.ResourceType, policy.ResourceId),
+                }
+            }
+        };
 
         var options = new DialogOptions
         {
             CloseOnEscapeKey = true,
         };
-        var dialog = await DialogService.ShowAsync<APolicyDialog>("Edit Policy", parameters, options);
+        
+        var dialog = await DialogService.ShowAsync<ResourcePolicyDialog>("Apply Policy", parameters, options);
         var result = await dialog.Result;
 
         if (result == null || result.Canceled)
             return;
+
+
+        var model = (ResourcePolicyFormModel)result.Data!;
 
         await SaveChangesUpdate((Role) result.Data!);
     }
@@ -143,13 +157,26 @@ public partial class RoleDataGrid : ComponentBase
         await SaveChangesUpdate(role);
     }
 
-    private string GetPolicyType(ResourcePolicy policy)
+    private async Task<string> GetPolicyResourceName(ResourcePolicy policy)
     {
         if (policy.Global)
             return "Global";
+
+        if (!policy.ResourceId.HasValue)
+            return "General";
         
-        // TODO: Implement getting the resource name
-        return !policy.ResourceId.HasValue ? "General" : "Resource";
+        var resource = await ResourceService.GetResource(policy.ResourceType, policy.ResourceId);
+        return resource?.Name ?? "Unknown";
+    }
+    
+    private async Task<string> GetPolicyResourceIcon(ResourcePolicy policy)
+    {
+        if (policy.Global || !policy.ResourceId.HasValue)
+            return Icons.Material.Filled.DataArray;
+        
+        var resource = await ResourceService.GetResource(policy.ResourceType, policy.ResourceId);
+        return resource?.GetResourceType().GetIcon() 
+               ?? Icons.Material.Filled.QuestionMark;
     }
 
     private async Task OnRoleEdit(Role role)

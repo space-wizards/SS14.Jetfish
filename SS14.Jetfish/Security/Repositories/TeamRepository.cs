@@ -23,6 +23,11 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
         return await SaveChanges(record, _context);
     }
 
+    public async Task<Team?> GetSimpleAsync(Guid id)
+    {
+        return await _context.Team.SingleOrDefaultAsync(t => t.Id == id);
+    }
+    
     public override async Task<Team?> GetAsync(Guid id)
     {
         return await _context.Team

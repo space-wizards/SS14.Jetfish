@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using SS14.Jetfish.FileHosting.Repositories;
 using SS14.Jetfish.FileHosting.Services;
 
 namespace SS14.Jetfish.FileHosting;
@@ -8,6 +9,7 @@ public static class FileHostingExtension
     public static void AddFileHosting(this WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<FileService>();
+        builder.Services.AddScoped<FileRepository>();
     }
     
     public static void UseFileHosting(this WebApplication app)

@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
 namespace SS14.Jetfish.Security.Model;
@@ -9,6 +10,7 @@ public sealed class ResourcePolicy
 {
     public int Id { get; set; }
     public int AccessPolicyId { get; set; }
+    public ResourceType? ResourceType { get; set; }
     public AccessPolicy AccessPolicy { get; set; } = null!;
     public Guid? ResourceId { get; set; }
     

@@ -1,0 +1,24 @@
+<MudIcon Icon="@_icon" Size="Size" Class="@Class"/>
+
+@code {
+
+    private string _icon = string.Empty;
+    
+    [Parameter]
+    public Func<Task<string>>? Icon { get; set; }
+
+    [Parameter]
+    public Size Size { get; set; } = Size.Medium;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Icon == null)
+            return;
+        
+        _icon = await Icon.Invoke();
+    }
+}
