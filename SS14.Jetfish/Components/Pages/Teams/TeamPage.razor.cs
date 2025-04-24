@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
 using SS14.Jetfish.Components.Pages.Teams.Dialogs;
 using SS14.Jetfish.Components.Shared;
@@ -7,6 +8,7 @@ using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Projects.Model;
+using SS14.Jetfish.Projects.Repositories;
 using SS14.Jetfish.Security.Commands;
 using SS14.Jetfish.Security.Model;
 using SS14.Jetfish.Security.Repositories;
@@ -20,6 +22,9 @@ public partial class TeamPage : ComponentBase
     
     [Inject]
     private TeamRepository TeamRepository { get; set; } = null!;
+    
+    [Inject]
+    private ProjectRepository ProjectRepository { get; set; } = null!;
     
     [Inject]
     private IDialogService DialogService { get; set; } = null!;
@@ -36,6 +41,9 @@ public partial class TeamPage : ComponentBase
     [Parameter]
     public Guid TeamId { get; set; }
     
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthenticationState { get; set; }
+    
     private Team? Team { get; set; }
 
     protected override async Task OnParametersSetAsync()
@@ -51,6 +59,8 @@ public partial class TeamPage : ComponentBase
 
     private Task OnProjectDelete(Project contextItem)
     {
+        var command = new 
+        
         return Task.CompletedTask;
     }
 
@@ -132,4 +142,25 @@ public partial class TeamPage : ComponentBase
         Navigation.NavigateTo("/teams");
     }
 
+    private async Task<GridData<Project>> LoadTeams(GridState<Project> arg)
+    {
+        var userId = await AuthenticationState.GetUserId();
+        
+        var count = await ProjectRepository.CountByPolicyAndTeam(userId, Team!.Id, Permission.ProjectRead);
+        if (count == 0)
+            return new GridData<Project>();
+
+        var projects = await ProjectRepository.ListByPolicyAndTeam(
+            userId,
+            Team!.Id,
+            Permission.ProjectRead,
+            arg.PageSize,
+            arg.Page * arg.PageSize);
+
+        return new GridData<Project>
+        {
+            Items = projects,
+            TotalItems = count
+        };
+    }
 }

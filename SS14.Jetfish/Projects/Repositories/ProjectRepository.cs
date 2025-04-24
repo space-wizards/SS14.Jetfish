@@ -61,23 +61,41 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
 
         return await query.OrderBy(x => x.Id).ToListAsync(ct);
     }
-    
-    public async Task<ICollection<Project>> ListByPolicy(Guid userId, Permission policy, int? limit = null, int? offset = null)
-    {
-        var teamQuery = _context.Project.Where(project =>
-            _context.TeamMember.Include(member => member.Role)
-                .Any(member => member.User.Id == userId
-                               && member.Role.Policies.Any(resourcePolicy =>
-                                   (resourcePolicy.ResourceId == project.Id || resourcePolicy.Global)
-                                   && resourcePolicy.AccessPolicy.Permissions.Contains(policy))));
 
-        var query = _context.Project.Where(project =>
-                _context.User.Any(user =>
-                    user.Id == userId
-                    && user.ResourcePolicies.Any(resourcePolicy =>
-                        (resourcePolicy.ResourceId == project.Id || resourcePolicy.Global)
-                        && resourcePolicy.AccessPolicy.Permissions.Contains(policy))))
-            .Union(teamQuery);
+    public async Task<int> CountByPolicyAndTeam(Guid userId, Guid teamId, Permission policy)
+    {
+        var teamQuery = PolicyTeamQuery(userId, policy)
+            .Where(project => _context.Team
+                .Where(team => team.Id == teamId)
+                .Any(team => team.Projects.Any(x => x.Id == project.Id)));
+        
+        var userQuery = PolicyUserQuery(userId, policy)
+            .Where(project => _context.Team
+                .Where(team => team.Id == teamId)
+                .Any(team => team.Projects.Any(x => x.Id == project.Id)));
+        
+        var query = userQuery.Union(teamQuery);
+        return await query.CountAsync();
+    }
+    
+    public async Task<ICollection<Project>> ListByPolicyAndTeam(
+        Guid userId, 
+        Guid teamId, 
+        Permission policy,
+        int? limit = null, 
+        int? offset = null)
+    {
+        var teamQuery = PolicyTeamQuery(userId, policy)
+            .Where(project => _context.Team
+                .Where(team => team.Id == teamId)
+                .Any(team => team.Projects.Any(x => x.Id == project.Id)));
+        
+        var userQuery = PolicyUserQuery(userId, policy)
+            .Where(project => _context.Team
+                .Where(team => team.Id == teamId)
+                .Any(team => team.Projects.Any(x => x.Id == project.Id)));
+        
+        var query = userQuery.Union(teamQuery);
 
         if (offset.HasValue)
             query = query.Skip(offset.Value);
@@ -86,6 +104,42 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
             query = query.Take(limit.Value);
 
         return await query.OrderBy(x => x.Id).ToListAsync();
+    }
+    
+    public async Task<ICollection<Project>> ListByPolicy(Guid userId, Permission policy, int? limit = null, int? offset = null)
+    {
+        var teamQuery = PolicyTeamQuery(userId, policy);
+        var userQuery = PolicyUserQuery(userId, policy);                                            
+        
+        var query = userQuery.Union(teamQuery);
+
+        if (offset.HasValue)
+            query = query.Skip(offset.Value);
+
+        if (limit.HasValue)
+            query = query.Take(limit.Value);
+
+        return await query.OrderBy(x => x.Id).ToListAsync();
+    }
+
+    private IQueryable<Project> PolicyUserQuery(Guid userId, Permission policy)
+    {
+        var userQuery = _context.Project.Where(project => _context.User
+            .Where(user => user.Id == userId)
+            .Any(user => user.ResourcePolicies
+                .Where(resourcePolicy => resourcePolicy.ResourceId == project.Id || resourcePolicy.Global)
+                .Any(resourcePolicy => resourcePolicy.AccessPolicy.Permissions.Contains(policy))));
+        return userQuery;
+    }
+
+    private IQueryable<Project> PolicyTeamQuery(Guid userId, Permission policy)
+    {
+        var teamQuery = _context.Project.Where(project => _context.TeamMember
+            .Include(member => member.Role)
+            .Where(member => member.User.Id == userId).Any(member => member.Role.Policies
+                .Where(resourcePolicy => resourcePolicy.ResourceId == project.Id || resourcePolicy.Global)
+                .Any(resourcePolicy => resourcePolicy.AccessPolicy.Permissions.Contains(policy))));
+        return teamQuery;
     }
 
     public async Task<ICollection<Project>> GetMultiple(IEnumerable<Guid> ids)
