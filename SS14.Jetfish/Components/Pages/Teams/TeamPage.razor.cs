@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using SS14.Jetfish.Components.Pages.Teams.Dialogs;
 using SS14.Jetfish.Components.Shared;
 using SS14.Jetfish.Components.Shared.Dialogs;
 using SS14.Jetfish.Core.Services;
@@ -85,7 +86,35 @@ public partial class TeamPage : ComponentBase
         
         StateHasChanged();
     }
+    
+    private async Task Edit()
+    {
+        var parameters = new DialogParameters<EditTeamDialog> {
+        {
+            x => x.Team, Team
+        }};
 
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+        };
+
+        var dialogResult = await DialogService.ShowAsync<EditTeamDialog>("Edit Team", parameters, options);
+        var result = await dialogResult.Result;
+
+        if (result?.Data is not Team team || result.Canceled)
+            return;
+        
+        var command = new CreateOrUpdateTeamCommand(team);
+        var commandResult = await CommandService.Run(command);
+        if (!commandResult!.Result!.IsSuccess)
+        {
+            await UiErrorService.HandleUiError(commandResult.Result.Error);
+        }
+
+        Team = team;
+    }
+    
     private async Task Delete()
     {
         if (Team == null || !await BlazorUtility.ConfirmDelete(DialogService, "team"))
@@ -102,4 +131,5 @@ public partial class TeamPage : ComponentBase
         Snackbar.Add("Team Removed!", Severity.Success);
         Navigation.NavigateTo("/teams");
     }
+
 }

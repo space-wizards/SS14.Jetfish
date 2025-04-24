@@ -1,0 +1,47 @@
+<MudDialog Style="min-width: 360px">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Create" Class="mr-3 mb-n1"/>
+            @Dialog.Title
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm @ref="_form" Model="_team">
+            <DataAnnotationsValidator/>
+            <MudTextField @bind-Value="_team.Name" For="() => _team.Name" Label="Name"/>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="Save">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code 
+{
+    [CascadingParameter]
+    private IMudDialogInstance Dialog { get; set; } = null!;
+    
+    private Team _team = null!;
+    private EditForm _form = null!;
+
+
+    [Parameter]
+    public Team Team { get; set; } = null!;
+
+    protected override void OnParametersSet()
+    {
+        _team = Team;
+    }
+    
+    private void Cancel() => Dialog.Cancel();
+
+
+    private void Save()
+    {
+        if (_form.EditContext?.IsValid(() => _team.Name) is false)
+            return;
+        
+        Dialog.Close(DialogResult.Ok(_team));
+    }
+}
