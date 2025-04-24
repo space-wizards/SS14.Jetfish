@@ -46,7 +46,7 @@ public partial class ResourcePolicyForm : ComponentBase
 
     private async Task<IEnumerable<AccessPolicy>>? PolicySearch(string? searchString, CancellationToken ct)
     {
-        return await PolicyRepository.GetAllAsync(searchString, ct: ct);
+        return await PolicyRepository.GetAllAsync(searchString, ShowAllPolicies, ct: ct);
     }
 
     private async Task<IEnumerable<IResource>> ResourceSearch(string? searchString, CancellationToken ct)

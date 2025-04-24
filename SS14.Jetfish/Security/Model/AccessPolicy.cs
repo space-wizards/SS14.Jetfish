@@ -29,6 +29,14 @@ public sealed class AccessPolicy : IEntityTypeConfiguration<AccessPolicy>, IReco
     [MaxLength(AccessPolicyMaxNameLength)]
     public string Name { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Indicates whether the access policy can be assigned to a team role.
+    /// </summary>
+    /// <remarks>
+    /// This is used for disallowing policies that are meant for site admins to be used in teams
+    /// </remarks>
+    public bool TeamAssignable { get; set; }
+
     public void Configure(EntityTypeBuilder<AccessPolicy> builder)
     {
         builder.HasKey(x => x.Id);

@@ -38,10 +38,13 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int?>
         return await _context.AccessPolicies.AsNoTracking().CountAsync();
     }
     
-    public async Task<IEnumerable<AccessPolicy>> GetAllAsync(string? name = null, int limit = 0, int offset = 0, CancellationToken ct = new())
+    public async Task<IEnumerable<AccessPolicy>> GetAllAsync(string? name = null, bool allPolicies = false, int limit = 0, int offset = 0, CancellationToken ct = new())
     {
         var query = _context.AccessPolicies.AsQueryable();
 
+        if (!allPolicies)
+            query = query.Where(policy => policy.TeamAssignable);
+        
         if (name != null)
             query = query.Where(policy =>  EF.Functions.ILike(policy.Name, $"{name}%"));
             

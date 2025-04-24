@@ -30,6 +30,9 @@
             }
         </MudSelect>
 
+        <MudCheckBox T="bool" @bind-Value="_teamAssignable" Label="Team assignable"/>
+        <MudText Typo="Typo.caption">Allow this policy to be used for team roles. Keep this disabled for admin policies.</MudText>
+        
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -46,11 +49,13 @@
     
     private IEnumerable<Permission> _permissions = new List<Permission>();
     private string _policyName = "";
+    private bool _teamAssignable;
 
     protected override void OnParametersSet()
     {
         _permissions = Policy.Permissions;
         _policyName = Policy.Name;
+        _teamAssignable = Policy.TeamAssignable;
     }
 
     private IEnumerable<string> MaxCharactersPolicyName(string ch) => BlazorUtility.MaxCharacters(ch, AccessPolicy.AccessPolicyMaxNameLength);
@@ -68,7 +73,8 @@
 
         Policy.Permissions = _permissions.ToList();
         Policy.Name = _policyName;
-
+        Policy.TeamAssignable = _teamAssignable;
+        
         MudDialog.Close(DialogResult.Ok(Policy));
     }
 }

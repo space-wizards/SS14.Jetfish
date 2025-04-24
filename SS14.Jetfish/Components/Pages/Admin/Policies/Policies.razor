@@ -15,6 +15,11 @@
                 }
             </CellTemplate>
         </TemplateColumn>
+        <TemplateColumn Title="Team" HeaderStyle="width: 5%;" CellStyle="min-height: 65px;">
+            <CellTemplate>
+                <MudIcon Size="Size.Small" Icon="@(context.Item.TeamAssignable ? Icons.Material.Filled.Check : Icons.Material.Filled.Close)" />
+            </CellTemplate>
+        </TemplateColumn>
         <TemplateColumn HeaderStyle="width: 10%;" CellStyle="min-height: 65px;" CellClass="d-flex justify-end">
             <CellTemplate>
                 <AuthorizeResource Policy="@nameof(Permission.PoliciesWrite)">
