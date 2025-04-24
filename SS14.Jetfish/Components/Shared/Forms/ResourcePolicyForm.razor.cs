@@ -57,7 +57,6 @@ public partial class ResourcePolicyForm : ComponentBase
         return await ResourceSearchFunc.Invoke(searchString, ct)!;
     }
     
-    
     /// <summary>
     /// Validates the model before returning it
     /// </summary>

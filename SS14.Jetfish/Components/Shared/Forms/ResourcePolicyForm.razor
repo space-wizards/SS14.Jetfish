@@ -18,13 +18,14 @@
     <MudStack Row>
         <MudAutocomplete Label="Policy" T="AccessPolicy" Adornment="Adornment.End" AdornmentColor="Color.Primary" AdornmentIcon="@Icons.Material.Filled.Policy" 
                          @bind-Value="_model.Policy" SearchFunc="PolicySearch" CoerceText="true" Converter="PolicyConverter"
-                         For="() => _model.Policy!"/>
+                         For="() => _model.Policy!" Clearable/>
         
         @if (!Global)
         {
             <MudAutocomplete Label="Resource" T="IResource" Adornment="Adornment.End" AdornmentColor="Color.Primary" 
                              AdornmentIcon="@(_model.Resource?.GetResourceType().GetIcon() ?? "")" @bind-Value="_model.Resource"
-                             SearchFunc="ResourceSearch" CoerceText="true" Converter="ResourceConverter" For="() => _model.Resource!">
+                             SearchFunc="ResourceSearch" CoerceText="true" Converter="ResourceConverter" 
+                             For="() => _model.Resource!" Clearable>
                 <ItemTemplate Context="itemContext">
                     <MudText>
                         <MudIcon Icon="@itemContext.GetResourceType().GetIcon()" Class="mb-n1 mr-3"/>@itemContext.Name
