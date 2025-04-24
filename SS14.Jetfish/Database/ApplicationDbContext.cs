@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Role> Role { get; set; }
     public DbSet<Project> Project { get; set; }
     public DbSet<UploadedFile> UploadedFile { get; set; }
+    public DbSet<FileUsage> FileUsage { get; set; }
 
 
     public ApplicationDbContext(DbContextOptions options) : base(options)

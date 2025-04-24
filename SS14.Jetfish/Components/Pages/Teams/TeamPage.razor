@@ -58,7 +58,7 @@
                         <MudButton OnClick="OnCreateProject" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success">Create Project</MudButton>
                     </AuthorizeResource>
                 </MudToolBar>
-                <MudDataGrid HeaderClass="" T="Project" ServerData="LoadTeams" Elevation="0">
+                <MudDataGrid @ref="_teamGrid" HeaderClass="" T="Project" ServerData="LoadTeams" Elevation="0">
                     <Columns>
                         <PropertyColumn Title="Name" Property="t => t.Name" />
                         <TemplateColumn HeaderStyle="height: 59px;" Title="Actions" CellStyle="min-height: 61px;" CellClass="d-flex justify-end" HeaderClass="d-flex justify-end">

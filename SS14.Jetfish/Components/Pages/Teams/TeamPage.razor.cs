@@ -7,6 +7,7 @@ using SS14.Jetfish.Components.Shared.Dialogs;
 using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Helpers;
+using SS14.Jetfish.Projects.Commands;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Projects.Repositories;
 using SS14.Jetfish.Security.Commands;
@@ -45,6 +46,8 @@ public partial class TeamPage : ComponentBase
     public Task<AuthenticationState>? AuthenticationState { get; set; }
     
     private Team? Team { get; set; }
+    
+    private MudDataGrid<Project> _teamGrid = null!;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -57,11 +60,20 @@ public partial class TeamPage : ComponentBase
         await Task.CompletedTask;
     }
 
-    private Task OnProjectDelete(Project contextItem)
+    private async Task OnProjectDelete(Project project)
     {
-        var command = new 
+        if (!await BlazorUtility.ConfirmDelete(DialogService, "project"))
+            return;
         
-        return Task.CompletedTask;
+        var command = new DeleteProjectCommand(project);
+        var commandResult = await CommandService.Run(command);
+        if (!commandResult!.Result!.IsSuccess)
+        {
+            await UiErrorService.HandleUiError(commandResult.Result.Error);
+            return;
+        }
+
+        await _teamGrid.ReloadServerData();
     }
 
     private Task OnProjectEdit(Project contextItem)
@@ -120,6 +132,7 @@ public partial class TeamPage : ComponentBase
         if (!commandResult!.Result!.IsSuccess)
         {
             await UiErrorService.HandleUiError(commandResult.Result.Error);
+            return;
         }
 
         Team = team;

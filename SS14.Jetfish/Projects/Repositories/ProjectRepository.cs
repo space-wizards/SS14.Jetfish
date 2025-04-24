@@ -31,9 +31,12 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
         return await _context.Project.FindAsync(id);
     }
 
-    public override Task<Result<Project, Exception>> Delete(Project record)
+    public override async Task<Result<Project, Exception>> Delete(Project record)
     {
-        throw new NotImplementedException();
+        await _context.FileUsage.Where(usage => usage.ProjectId == record.Id).ExecuteDeleteAsync();
+        
+        _context.Project.Remove(record);
+        return await SaveChanges(record, _context);
     }
     
     public async Task<ICollection<Project>> Search(Guid? teamId, string? search, int? limit = null, int? offset = null, CancellationToken ct = default)
