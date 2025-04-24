@@ -35,4 +35,9 @@ public class FileRepository : BaseRepository<UploadedFile, Guid>, IResourceRepos
     {
         throw new NotImplementedException();
     }
+
+    public async Task<ICollection<UploadedFile>> GetMultiple(IEnumerable<Guid> ids)
+    {
+        return await _context.UploadedFile.Where(x => ids.Contains(x.Id)).ToListAsync();
+    }
 }

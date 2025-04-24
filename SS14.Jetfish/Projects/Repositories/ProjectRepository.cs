@@ -87,4 +87,9 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
 
         return await query.OrderBy(x => x.Id).ToListAsync();
     }
+
+    public async Task<ICollection<Project>> GetMultiple(IEnumerable<Guid> ids)
+    {
+        return await _context.Project.Where(x => ids.Contains(x.Id)).ToListAsync();
+    }
 }

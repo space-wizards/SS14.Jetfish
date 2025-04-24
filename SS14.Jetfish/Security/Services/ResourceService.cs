@@ -32,4 +32,20 @@ public sealed class ResourceService
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
     }
+
+    public async Task<ICollection<IResource>> GetResources(ICollection<Guid> resourceIds, ICollection<ResourceType> types)
+    {
+        var resources = new List<IResource>();
+
+        if (types.Contains(ResourceType.Team))
+            resources.AddRange(await _teamRepository.GetMultiple(resourceIds));
+
+        if (types.Contains(ResourceType.Project))
+            resources.AddRange(await _projectRepository.GetMultiple(resourceIds));
+
+        if (types.Contains(ResourceType.File))
+            resources.AddRange(await _fileRepository.GetMultiple(resourceIds));
+
+        return resources;
+    }
 }

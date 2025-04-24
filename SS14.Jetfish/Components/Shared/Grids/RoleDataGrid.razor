@@ -34,8 +34,8 @@
                 </TemplateColumn>
                 <TemplateColumn HeaderStyle="width: 15%;" Title="Resource" Context="columnContext">
                     <CellTemplate>
-                        <AsyncIcon Class="mb-n1" Size="Size.Small" Icon="async () => await GetPolicyResourceIcon(columnContext.Item)" />
-                        <AsyncText Text="async () => await GetPolicyResourceName(columnContext.Item)"/>
+                        <MudIcon Style="margin-bottom: -5px;" Size="Size.Small" Icon="@GetPolicyResourceIcon(columnContext.Item)" />
+                        @GetPolicyResourceName(columnContext.Item)
                     </CellTemplate>
                 </TemplateColumn>
                 <TemplateColumn HeaderStyle="width: 10%;" Context="columnContext" CellStyle="min-height: 45px;" CellClass="d-flex justify-end">

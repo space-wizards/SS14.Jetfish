@@ -21,6 +21,8 @@ public partial class RoleDataGrid : ComponentBase
 {
     private MudDataGrid<Role> _grid = null!;
 
+    private ICollection<IResource> _resources = [];
+
     [Parameter]
     public Team? Team { get; set; }
     
@@ -58,9 +60,19 @@ public partial class RoleDataGrid : ComponentBase
             ? await Repository.CountAllGlobal()
             : await Repository.CountAsync(Team?.Id);
 
+        var rolesList = roles.ToList();
+        var resourceIds = rolesList
+            .SelectMany(x => x.Policies.Select(y => y.ResourceId))
+            .Where(id => id.HasValue)
+            .Select(id => id!.Value)
+            .Distinct()
+            .ToList();
+
+        _resources = await ResourceService.GetResources(resourceIds, [ResourceType.Team, ResourceType.Project]);
+        
         var gridData = new GridData<Role>
         {
-            Items = roles,
+            Items = rolesList,
             TotalItems = count
         };
 
@@ -116,8 +128,6 @@ public partial class RoleDataGrid : ComponentBase
         if (policy == null)
             return;
         
-        
-        
         var parameters = new DialogParameters<ResourcePolicyDialog> {
             { x => x.Global, Global},
             { x => x.ShowAllPolicies, Global},
@@ -141,11 +151,13 @@ public partial class RoleDataGrid : ComponentBase
 
         if (result == null || result.Canceled)
             return;
-
-
+        
         var model = (ResourcePolicyFormModel)result.Data!;
-
-        await SaveChangesUpdate((Role) result.Data!);
+        policy.AccessPolicy = model.Policy!;
+        policy.ResourceId = model.Resource?.Id;
+        policy.ResourceType = model.Resource?.GetResourceType();
+        
+        await SaveChangesUpdate(role);
     }
 
     private async Task OnPolicyDelete(ResourcePolicy? policy, Role role)
@@ -157,7 +169,7 @@ public partial class RoleDataGrid : ComponentBase
         await SaveChangesUpdate(role);
     }
 
-    private async Task<string> GetPolicyResourceName(ResourcePolicy policy)
+    private string GetPolicyResourceName(ResourcePolicy policy)
     {
         if (policy.Global)
             return "Global";
@@ -165,16 +177,16 @@ public partial class RoleDataGrid : ComponentBase
         if (!policy.ResourceId.HasValue)
             return "General";
         
-        var resource = await ResourceService.GetResource(policy.ResourceType, policy.ResourceId);
+        var resource = _resources.FirstOrDefault(x => x.Id == policy.ResourceId);
         return resource?.Name ?? "Unknown";
     }
     
-    private async Task<string> GetPolicyResourceIcon(ResourcePolicy policy)
+    private string GetPolicyResourceIcon(ResourcePolicy policy)
     {
         if (policy.Global || !policy.ResourceId.HasValue)
             return Icons.Material.Filled.DataArray;
         
-        var resource = await ResourceService.GetResource(policy.ResourceType, policy.ResourceId);
+        var resource = _resources.FirstOrDefault(x => x.Id == policy.ResourceId);
         return resource?.GetResourceType().GetIcon() 
                ?? Icons.Material.Filled.QuestionMark;
     }

@@ -78,6 +78,11 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
         return skipTakeQuery != null ? await skipTakeQuery.ToListAsync() : await query.ToListAsync();
     }
 
+    public async Task<ICollection<Team>> GetMultiple(IEnumerable<Guid> ids)
+    {
+        return await _context.Team.Where(x => ids.Contains(x.Id)).ToListAsync();
+    }
+
     private IQueryable<Team> ListByPolicyQuery(Guid userId, Permission policy)
     {
         var teamQuery = _context.Team
