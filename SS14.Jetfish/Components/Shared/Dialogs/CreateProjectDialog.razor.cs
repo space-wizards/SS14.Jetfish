@@ -54,7 +54,7 @@ public partial class CreateProjectDialog : ComponentBase
         _model.UserId = userId.Value;
     }
 
-    private readonly NewProjectFormModel _model = new()
+    private readonly ProjectFormModel _model = new()
     {
         BackgroundColor = $"#{new Random().Next(0x1000000):X6}"
     };

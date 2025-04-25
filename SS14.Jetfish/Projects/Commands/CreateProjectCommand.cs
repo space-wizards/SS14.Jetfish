@@ -7,9 +7,9 @@ namespace SS14.Jetfish.Projects.Commands;
 
 public class CreateProjectCommand : BaseCommand<Result<Project, Exception>>
 {
-    public NewProjectFormModel Model { get; set; }
+    public ProjectFormModel Model { get; set; }
 
-    public CreateProjectCommand(NewProjectFormModel model)
+    public CreateProjectCommand(ProjectFormModel model)
     {
         Model = model;
     }

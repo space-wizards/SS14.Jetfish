@@ -4,7 +4,7 @@ using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Projects.Model.FormModel;
 
-public class NewProjectFormModel
+public class ProjectFormModel
 {
     public const int NameMinLength = 3;
 

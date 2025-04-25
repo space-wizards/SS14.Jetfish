@@ -1,0 +1,26 @@
+@using SS14.Jetfish.Components.Shared.Forms
+@using SS14.Jetfish.Components.Shared.ProjectCards
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Badge" Class="mr-3 mb-n1"/>
+            @Dialog.Title
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Row>
+            <MudStack>
+                <ProjectCardTemplate >
+                    <div class="project-card-content">
+                        <MudText Class="">@_model.Name</MudText>
+                    </div>
+                </ProjectCardTemplate>
+            </MudStack>
+            <EditProjectForm @ref="_form" Model="@_model" OnValidSubmit="@OnValidSubmit"/>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="Save">Save</MudButton>
+    </DialogActions>
+</MudDialog>
