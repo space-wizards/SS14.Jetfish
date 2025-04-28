@@ -1,3 +1,52 @@
+@using SS14.Jetfish.Projects.Model
 <EditForm @ref="_form" model="@_model" OnValidSubmit="@OnValidSubmit">
-    
+    <DataAnnotationsValidator/>
+    <MudTextField
+        @bind-Value="_model.Name"
+        T="string"
+        Label="Project Name"
+        Required="true"
+        RequiredError="Project Name is required."
+        MaxLength="@Project.ProjectNameMaxLength"/>
+    <MudText Class="mt-4" Typo="Typo.subtitle1">Background</MudText>
+    <MudTabs Centered ApplyEffectsToContainer="true" HideSlider MinimumTabWidth="160px" PanelClass="pa-6" @bind-ActivePanelIndex="BackgroundType">
+        <MudTabPanel Text="Color">
+            <MudColorPicker
+                Required="true"
+                Label="Background Color"
+                ColorPickerMode="ColorPickerMode.HEX"
+                ShowModeSwitch="false"
+                ShowToolbar="true"
+                ThrottleInterval="100"
+                PickerVariant="PickerVariant.Inline"
+                @bind-Text="_model.BackgroundColor"
+                ShowAlpha="false"/>
+        </MudTabPanel>
+        <MudTabPanel Text="Image">
+            <MudFileUpload Error="@string.IsNullOrWhiteSpace(_fileError)" ErrorText="@_fileError"
+                           OnFilesChanged="@FilesChanges" @bind-Files="_model.BackgroundFile"
+                           MaximumFileCount="1" T="IBrowserFile" Required="true"
+                           Accept=".webp, .png, .jpg, .jpeg, .gif, .avif">
+                <SelectedTemplate Context="file">
+                    @if (file != null)
+                    {
+                        <MudText Typo="Typo.subtitle2">Selected @file.Name</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.subtitle2">No File Selected</MudText>
+                    }
+                </SelectedTemplate>
+                <ActivatorContent>
+                    <MudButton
+                        Variant="Variant.Filled"
+                        Color="Color.Primary"
+                        StartIcon="@Icons.Material.Filled.Image"
+                        FullWidth="true">
+                        Upload Background
+                    </MudButton>
+                </ActivatorContent>
+            </MudFileUpload>
+        </MudTabPanel>
+    </MudTabs>
 </EditForm>

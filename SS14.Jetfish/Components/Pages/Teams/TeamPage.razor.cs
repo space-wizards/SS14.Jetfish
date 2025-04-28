@@ -9,6 +9,7 @@ using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Projects.Commands;
 using SS14.Jetfish.Projects.Model;
+using SS14.Jetfish.Projects.Model.FormModel;
 using SS14.Jetfish.Projects.Repositories;
 using SS14.Jetfish.Security.Commands;
 using SS14.Jetfish.Security.Model;
@@ -76,9 +77,39 @@ public partial class TeamPage : ComponentBase
         await _teamGrid.ReloadServerData();
     }
 
-    private Task OnProjectEdit(Project contextItem)
+    private async Task OnProjectEdit(Project project)
     {
-        return Task.CompletedTask;
+        var userId = await AuthenticationState.GetUserId();
+        
+        var model = new ProjectFormModel
+        {
+            UserId = userId,
+            Team = Team!,
+            Name = project.Name,
+            BackgroundSpecifier = project.BackgroundSpecifier
+        };
+
+        if (project.BackgroundSpecifier == ProjectBackgroundSpecifier.Color)
+            model.BackgroundColor = project.Background;
+
+        var parameter = new DialogParameters<EditProjectDialog>()
+        {
+            { x => x.Model, model },
+            { x => x.ProjectId, project.Id }
+        };
+        
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+        };
+
+        var dialogResult = await DialogService.ShowAsync<EditProjectDialog>("Edit Project", parameter, options);
+        var result = await dialogResult.Result;
+
+        if (result == null || result.Canceled || result.Data is not ProjectFormModel modelResult)
+            return;
+        
+        StateHasChanged();
     }
 
     private Task OnProjectShow(Project contextItem)

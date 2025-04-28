@@ -15,8 +15,8 @@ namespace SS14.Jetfish.FileHosting.Model;
 /// within the application. It includes references to the associated project,
 /// card (if applicable), and the uploaded file.
 /// </remarks>
-[Index(nameof(CardId))]
-[Index(nameof(ProjectId))]
+[Index(nameof(CardId), IsUnique = false)]
+[Index(nameof(ProjectId), IsUnique = false)]
 [Index(nameof(UploadedFileId))]
 [Index(nameof(Public))]
 public sealed class FileUsage : IEntityTypeConfiguration<FileUsage>, IRecord<Guid>

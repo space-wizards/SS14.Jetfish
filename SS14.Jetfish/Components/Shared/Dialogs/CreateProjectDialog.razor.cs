@@ -76,7 +76,7 @@ public partial class CreateProjectDialog : ComponentBase
 
         if (model.BackgroundFile != null && model.BackgroundFile.Size > ServerConfiguration.MaxUploadSize)
         {
-            _fileError = $"Maximum upload size of {ServerConfiguration.MaxUploadSize / 1048576} MB exceeded!";
+            _fileError = $"Maximum upload size of {ServerConfiguration.MaxUploadSize} exceeded!";
             return;
         }
 

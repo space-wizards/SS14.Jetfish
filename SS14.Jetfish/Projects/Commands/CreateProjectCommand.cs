@@ -7,12 +7,12 @@ namespace SS14.Jetfish.Projects.Commands;
 
 public class CreateProjectCommand : BaseCommand<Result<Project, Exception>>
 {
+
+    public override string Name => nameof(CreateProjectCommand);
     public ProjectFormModel Model { get; set; }
 
     public CreateProjectCommand(ProjectFormModel model)
     {
         Model = model;
     }
-
-    public override string Name => nameof(CreateProjectCommand);
 }

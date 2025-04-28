@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Security.Claims;
+using SS14.Jetfish.Core.Types;
 
 namespace SS14.Jetfish.Configuration;
 
@@ -59,5 +60,5 @@ public class ServerConfiguration
     /// </summary>
     public string UserContentDirectory { get; set; } = "data/uploads";
 
-    public long MaxUploadSize { get; set; } = 20971520; // 20mb (probably, not sure)
+    public FileSize MaxUploadSize { get; set; } = FileSize.Parse("20MB");
 }

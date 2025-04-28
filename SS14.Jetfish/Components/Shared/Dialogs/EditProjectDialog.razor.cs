@@ -2,14 +2,26 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
 using SS14.Jetfish.Components.Shared.Forms;
+using SS14.Jetfish.Core.Services;
+using SS14.Jetfish.Core.Services.Interfaces;
+using SS14.Jetfish.Projects.Commands;
 using SS14.Jetfish.Projects.Model.FormModel;
 
 namespace SS14.Jetfish.Components.Shared.Dialogs;
 
 public partial class EditProjectDialog : ComponentBase
 {
+    [Inject]
+    private ICommandService CommandService { get; set; } = null!;
+    
+    [Inject]
+    private UiErrorService UiErrorService { get; set; } = null!;
+    
     [Parameter]
     public ProjectFormModel? Model { get; set; }
+    
+    [Parameter]
+    public Guid ProjectId { get; set; }
     
     private ProjectFormModel _model = null!;
     
@@ -28,21 +40,19 @@ public partial class EditProjectDialog : ComponentBase
         Dialog.Cancel();
     }
 
-    private Task Save()
+    private async Task Save()
     {
         if (!_form.TryGetModel(out var model))
-            return Task.CompletedTask;
+            return;
+        
+        var command = new UpdateProjectCommand(ProjectId, model);
+        var commandResult = await CommandService.Run(command);
+        if (!commandResult!.Result!.IsSuccess)
+        {
+            await UiErrorService.HandleUiError(commandResult.Result.Error);
+            return;
+        }
         
         Dialog.Close(DialogResult.Ok(model));
-        return Task.CompletedTask;
-    }
-
-    private async Task OnValidSubmit()
-    {
-        if (!_form.TryGetModel(out var model))
-            return;
-
-        if (model.BackgroundFile == null)
-            return;
     }
 }

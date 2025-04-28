@@ -7,4 +7,7 @@ Server:
   RequiredClaim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
 
 ConnectionStrings:
-  default: "Server=127.0.0.1;Port=5432;Database=jetfish;User Id=postgres;Password=postgres;"
+  default: "Server=127.0.0.1;Port=5432;Database=jetfish;User Id=postgres;Password=postgres;Include Error Detail=true;"
+  
+CircuitOptions:
+  DetailedErrors: true

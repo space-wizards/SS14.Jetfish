@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Projects.Model.FormModel;
 
 namespace SS14.Jetfish.Components.Shared.Forms;
@@ -12,9 +13,35 @@ public partial class EditProjectForm : ComponentBase
     
     [Parameter]
     public ProjectFormModel? Model { get; set; }
+
     
+
     private ProjectFormModel _model = null!;
     private EditForm _form = null!;
+
+    public int BackgroundType
+    {
+        get
+        {
+            return _model.BackgroundSpecifier switch
+            {
+                ProjectBackgroundSpecifier.Color => 0,
+                ProjectBackgroundSpecifier.Image => 1,
+                _ => 0
+            };
+        }
+        set
+        {
+            _model.BackgroundSpecifier = value switch
+            {
+                0 => ProjectBackgroundSpecifier.Color,
+                1 => ProjectBackgroundSpecifier.Image,
+                _ => ProjectBackgroundSpecifier.Color
+            };
+        }
+    }
+
+    private string _fileError = "";
 
     protected override void OnParametersSet()
     {
@@ -30,5 +57,10 @@ public partial class EditProjectForm : ComponentBase
         var valid = _form.EditContext?.Validate() ?? false;
         model = valid ? _model : null;
         return valid;
+    }
+    
+    private void FilesChanges()
+    {
+        _fileError = string.Empty;
     }
 }

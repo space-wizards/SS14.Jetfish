@@ -132,4 +132,12 @@ public sealed class FileService
         var etag = new EntityTagHeaderValue($"\"{file.Etag}\"");
         return Results.File(Path.GetFullPath(resolvedPath), file.MimeType, file.Name, file.LastModified, etag, true);
     }
+
+    public async Task DeleteProjectFileUsage(Guid projectId, Guid backgroundId)
+    {
+        await _dbContext.FileUsage
+            .Where(usage => usage.Id == backgroundId)
+            .Where(usage => usage.ProjectId == projectId)
+            .ExecuteDeleteAsync();
+    }
 }

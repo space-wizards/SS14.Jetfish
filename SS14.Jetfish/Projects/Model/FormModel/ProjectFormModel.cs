@@ -17,7 +17,7 @@ public class ProjectFormModel
     public string? BackgroundColor { get; set; }
 
     [Required]
-    public ProjectBackgroundSpecifier BackgroundSpecifier { get; set; }
+    public ProjectBackgroundSpecifier BackgroundSpecifier { get; set; } = ProjectBackgroundSpecifier.Color;
 
     [Required]
     public Team Team { get; set; } = null!;
