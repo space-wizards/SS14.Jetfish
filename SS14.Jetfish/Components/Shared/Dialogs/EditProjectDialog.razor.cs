@@ -25,7 +25,7 @@ public partial class EditProjectDialog : ComponentBase
     
     private ProjectFormModel _model = null!;
     
-    private EditProjectForm _form = null!;
+    private ProjectForm _form = null!;
     
     [CascadingParameter]
     private IMudDialogInstance Dialog { get; set; } = null!;

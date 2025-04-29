@@ -32,6 +32,7 @@ builder.Configuration.AddYamlFile("appsettings.Secret.yml", true, true);
 // Server configuration.
 var serverConfiguration = new ServerConfiguration();
 builder.Configuration.Bind(ServerConfiguration.Name, serverConfiguration);
+builder.Services.Configure<ServerConfiguration>(builder.Configuration.GetSection(ServerConfiguration.Name));
 
 //Cors
 if (serverConfiguration.CorsOrigins != null)

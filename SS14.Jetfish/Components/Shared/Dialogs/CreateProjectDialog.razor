@@ -1,4 +1,5 @@
 ﻿@using SS14.Jetfish.Projects.Model
+@using SS14.Jetfish.Components.Shared.Forms
 
 <div style="display:contents">
     <MudDialog Style="min-height: 330px; min-width: 308px">
@@ -13,63 +14,7 @@
             }
         </TitleContent>
         <DialogContent>
-            <EditForm @ref="_form" Model="_model">
-                <DataAnnotationsValidator/>
-                <MudTextField
-                    @bind-Value="_model.Name"
-                    T="string"
-                    Label="Name"
-                    Required="true"
-                    RequiredError="Project Name is required."
-                    MaxLength="@Project.ProjectNameMaxLength"/>
-                <MudText Typo="Typo.subtitle1">Background</MudText>
-                <div class="d-flex">
-                    <MudRadioGroup @bind-Value="_model.BackgroundSpecifier" T="ProjectBackgroundSpecifier" Required="true" RequiredError="Project Background is required.">
-                        <MudRadio Value="ProjectBackgroundSpecifier.Color">Color</MudRadio>
-                        <MudRadio Value="ProjectBackgroundSpecifier.Image">Image</MudRadio>
-                    </MudRadioGroup>
-                </div>
-                @if (_model.BackgroundSpecifier == ProjectBackgroundSpecifier.Color)
-                {
-                    <MudColorPicker
-                        Required="true"
-                        Label="Background Color"
-                        ColorPickerMode="ColorPickerMode.HEX"
-                        ShowModeSwitch="false"
-                        ShowToolbar="true"
-                        ThrottleInterval="100"
-                        PickerVariant="PickerVariant.Inline"
-                        @bind-Text="_model.BackgroundColor"
-                        ShowAlpha="false"/>
-                }
-                else
-                {
-                    <MudFileUpload OnFilesChanged="@FilesChanges" @bind-Files="_model.BackgroundFile" MaximumFileCount="1" T="IBrowserFile" Required="true" Accept=".webp, .png, .jpg, .jpeg, .gif, .avif">
-                        <ActivatorContent>
-                            <MudButton
-                                Variant="Variant.Filled"
-                                Color="Color.Primary"
-                                StartIcon="@Icons.Material.Filled.Image"
-                                FullWidth="true"
-                                >
-                                Upload Background
-                            </MudButton>
-                        </ActivatorContent>
-                    </MudFileUpload>
-                    @if (_model.BackgroundFile != null)
-                    {
-                        <MudText Typo="Typo.subtitle2">
-                            Selected @_model.BackgroundFile.Name
-                        </MudText>
-                    }
-                    @if (!string.IsNullOrEmpty(_fileError))
-                    {
-                        <MudAlert Severity="Severity.Error">
-                            @_fileError
-                        </MudAlert>
-                    }
-                }
-            </EditForm>
+            <ProjectForm @ref="_form" Model="_model"/>
         </DialogContent>
         <DialogActions>
             <MudButton OnClick="Cancel">Cancel</MudButton>

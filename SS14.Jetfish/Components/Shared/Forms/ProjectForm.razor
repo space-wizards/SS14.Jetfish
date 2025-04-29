@@ -23,7 +23,7 @@
                 ShowAlpha="false"/>
         </MudTabPanel>
         <MudTabPanel Text="Image">
-            <MudFileUpload Error="@string.IsNullOrWhiteSpace(_fileError)" ErrorText="@_fileError"
+            <MudFileUpload Error="@(!string.IsNullOrWhiteSpace(_fileError))" ErrorText="@_fileError"
                            OnFilesChanged="@FilesChanges" @bind-Files="_model.BackgroundFile"
                            MaximumFileCount="1" T="IBrowserFile" Required="true"
                            Accept=".webp, .png, .jpg, .jpeg, .gif, .avif">
