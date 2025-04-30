@@ -14,7 +14,7 @@ public partial class ApplicationDbContext
     /// <param name="user">The user claim</param>
     /// <param name="resourceId">The optional resource to check for.</param>
     /// <param name="permissions">Array of permissions to check for. This is a "OR" check, not "AND" check.</param>
-    public async Task<bool> HadIdpAccess(ClaimsPrincipal user, Guid? resourceId, params Permission[] permissions)
+    public async Task<bool> HasIdpAccess(ClaimsPrincipal user, Guid? resourceId, params Permission[] permissions)
     {
         var roles = user.Claims.Where(c => c.Type == _serverConfiguration.RoleClaim)
             .Select(c => c.Value)
