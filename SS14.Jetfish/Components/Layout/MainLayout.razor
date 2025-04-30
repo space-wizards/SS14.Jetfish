@@ -18,7 +18,15 @@
             <SectionOutlet SectionName="page-title"/>
         </MudText>
         <MudSpacer/>
-        <MudAvatar Color="Color.Tertiary">JG</MudAvatar>
+        <MudMenu>
+            <ActivatorContent>
+                <MudAvatar Color="Color.Tertiary">JG</MudAvatar>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem Label="Settings" Href="/user/settings"/>
+                <MudMenuItem Label="Logout" Href="/logout" />
+            </ChildContent>
+        </MudMenu>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
         <NavigationMenu/>
