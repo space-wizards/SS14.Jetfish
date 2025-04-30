@@ -51,7 +51,7 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
 
     public async Task<int> CountByPolicy(ClaimsPrincipal user, Permission policy)
     {
-        return await ListByPolicyQuery(user, policy).CountAsync();
+        return await (await ListByPolicyQuery(user, policy)).CountAsync();
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
 
     public async Task<ICollection<Team>> ListByPolicy(ClaimsPrincipal user, Permission policy, int? limit = null, int? offset = null)
     {
-        var query = ListByPolicyQuery(user, policy).OrderBy(x => x.Id);
+        var query = (await ListByPolicyQuery(user, policy)).OrderBy(x => x.Id);
 
         IQueryable<Team>? skipTakeQuery = null;
         if (offset.HasValue)
@@ -85,9 +85,19 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
         return await _context.Team.Where(x => ids.Contains(x.Id)).ToListAsync();
     }
 
-    private IQueryable<Team> ListByPolicyQuery(ClaimsPrincipal user, Permission policy)
+    private async Task<IQueryable<Team>> ListByPolicyQuery(ClaimsPrincipal user, Permission policy)
     {
         var userId = user.Claims.GetUserId();
+
+        var hasGlobalRead = await _context.HasIdpAccess(user, null, Permission.TeamRead);
+        if (hasGlobalRead)
+        {
+            return _context.Team
+                .Include(t => t.Projects)
+                .Include(t => t.TeamMembers)
+                .ThenInclude(tm => tm.User)
+                .AsSplitQuery();
+        }
 
         var teamQuery = _context.Team
             .Include(t => t.Projects)
