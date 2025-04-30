@@ -14,8 +14,15 @@ public partial class TeamRoles : ComponentBase
     
     private Team? Team { get; set; }
 
-    protected override async Task OnParametersSetAsync()
+    private bool initialized = false;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender)
+            return;
+        
         Team = await TeamRepository.GetAsync(TeamId);
+        initialized = true;
+        StateHasChanged();
     }
 }
