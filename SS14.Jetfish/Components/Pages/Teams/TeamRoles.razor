@@ -5,8 +5,8 @@
 <BackButton Href="@($"/teams/{TeamId}")"/>
 @if(Team == null)
 {
-    <MudProgressLinear Style="@(initialized ? "display: none;" : "")" Color="Color.Primary" Indeterminate="true" Class="mb-7"/>
-    <p>@(initialized ? "Team not found" : "")</p>
+    <MudProgressLinear Style="@(_initialized ? "display: none;" : "")" Color="Color.Primary" Indeterminate="true" Class="mb-7"/>
+    <p>@(_initialized ? "Team not found" : "")</p>
     return;
 }
 <AuthorizeResource DisplayError="true" ResourceName="team roles page" Policy="@(nameof(Permission.TeamEdit))" Resource="@TeamId">

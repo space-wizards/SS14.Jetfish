@@ -20,6 +20,7 @@
     
     protected override async Task OnInitializedAsync()
     {
+        // TODO: Move this to after render, just like the team roles page.
         if (AuthenticationState is null)
             return;
 

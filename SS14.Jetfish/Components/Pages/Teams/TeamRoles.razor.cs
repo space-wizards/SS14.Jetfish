@@ -14,7 +14,7 @@ public partial class TeamRoles : ComponentBase
     
     private Team? Team { get; set; }
 
-    private bool initialized = false;
+    private bool _initialized;
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -22,7 +22,7 @@ public partial class TeamRoles : ComponentBase
             return;
         
         Team = await TeamRepository.GetAsync(TeamId);
-        initialized = true;
+        _initialized = true;
         StateHasChanged();
     }
 }

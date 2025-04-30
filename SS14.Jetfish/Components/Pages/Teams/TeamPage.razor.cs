@@ -47,12 +47,19 @@ public partial class TeamPage : ComponentBase
     public Task<AuthenticationState>? AuthenticationState { get; set; }
     
     private Team? Team { get; set; }
+
+    private bool _initialized;
     
     private MudDataGrid<Project> _teamGrid = null!;
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender)
+            return;
+        
         Team = await TeamRepository.GetAsync(TeamId);
+        _initialized = true;
+        StateHasChanged();
     }
 
     private async Task EditRoles()

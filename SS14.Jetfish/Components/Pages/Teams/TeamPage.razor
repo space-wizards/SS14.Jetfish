@@ -6,7 +6,8 @@
 <BackButton Href="/teams"/>
 @if(Team == null)
 {
-    <p>Team not found</p>
+    <MudProgressLinear Style="@(_initialized ? "display: none;" : "")" Color="Color.Primary" Indeterminate="true" Class="mb-7"/>
+    <p>@(_initialized ? "Team not found" : "")</p>
     return;
 }
 <div style="display: contents">
