@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using SS14.Jetfish.Configuration;
@@ -45,32 +46,17 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
 
 
         #region Idp Roles
-        
-        var roles = context.User.Claims.Where(c => c.Type == _serverConfiguration.RoleClaim)
-            .Select(c => c.Value)
-            .ToList();
 
-        if (roles.Count > 0)
+        var hasIdpAccess = await dbContext.HadIdpAccess(context.User, resourceId, requirement.Permissions.ToArray());
+
+        if (hasIdpAccess)
         {
-            // ඞ
-
-            var hasIdpAccess = await dbContext.Role
-                .Include(role => role.Policies)
-                .ThenInclude(resourcePolicy => resourcePolicy.AccessPolicy)
-                .Where(x => x.IdpName != null && roles.Contains(x.IdpName))
-                .Where(x => x.Policies.Any(y => y.ResourceId == resourceId || y.Global))
-                .AnyAsync(x =>
-                    x.Policies.Any(y => requirement.Permissions.Intersect(y.AccessPolicy.Permissions).Any()));
-
-            if (hasIdpAccess)
-            {
-                context.Succeed(requirement);
-                return;
-            }
+            context.Succeed(requirement);
+            return;
         }
-        
+
         #endregion
-        
+
         #region User
         var user = await dbContext.User
             .Include(user => user.ResourcePolicies)
@@ -82,7 +68,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             context.Fail(new AuthorizationFailureReason(this, "User not found in database (Not logged in?)"));
             return;
         }
-        
+
 
         if (user.ResourcePolicies
             .Any(policy => (policy.ResourceId == resourceId || policy.Global)
@@ -101,7 +87,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             .Any(teamMember => teamMember.Role.Policies
                 .Where(policy => policy.ResourceId == resourceId || policy.Global)
                 .Any(policy => requirement.Permissions.Intersect(policy.AccessPolicy.Permissions).Any()));
-                               
+
         if (hasTeamAccess)
         {
             context.Succeed(requirement);

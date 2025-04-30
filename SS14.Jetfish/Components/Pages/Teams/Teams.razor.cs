@@ -18,22 +18,22 @@ public partial class Teams : ComponentBase
 
     [Inject]
     public TeamRepository TeamRepository { get; set; } = null!;
-    
+
     [Inject]
     public ICommandService CommandService { get; set; } = null!;
-    
+
     [Inject]
     public IDialogService DialogService { get; set; } = null!;
-    
+
     [Inject]
     public NavigationManager NavigationManager { get; set; } = null!;
-    
+
     [Inject]
     private ISnackbar Snackbar { get; set; } = null!;
-    
+
     [Inject]
     private UiErrorService UiErrorService { get; set; } = null!;
-    
+
     [CascadingParameter]
     public Task<AuthenticationState>? AuthenticationState { get; set; }
 
@@ -41,21 +41,21 @@ public partial class Teams : ComponentBase
     {
         if (AuthenticationState == null)
             throw new InvalidOperationException("AuthenticationState is null");
-        
+
         var auth = await AuthenticationState;
         var userId = auth.User.Claims.GetUserId();
         if (!userId.HasValue)
             return new GridData<Team>();
-        
+
         var teams = await TeamRepository.ListByPolicy(
-            userId.Value, 
+            auth.User,
             Permission.TeamRead,
             state.PageSize,
             state.Page * state.PageSize
             );
 
-        var count = await TeamRepository.CountByPolicy(userId.Value, Permission.TeamRead);
-        
+        var count = await TeamRepository.CountByPolicy(auth.User, Permission.TeamRead);
+
         return new GridData<Team>()
         {
             Items = teams,
@@ -67,7 +67,7 @@ public partial class Teams : ComponentBase
     {
         if (!await BlazorUtility.ConfirmDelete(DialogService, "team"))
             return;
-        
+
         var command = new DeleteTeamCommand(team);
         var result = await CommandService.Run(command);
         if (!result!.Result!.IsSuccess)
@@ -75,7 +75,7 @@ public partial class Teams : ComponentBase
             await UiErrorService.HandleUiError(result.Result.Error);
             return;
         }
-        
+
         await _dataGrid.ReloadServerData();
         Snackbar.Add("Team Removed!", Severity.Success);
     }
@@ -84,7 +84,7 @@ public partial class Teams : ComponentBase
     {
         NavigationManager.NavigateTo($"/teams/{arg.Item.Id}");
     }
-    
+
     private async Task CreateTeam()
     {
         var options = new DialogOptions
@@ -99,10 +99,10 @@ public partial class Teams : ComponentBase
 
         if (model is { AddSelf: true, ManagerRoleName: not null })
             await SetModelUserId(model);
-        
+
         var command = new CreateTeamCommand(model);
         var commandResult = await CommandService.Run(command);
-        
+
         if (!commandResult!.Result!.IsSuccess)
         {
             await BlazorUtility.DisplayErrorPopup(DialogService, NavigationManager);
@@ -119,7 +119,7 @@ public partial class Teams : ComponentBase
             model.AddSelf = false;
             return;
         }
-        
+
         var auth = await AuthenticationState;
         var userId = auth.User.Claims.GetUserId();
         if (!userId.HasValue)
@@ -127,7 +127,7 @@ public partial class Teams : ComponentBase
             model.AddSelf = false;
             return;
         }
-        
+
         model.UserId = userId.Value;
     }
 }

@@ -1,7 +1,9 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
+using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Security.Repositories;
@@ -27,7 +29,7 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
     {
         return await _context.Team.SingleOrDefaultAsync(t => t.Id == id);
     }
-    
+
     public override async Task<Team?> GetAsync(Guid id)
     {
         return await _context.Team
@@ -47,9 +49,9 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
         return await SaveChanges(record, _context);
     }
 
-    public async Task<int> CountByPolicy(Guid userId, Permission policy)
+    public async Task<int> CountByPolicy(ClaimsPrincipal user, Permission policy)
     {
-        return await ListByPolicyQuery(userId, policy).CountAsync();
+        return await ListByPolicyQuery(user, policy).CountAsync();
     }
 
     /// <summary>
@@ -64,9 +66,9 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
             .ToListAsync();
     }
 
-    public async Task<ICollection<Team>> ListByPolicy(Guid userId, Permission policy, int? limit = null, int? offset = null)
+    public async Task<ICollection<Team>> ListByPolicy(ClaimsPrincipal user, Permission policy, int? limit = null, int? offset = null)
     {
-        var query = ListByPolicyQuery(userId, policy).OrderBy(x => x.Id);
+        var query = ListByPolicyQuery(user, policy).OrderBy(x => x.Id);
 
         IQueryable<Team>? skipTakeQuery = null;
         if (offset.HasValue)
@@ -83,8 +85,10 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
         return await _context.Team.Where(x => ids.Contains(x.Id)).ToListAsync();
     }
 
-    private IQueryable<Team> ListByPolicyQuery(Guid userId, Permission policy)
+    private IQueryable<Team> ListByPolicyQuery(ClaimsPrincipal user, Permission policy)
     {
+        var userId = user.Claims.GetUserId();
+
         var teamQuery = _context.Team
             .Include(t => t.Projects)
             .Include(t => t.TeamMembers)
@@ -102,9 +106,9 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
             .Include(t => t.TeamMembers)
             .ThenInclude(tm => tm.User)
             .Where(team => _context.User
-            .Where(user => user.Id == userId)
-            .Where(user => user.ResourcePolicies.Count > 0)
-            .Any(user => user.ResourcePolicies
+            .Where(u => u.Id == userId)
+            .Where(u => u.ResourcePolicies.Count > 0)
+            .Any(u => u.ResourcePolicies
                 .Where(resourcePolicy => resourcePolicy.ResourceId == team.Id || resourcePolicy.Global)
                 .Any(resourcePolicy => resourcePolicy.AccessPolicy.Permissions.Contains(policy))));
 

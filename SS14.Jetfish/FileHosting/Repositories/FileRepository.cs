@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Core.Types;
@@ -31,7 +32,7 @@ public class FileRepository : BaseRepository<UploadedFile, Guid>, IResourceRepos
         throw new NotImplementedException();
     }
 
-    public Task<ICollection<UploadedFile>> ListByPolicy(Guid userId, Permission policy, int? limit = null, int? offset = null)
+    public Task<ICollection<UploadedFile>> ListByPolicy(ClaimsPrincipal user, Permission policy, int? limit = null, int? offset = null)
     {
         throw new NotImplementedException();
     }

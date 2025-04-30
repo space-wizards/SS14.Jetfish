@@ -1,14 +1,22 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using SS14.Jetfish.Configuration;
 using SS14.Jetfish.FileHosting.Model;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Database;
 
-public class ApplicationDbContext : DbContext
+public partial class ApplicationDbContext : DbContext
 {
+    #region DI
+
+    private readonly ServerConfiguration _serverConfiguration;
+
+    #endregion
+
     public DbSet<User> User { get; set; }
     public DbSet<Team> Team { get; set; }
     public DbSet<TeamMember> TeamMember { get; set; }
@@ -19,8 +27,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<FileUsage> FileUsage { get; set; }
 
 
-    public ApplicationDbContext(DbContextOptions options) : base(options)
+    public ApplicationDbContext(DbContextOptions options, IOptions<ServerConfiguration> config) : base(options)
     {
+        _serverConfiguration = config.Value;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -28,7 +37,7 @@ public class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
-    
+
     public async Task<(bool success, IReadOnlyCollection<ValidationResult> errors)> ValidateAndSaveAsync(CancellationToken ct = new())
     {
         var errors = ValidateChanges();
@@ -38,12 +47,12 @@ public class ApplicationDbContext : DbContext
         await SaveChangesAsync(ct);
         return (true, errors);
     }
-    
+
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
     {
         if (ValidateChanges().Count > 0)
             throw new ValidationException();
-            
+
         return base.SaveChangesAsync(cancellationToken);
     }
 
@@ -58,7 +67,7 @@ public class ApplicationDbContext : DbContext
         {
             Validator.TryValidateObject(entry.Entity, new ValidationContext(entry.Entity), validationErrors, true);
         }
-        
+
         return validationErrors;
     }
 }
