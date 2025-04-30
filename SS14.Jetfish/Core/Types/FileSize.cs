@@ -9,7 +9,7 @@ public sealed record FileSize(long Bytes = 0)
     public static FileSize Zero => new(0);
 
     public static implicit operator long(FileSize size) => size.Bytes;
-    
+
     public override string ToString()
     {
         return Bytes switch
@@ -27,19 +27,19 @@ public sealed record FileSize(long Bytes = 0)
     {
         if (string.IsNullOrWhiteSpace(str))
             return Zero;
-        
+
         var span = str.AsSpan();
         var index = 0;
-        
+
         while (span.Length > index && char.IsDigit(span[index]))
             index++;
-        
+
         var number = span[..index];
         var unit = span[index..].Trim();
 
         if (number.Length == 0)
             return Zero;
-        
+
         var bytes = unit switch
         {
             "PiB" or "PB" => long.Parse(number) * 1024 * 1024 * 1024 * 1024 * 1024,
@@ -49,7 +49,7 @@ public sealed record FileSize(long Bytes = 0)
             "KiB" or "KB" => long.Parse(number) * 1024,
             _ => long.Parse(number)
         };
-        
+
         return new FileSize(bytes);
     }
 }
@@ -61,11 +61,11 @@ public sealed class FileSizeTypeConverter : TypeConverter
     {
         return sourceType == typeof(string);
     }
-    
+
     public override object ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
     {
         if (value is not string str)
-            throw new NotSupportedException();
+            throw new InvalidOperationException();
 
         return FileSize.Parse(str);
     }
