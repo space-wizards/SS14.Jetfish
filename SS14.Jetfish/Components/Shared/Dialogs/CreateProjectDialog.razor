@@ -2,7 +2,7 @@
 @using SS14.Jetfish.Components.Shared.Forms
 
 <div style="display:contents">
-    <MudDialog Style="min-height: 330px; min-width: 308px">
+    <MudDialog Style="min-height: 330px; min-width: 800px">
         <TitleContent>
             <MudText Typo="Typo.h6">
                 <MudIcon Icon="@Icons.Material.Filled.Create" Class="mr-3 mb-n1"/>
@@ -14,7 +14,41 @@
             }
         </TitleContent>
         <DialogContent>
-            <ProjectForm @ref="_form" Model="_model"/>
+            <MudStack Row>
+                <div style="flex-grow: 1;">
+                    <ProjectForm @ref="_projectForm" Model="_model"/>
+                </div>
+                <MudDivider Vertical style="align-self: stretch; height: auto;"/>
+                <MudStack Style="overflow-y: auto; flex-grow: 2;">
+                    <MudDataGrid Height="330px" FixedHeader Style="align-self: stretch;" @ref="_roleGrid" 
+                                 T="Role" Virtualize VirtualizeServerData="LoadRoles" Elevation="0" SortMode="SortMode.None">
+                        <Columns>
+                            <PropertyColumn Title="Roles" Property="p => p.DisplayName"/>
+                            <TemplateColumn HeaderStyle="width: 20%;" Context="columnContext">
+                                <CellTemplate>
+                                    <MudStack Row Justify="Justify.FlexEnd">
+                                        <MudTooltip Delay="800" Text="Edit Access">
+                                            <MudIconButton OnClick="@(() => OnResourcePolicyEdit(columnContext.Item))"
+                                                           Color="@(HasResourcePolicy(columnContext.Item) ? Color.Success : Color.Default)"
+                                                           Class="mx-2" Size="Size.Small" aria-label="edit"
+                                                           Icon="@Icons.Material.Filled.AddModerator"/>
+                                        </MudTooltip>
+                                        @if (HasResourcePolicy(columnContext.Item))
+                                        {
+                                            <MudTooltip Delay="800" Text="Edit Access">
+                                                <MudIconButton OnClick="@(() => OnResourcePolicyDelete(columnContext.Item))"
+                                                               Color="Color.Secondary"
+                                                               Class="mx-2" Size="Size.Small" aria-label="delete"
+                                                               Icon="@Icons.Material.Filled.Delete"/>
+                                            </MudTooltip>
+                                        }
+                                    </MudStack>
+                                </CellTemplate>
+                            </TemplateColumn>
+                        </Columns>
+                    </MudDataGrid>
+                </MudStack>
+            </MudStack>
         </DialogContent>
         <DialogActions>
             <MudButton OnClick="Cancel">Cancel</MudButton>

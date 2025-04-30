@@ -36,9 +36,9 @@ public class RoleRepository : BaseRepository<Role, Guid>
         await _context.SaveChangesAsync();
     }
 
-    public override Task<Role?> GetAsync(Guid id)
+    public override async Task<Role?> GetAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _context.Role.SingleOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<int> CountAllGlobal()
@@ -65,14 +65,14 @@ public class RoleRepository : BaseRepository<Role, Guid>
         return await skipTakeQuery.ToListAsync(ct);
     }
 
-    public async Task<int> CountAsync(Guid? teamId)
+    public async Task<int> CountAsync(Guid? teamId, CancellationToken ct = new())
     {
         var query = _context.Role.AsNoTracking();
 
         if (teamId.HasValue)
             query = query.Where(role => role.TeamId == teamId.Value);
         
-        return await query.CountAsync();
+        return await query.CountAsync(ct);
     }
     
     public async Task<IEnumerable<Role>> GetAllAsync(Guid? teamId, int limit = 0, int offset = 0, CancellationToken ct = new())

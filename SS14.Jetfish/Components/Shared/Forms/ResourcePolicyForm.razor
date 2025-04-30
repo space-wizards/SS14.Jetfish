@@ -2,13 +2,13 @@
 <EditForm @ref="_form" Model="_model">
     <DataAnnotationsValidator/>
    
-        @if (Global)
+        @if (!Dense && (Global || FixedResource != null))
         {
             <MudText GutterBottom Typo="Typo.body2">
                 Select a policy
             </MudText>
         }
-        else
+        else if (!Dense)
         {
             <MudText GutterBottom Typo="Typo.body2">
                  Select a policy and resource to grant access to.
@@ -16,16 +16,18 @@
         }
     
     <MudStack Row>
-        <MudAutocomplete Label="Policy" T="AccessPolicy" Adornment="Adornment.End" AdornmentColor="Color.Primary" AdornmentIcon="@Icons.Material.Filled.Policy" 
+        <MudAutocomplete Label="@(Dense ? "" : "Policy")" T="AccessPolicy" Placeholder="@(Dense ? "Policy" : "")" 
+                         Adornment="Adornment.End" AdornmentColor="Color.Primary" AdornmentIcon="@Icons.Material.Filled.Policy" 
                          @bind-Value="_model.Policy" SearchFunc="PolicySearch" CoerceText="true" Converter="PolicyConverter"
-                         For="() => _model.Policy!" Clearable/>
+                         For="() => _model.Policy!" Clearable ShrinkLabel="Dense" Dense="Dense"/>
         
-        @if (!Global)
+        @if (!Global && FixedResource == null)
         {
-            <MudAutocomplete Label="Resource" T="IResource" Adornment="Adornment.End" AdornmentColor="Color.Primary" 
+            <MudAutocomplete Label="@(Dense ? "" : "Resource")" Placeholder="@(Dense ? "Resource" : "")" T="IResource" 
+                             Adornment="Adornment.End" AdornmentColor="Color.Primary" 
                              AdornmentIcon="@(_model.Resource?.GetResourceType().GetIcon() ?? "")" @bind-Value="_model.Resource"
                              SearchFunc="ResourceSearch" CoerceText="true" Converter="ResourceConverter" 
-                             For="() => _model.Resource!" Clearable>
+                             For="() => _model.Resource!" Clearable ShrinkLabel="Dense" Dense="Dense">
                 <ItemTemplate Context="itemContext">
                     <MudText>
                         <MudIcon Icon="@itemContext.GetResourceType().GetIcon()" Class="mb-n1 mr-3"/>@itemContext.Name

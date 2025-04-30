@@ -49,8 +49,14 @@ public partial class TeamPage : ComponentBase
     private Team? Team { get; set; }
 
     private bool _initialized;
+    private Guid? _userId;
     
     private MudDataGrid<Project> _teamGrid = null!;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _userId = await AuthenticationState.GetUserId();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -86,11 +92,12 @@ public partial class TeamPage : ComponentBase
 
     private async Task OnProjectEdit(Project project)
     {
-        var userId = await AuthenticationState.GetUserId();
+        if (!_userId.HasValue)
+            return;
         
         var model = new ProjectFormModel
         {
-            UserId = userId,
+            UserId = _userId.Value,
             Team = Team!,
             Name = project.Name,
             BackgroundSpecifier = project.BackgroundSpecifier
@@ -135,7 +142,7 @@ public partial class TeamPage : ComponentBase
 
         var options = new DialogOptions
         {
-            CloseOnEscapeKey = true,
+            CloseOnEscapeKey = true
         };
 
         var dialogResult = await DialogService.ShowAsync<CreateProjectDialog>("Create Project", parameters, options);
@@ -195,14 +202,15 @@ public partial class TeamPage : ComponentBase
 
     private async Task<GridData<Project>> LoadTeams(GridState<Project> arg)
     {
-        var userId = await AuthenticationState.GetUserId();
+        if (!_userId.HasValue)
+            return new GridData<Project>();
         
-        var count = await ProjectRepository.CountByPolicyAndTeam(userId, Team!.Id, Permission.ProjectRead);
+        var count = await ProjectRepository.CountByPolicyAndTeam(_userId.Value, Team!.Id, Permission.ProjectRead);
         if (count == 0)
             return new GridData<Project>();
 
         var projects = await ProjectRepository.ListByPolicyAndTeam(
-            userId,
+            _userId.Value,
             Team!.Id,
             Permission.ProjectRead,
             arg.PageSize,

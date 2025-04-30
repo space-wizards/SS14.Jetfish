@@ -24,7 +24,19 @@ public partial class ResourcePolicyForm : ComponentBase
     public bool Global { get; set; }
     
     [Parameter]
-    public Func<string?, CancellationToken, Task<IEnumerable<IResource>>?>? ResourceSearchFunc { get; set; } 
+    public bool Dense { get; set; }
+    
+    [Parameter]
+    public Func<string?, CancellationToken, Task<IEnumerable<IResource>>?>? ResourceSearchFunc { get; set; }
+    
+    /// <summary>
+    /// Sets the resource to apply a policy to.
+    /// </summary>
+    /// <remarks>
+    /// Setting this Disables choosing a resource.
+    /// </remarks>
+    [Parameter]
+    public IResource? FixedResource { get; set; }
     
     private ResourcePolicyFormModel _model = null!;
     private EditForm _form = null!;
@@ -63,6 +75,9 @@ public partial class ResourcePolicyForm : ComponentBase
     /// <returns>False if the model is invalid</returns>
     public bool TryGetModel([NotNullWhen(true)] out ResourcePolicyFormModel? model)
     {
+        if (FixedResource != null)
+            _model.Resource = FixedResource;
+        
         var valid = _form.EditContext?.Validate() ?? false;
         model = valid ? _model : null;
         return valid;

@@ -7,7 +7,8 @@
         Label="Project Name"
         Required="true"
         RequiredError="Project Name is required."
-        MaxLength="@Project.ProjectNameMaxLength"/>
+        MaxLength="@Project.ProjectNameMaxLength"
+        For="() => _model.Name"/>
     <MudText Class="mt-4" Typo="Typo.subtitle1">Background</MudText>
     <MudTabs Centered ApplyEffectsToContainer="true" HideSlider MinimumTabWidth="160px" PanelClass="pa-6" @bind-ActivePanelIndex="BackgroundType">
         <MudTabPanel Text="Color">

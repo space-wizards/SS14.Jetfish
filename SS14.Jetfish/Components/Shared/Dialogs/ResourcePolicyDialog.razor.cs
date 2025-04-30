@@ -14,7 +14,7 @@ public partial class ResourcePolicyDialog : ComponentBase
     private IMudDialogInstance Dialog { get; set; } = null!;
     
     [Parameter]
-    public ResourcePolicyFormModel Model { get; set; } = null!;
+    public ResourcePolicyFormModel? Model { get; set; }
     
     [Parameter]
     public bool ShowAllPolicies { get; set; }
@@ -24,6 +24,15 @@ public partial class ResourcePolicyDialog : ComponentBase
     
     [Parameter]
     public Func<string?, CancellationToken, Task<IEnumerable<IResource>>?>? ResourceSearchFunc { get; set; } 
+    
+    /// <summary>
+    /// Sets the resource to apply a policy to.
+    /// </summary>
+    /// <remarks>
+    /// Setting this Disables choosing a resource.
+    /// </remarks>
+    [Parameter]
+    public IResource? FixedResource { get; set; }
     
     private void Cancel()
     {
