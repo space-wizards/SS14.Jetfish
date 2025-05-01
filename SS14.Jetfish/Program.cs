@@ -11,11 +11,11 @@ using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.FileHosting;
+using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Projects;
 using SS14.Jetfish.Projects.Repositories;
 using SS14.Jetfish.Security;
 using SS14.Jetfish.Security.Model;
-using SS14.MaintainerBot.Core.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 

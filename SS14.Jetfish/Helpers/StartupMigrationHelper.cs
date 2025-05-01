@@ -1,12 +1,11 @@
-﻿using System.Diagnostics;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Serilog;
 
-namespace SS14.MaintainerBot.Core.Helpers;
+namespace SS14.Jetfish.Helpers;
 
 //Taken from https://gist.github.com/Tim-Hodge/eea0601a14177c199fe60557eeeff31e
 public static class StartupMigrationHelper

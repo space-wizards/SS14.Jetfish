@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Database;
-using SS14.MaintainerBot.Core.Helpers;
+using SS14.Jetfish.Helpers;
 
 namespace SS14.Jetfish.Tests.EFCore;
 
