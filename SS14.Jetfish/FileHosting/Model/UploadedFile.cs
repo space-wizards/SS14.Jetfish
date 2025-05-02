@@ -29,10 +29,9 @@ public sealed class UploadedFile : IEntityTypeConfiguration<UploadedFile>, IReso
 
     public DateTimeOffset LastModified { get; }
 
-    public User UploadedBy { get; set; } = null!;
+    public User? UploadedBy { get; set; } = null!;
 
-    [Required]
-    public Guid UploadedById { get; set; }
+    public Guid? UploadedById { get; set; }
 
     public required ICollection<FileUsage> Usages { get; set; }
 
