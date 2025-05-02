@@ -17,9 +17,7 @@ public class MigrationTests
         using var dbContext = new ApplicationDbContext(
             new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseNpgsql() // No connection string, if you try to use the DB in here, it will explode.
-                .Options,
-            new OptionsWrapper<ServerConfiguration>(new ServerConfiguration())
-            );
+                .Options);
 
         var services = ((IInfrastructure<IServiceProvider>)dbContext).Instance;
         var modelDiffer = services.GetRequiredService<IMigrationsModelDiffer>();
