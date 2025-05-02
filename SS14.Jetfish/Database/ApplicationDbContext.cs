@@ -2,6 +2,8 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Serilog;
+using SS14.ConfigProvider.Model;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.FileHosting.Model;
 using SS14.Jetfish.Projects.Model;
@@ -9,7 +11,7 @@ using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Database;
 
-public partial class ApplicationDbContext : DbContext
+public partial class ApplicationDbContext : DbContext, IConfigDbContext
 {
     #region DI
 
@@ -70,4 +72,6 @@ public partial class ApplicationDbContext : DbContext
 
         return validationErrors;
     }
+
+    public DbSet<ConfigurationStore> ConfigurationStore { get; set; }
 }

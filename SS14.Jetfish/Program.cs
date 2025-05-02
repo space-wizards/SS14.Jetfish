@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using Serilog;
+using SS14.ConfigProvider;
 using SS14.Jetfish;
 using SS14.Jetfish.Components;
 using SS14.Jetfish.Configuration;
@@ -71,6 +72,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
         o.ConfigureDataSource(s => s.EnableDynamicJson());
     });
 });
+
+builder.Configuration.AddConfigurationDb<ApplicationDbContext>(b => b.UseNpgsql(builder.Configuration.GetConnectionString("default"), o =>
+{
+    o.ConfigureDataSource(s => s.EnableDynamicJson());
+}));
+
 
 #endregion
 
