@@ -73,7 +73,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     });
 });
 
-if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_DESIGN_TIME")))
+if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_DESIGN_TIME")))
 {
     // TODO: This is shitcode, fix
 
