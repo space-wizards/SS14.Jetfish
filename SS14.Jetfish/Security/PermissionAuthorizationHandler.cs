@@ -47,7 +47,7 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
 
         #region Idp Roles
 
-        var hasIdpAccess = await dbContext.HasIdpAccess(context.User, resourceId, requirement.Permissions.ToArray());
+        var hasIdpAccess = await dbContext.HasIdpAccess(_serverConfiguration, context.User, resourceId, requirement.Permissions.ToArray());
 
         if (hasIdpAccess)
         {

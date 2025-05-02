@@ -13,12 +13,6 @@ namespace SS14.Jetfish.Database;
 
 public partial class ApplicationDbContext : DbContext, IConfigDbContext
 {
-    #region DI
-
-    private readonly ServerConfiguration _serverConfiguration;
-
-    #endregion
-
     public DbSet<User> User { get; set; }
     public DbSet<Team> Team { get; set; }
     public DbSet<TeamMember> TeamMember { get; set; }
@@ -29,9 +23,8 @@ public partial class ApplicationDbContext : DbContext, IConfigDbContext
     public DbSet<FileUsage> FileUsage { get; set; }
 
 
-    public ApplicationDbContext(DbContextOptions options, IOptions<ServerConfiguration> config) : base(options)
+    public ApplicationDbContext(DbContextOptions options) : base(options)
     {
-        _serverConfiguration = config.Value;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
@@ -11,10 +13,12 @@ namespace SS14.Jetfish.Security.Repositories;
 public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceRepository<Team, Guid>
 {
     private readonly ApplicationDbContext _context;
+    private readonly ServerConfiguration _serverConfiguration;
 
-    public TeamRepository(ApplicationDbContext context)
+    public TeamRepository(ApplicationDbContext context, IOptions<ServerConfiguration> config)
     {
         _context = context;
+        _serverConfiguration = config.Value;
     }
 
     public override async Task<Result<Team, Exception>> AddOrUpdate(Team record)
@@ -89,7 +93,7 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
     {
         var userId = user.Claims.GetUserId();
 
-        var hasGlobalRead = await _context.HasIdpAccess(user, null, Permission.TeamRead);
+        var hasGlobalRead = await _context.HasIdpAccess(_serverConfiguration, user, null, Permission.TeamRead);
         if (hasGlobalRead)
         {
             return _context.Team

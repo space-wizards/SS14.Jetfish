@@ -1,5 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Database;
@@ -13,10 +15,11 @@ public partial class ApplicationDbContext
     /// </summary>
     /// <param name="user">The user claim</param>
     /// <param name="resourceId">The optional resource to check for.</param>
+    /// <param name="config">Server config pass in.</param>
     /// <param name="permissions">Array of permissions to check for. This is a "OR" check, not "AND" check.</param>
-    public async Task<bool> HasIdpAccess(ClaimsPrincipal user, Guid? resourceId, params Permission[] permissions)
+    public async Task<bool> HasIdpAccess(ServerConfiguration config, ClaimsPrincipal user, Guid? resourceId, params Permission[] permissions)
     {
-        var roles = user.Claims.Where(c => c.Type == _serverConfiguration.RoleClaim)
+        var roles = user.Claims.Where(c => c.Type == config.RoleClaim)
             .Select(c => c.Value)
             .ToList();
 
