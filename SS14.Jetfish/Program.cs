@@ -73,18 +73,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     });
 });
 
-if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_DESIGN_TIME")))
-{
-    // TODO: This is shitcode, fix
-
-    // This method errors the shit out in design time, because it needs the ConfigurationStore relation to exist, but this fails in design time
-    // so i simply check if we are in design time, but that is bad and i think the env variable is depricated
-    builder.Configuration.AddConfigurationDb<ApplicationDbContext>(b => b.UseNpgsql(builder.Configuration.GetConnectionString("default"), o =>
-    {
-        o.ConfigureDataSource(s => s.EnableDynamicJson());
-    }));
-}
-
 #endregion
 
 builder.AddOidc();
@@ -108,6 +96,18 @@ var app = builder.Build();
 //Migrate on startup
 if (serverConfiguration.EnableMigrations)
     StartupMigrationHelper.Migrate<ApplicationDbContext>(app);
+
+if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_DESIGN_TIME")))
+{
+    // TODO: This is shitcode, fix
+
+    // This method errors the shit out in design time, because it needs the ConfigurationStore relation to exist, but this fails in design time
+    // so i simply check if we are in design time, but that is bad and i think the env variable is depricated
+    builder.Configuration.AddConfigurationDb<ApplicationDbContext>(b => b.UseNpgsql(builder.Configuration.GetConnectionString("default"), o =>
+    {
+        o.ConfigureDataSource(s => s.EnableDynamicJson());
+    }));
+}
 
 await StartupAssetHelper.FirstTimeAssetSetup(app);
 
