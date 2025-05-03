@@ -100,7 +100,7 @@ public class LoginHandler
         if (user == null)
             return;
 
-        if (string.IsNullOrEmpty(user.ProfilePicture))
+        if (string.IsNullOrWhiteSpace(user.ProfilePicture))
         {
             user.ProfilePicture = await GetRandomDefaultProfilePicture();
         }
