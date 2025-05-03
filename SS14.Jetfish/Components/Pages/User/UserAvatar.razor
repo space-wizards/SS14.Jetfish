@@ -1,0 +1,10 @@
+﻿<MudAvatar Color="Color.Transparent" Size="@Size">
+    @if (User != null)
+    {
+        <MudImage Src="@UserProfilePictureLink"></MudImage>
+    }
+    else
+    {
+        <MudSkeleton Height="200%" Width="100%"></MudSkeleton>
+    }
+</MudAvatar>

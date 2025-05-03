@@ -1,5 +1,6 @@
 ﻿@using SS14.Jetfish.Helpers
 @using SS14.Jetfish.Security.Repositories
+@using SS14.Jetfish.Components.Pages.User
 @inherits LayoutComponentBase
 
 @* Required *@
@@ -12,44 +13,35 @@
 @* Needed for snackbars *@
 <MudSnackbarProvider />
 
-<MudLayout>
-    <MudAppBar>
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())"/>
-        <MudSpacer/>
-        <MudText HtmlTag="h2" Typo="Typo.h5" Class="mx-4">
-            <SectionOutlet SectionName="page-title"/>
-        </MudText>
-        <MudSpacer/>
-        <MudMenu>
-            <ActivatorContent>
-                <MudAvatar Color="Color.Transparent">
-                    @if (User != null)
-                    {
-                        <MudImage Src="@UserProfilePictureLink"></MudImage>
-                    }
-                    else
-                    {
-                        <MudSkeleton></MudSkeleton>
-                    }
-                </MudAvatar>
-            </ActivatorContent>
-            <ChildContent>
-                <MudMenuItem Label="Settings" Href="/user/settings"/>
-                <MudMenuItem Label="Logout" Href="/logout" />
-            </ChildContent>
-        </MudMenu>
-    </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
-        <NavigationMenu/>
-    </MudDrawer>
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pt-4">@*style="overflow: auto;max-height: 100vh;"*@
-            <CascadingValue Value="@User" TValue="User">
+<CascadingValue Value="@User" TValue="User">
+    <MudLayout>
+        <MudAppBar>
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())"/>
+            <MudSpacer/>
+            <MudText HtmlTag="h2" Typo="Typo.h5" Class="mx-4">
+                <SectionOutlet SectionName="page-title"/>
+            </MudText>
+            <MudSpacer/>
+            <MudMenu>
+                <ActivatorContent>
+                    <UserAvatar/>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudMenuItem Label="Settings" Href="/user/settings"/>
+                    <MudMenuItem Label="Logout" Href="/logout" />
+                </ChildContent>
+            </MudMenu>
+        </MudAppBar>
+        <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+            <NavigationMenu/>
+        </MudDrawer>
+        <MudMainContent>
+            <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pt-4">@*style="overflow: auto;max-height: 100vh;"*@
                 @Body
-            </CascadingValue>
-        </MudContainer>
-    </MudMainContent>
-</MudLayout>
+            </MudContainer>
+        </MudMainContent>
+    </MudLayout>
+</CascadingValue>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
@@ -66,7 +58,6 @@
     }
 
     private User? User { get; set; } = null;
-    private string UserProfilePictureLink => $"global-file/{User?.ProfilePicture ?? "I miss my wife little creature"}"; // TODO: Null supress this, as funny as it is.
 
     [CascadingParameter]
     private Task<AuthenticationState>? AuthenticationState { get; set; }
