@@ -15,7 +15,7 @@ public class StartupAssetHelper
 
     private const string DefaultProfilePictureDbIdentifier = "DefaultProfilePicture_";
 
-    private static string GetDbIdentifier(string key)
+    public static string GetDbIdentifier(string key)
     {
         return DefaultProfilePictureDbIdentifier + key;
     }
@@ -40,6 +40,9 @@ public class StartupAssetHelper
 
         var userConfig = new UserConfiguration();
         config.Bind(UserConfiguration.Name, userConfig);
+
+        if (userConfig.DefaultProfilePictures.Count == 0)
+            throw new InvalidOperationException("There must be at least one default profile picture.");
 
         using var httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("SS14.Jetfish (https://github.com/space-wizards/SS14.Jetfish)");

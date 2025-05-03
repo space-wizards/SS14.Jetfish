@@ -11,12 +11,16 @@ public sealed class User : IEntityTypeConfiguration<User>, IRecord<Guid>
     public Guid Id { get; set; }
 
     public int Version { get; set; }
-    
+
     [MaxLength(300)]
     public string DisplayName { get; set; } = null!;
 
+    [MaxLength(100)]
+    [Required]
+    public string ProfilePicture { get; set; } = "";
+
     public ICollection<ResourcePolicy> ResourcePolicies { get; set; } = null!;
-    
+
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.OwnsMany(p => p.ResourcePolicies);
