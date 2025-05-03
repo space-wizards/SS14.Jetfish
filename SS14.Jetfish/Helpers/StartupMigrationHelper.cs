@@ -8,8 +8,14 @@ using Serilog;
 namespace SS14.Jetfish.Helpers;
 
 //Taken from https://gist.github.com/Tim-Hodge/eea0601a14177c199fe60557eeeff31e
-public static class StartupMigrationHelper
+public class StartupMigrationHelper
 {
+    public StartupMigrationHelper()
+    {
+        throw new InvalidOperationException("This class should not be constructed."); // workaround to get this class into ILogger<StartupMigrationHelper>
+    }
+
+
     [PublicAPI]
     public static void Migrate<TContext>(IApplicationBuilder builder) where TContext : DbContext
     {
@@ -20,7 +26,8 @@ public static class StartupMigrationHelper
     public static void Migrate<TContext>(IServiceProvider serviceProvider) where TContext : DbContext
     {
         using var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
-        using var ctx = scope.ServiceProvider.GetRequiredService<TContext>();
+        using var ctx   = scope.ServiceProvider.GetRequiredService<TContext>();
+        var logger      = scope.ServiceProvider.GetRequiredService<ILogger<StartupMigrationHelper>>();
 
         var sp = ctx.GetInfrastructure();
 
@@ -29,7 +36,7 @@ public static class StartupMigrationHelper
 
         if (migrationsAssembly.ModelSnapshot == null)
         {
-            Log.Warning("No model snapshot found. Skipping migrations.");
+            logger.LogWarning("No model snapshot found. Skipping migrations.");
             return;
         }
 
@@ -41,7 +48,7 @@ public static class StartupMigrationHelper
         }
 
         ctx.Database.Migrate();
-        Log.Debug("Applied migrations.");
+        logger.LogDebug("Applied migrations.");
     }
 
     public static bool DiffsExist(

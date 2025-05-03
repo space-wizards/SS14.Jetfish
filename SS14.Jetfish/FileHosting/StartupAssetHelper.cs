@@ -6,8 +6,13 @@ using SS14.Jetfish.FileHosting.Services;
 
 namespace SS14.Jetfish.FileHosting;
 
-public static class StartupAssetHelper
+public class StartupAssetHelper
 {
+    public StartupAssetHelper()
+    {
+        throw new InvalidOperationException("This class should not be constructed."); // workaround to get this class into ILogger<StartupAssetHelper>
+    }
+
     private const string DefaultProfilePictureDbIdentifier = "DefaultProfilePicture_";
 
     private static string GetDbIdentifier(string key)
@@ -31,6 +36,7 @@ public static class StartupAssetHelper
         await using var ctx   = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var config            = scope.ServiceProvider.GetRequiredService<IConfiguration>();
         var fileService       = scope.ServiceProvider.GetRequiredService<FileService>();
+        var logger            = scope.ServiceProvider.GetRequiredService<ILogger<StartupAssetHelper>>();
 
         var userConfig = new UserConfiguration();
         config.Bind(UserConfiguration.Name, userConfig);
@@ -43,7 +49,7 @@ public static class StartupAssetHelper
             if (ctx.ConfigurationStore.Any(x => x.Name == GetDbIdentifier(defaultProfilePicture.Key)))
                 continue;
 
-            Log.Information("Downloading default profile picture {Name} - {Url}", defaultProfilePicture.Key, defaultProfilePicture.Value);
+            logger.LogInformation("Downloading default profile picture {Name} - {Url}", defaultProfilePicture.Key, defaultProfilePicture.Value);
 
             if (!Uri.TryCreate(defaultProfilePicture.Value, UriKind.Absolute, out var uri))
                 throw new UriFormatException($"Invalid profile picture url for {defaultProfilePicture.Key}\n{defaultProfilePicture.Value}");
@@ -76,7 +82,7 @@ public static class StartupAssetHelper
             });
             await ctx.SaveChangesAsync();
 
-            Log.Information("Downloaded default profile picture: {Name} - {Url}", defaultProfilePicture.Key, uri);
+            logger.LogInformation("Downloaded default profile picture: {Name} - {Url}", defaultProfilePicture.Key, uri);
         }
 
         // TODO: Maybe delete old default profile pictures?

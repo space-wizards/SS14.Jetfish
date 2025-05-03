@@ -11,20 +11,21 @@ public sealed class UiErrorService
     private readonly NavigationManager _navigationManager;
     private readonly IDialogService _dialogService;
     private readonly ISnackbar _snackbar;
+    private readonly ILogger<UiErrorService> _logger;
 
-    
-    public UiErrorService(NavigationManager navigationManager, IDialogService dialogService, ISnackbar snackbar)
+    public UiErrorService(NavigationManager navigationManager, IDialogService dialogService, ISnackbar snackbar, ILogger<UiErrorService> logger)
     {
         _navigationManager = navigationManager;
         _dialogService = dialogService;
         _snackbar = snackbar;
+        _logger = logger;
     }
 
     public async Task HandleUiError(Exception? exception)
     {
         if (exception is not null and not UiException)
-            Log.Error(exception, "An error occured");
-        
+            _logger.LogError(exception, "An error occured");
+
         if (exception == null || exception.RequiresReload())
         {
             await BlazorUtility.DisplayErrorPopup(_dialogService, _navigationManager, exception);
