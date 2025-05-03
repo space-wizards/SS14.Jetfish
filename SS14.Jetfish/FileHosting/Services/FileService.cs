@@ -43,6 +43,7 @@ public sealed class FileService
         {
             var resolvedPath = Path.Combine(_serverConfiguration.UserContentDirectory, fileName);
             await using FileStream fs = new(resolvedPath, FileMode.Create);
+            await fileStream.CopyToAsync(fs);
         }
         catch (IOException e)
         {
