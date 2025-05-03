@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using SS14.Jetfish.Helpers
+@using SS14.Jetfish.Security.Repositories
+@inherits LayoutComponentBase
 
 @* Required *@
 <Theme />
@@ -20,7 +22,16 @@
         <MudSpacer/>
         <MudMenu>
             <ActivatorContent>
-                <MudAvatar Color="Color.Tertiary">JG</MudAvatar>
+                <MudAvatar Color="Color.Transparent">
+                    @if (User != null)
+                    {
+                        <MudImage Src="@UserProfilePictureLink"></MudImage>
+                    }
+                    else
+                    {
+                        <MudSkeleton></MudSkeleton>
+                    }
+                </MudAvatar>
             </ActivatorContent>
             <ChildContent>
                 <MudMenuItem Label="Settings" Href="/user/settings"/>
@@ -33,7 +44,9 @@
     </MudDrawer>
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pt-4">@*style="overflow: auto;max-height: 100vh;"*@
-            @Body
+            <CascadingValue Value="@User" TValue="User">
+                @Body
+            </CascadingValue>
         </MudContainer>
     </MudMainContent>
 </MudLayout>
@@ -50,5 +63,27 @@
     private void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    private User? User { get; set; } = null;
+    private string UserProfilePictureLink => $"global-file/{User?.ProfilePicture ?? "I miss my wife little creature"}"; // TODO: Null supress this, as funny as it is.
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    [Inject]
+    private UserRepository UserRepository { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthenticationState == null)
+            return;
+
+        await AuthenticationState;
+        var userId = AuthenticationState.Result.User.Claims.GetUserId();
+        if (!userId.HasValue)
+            throw new InvalidOperationException("UserId is null");
+
+        User = await UserRepository.GetAsync(userId.Value);
     }
 }
