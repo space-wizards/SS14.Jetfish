@@ -28,6 +28,50 @@ public sealed class FileService
         configuration.Bind(ServerConfiguration.Name, _serverConfiguration);
     }
 
+    public async Task<Result<UploadedFile, Exception>> UploadGlobalFile(Stream fileStream, string name, string contentType)
+    {
+        var fileId = Guid.NewGuid();
+        var fileName = $"{fileId}{Path.GetExtension(name)}";
+
+        if (fileStream.Length > _serverConfiguration.MaxUploadSize)
+            throw new IOException(
+                $"File size of {fileStream.Length} exceed maximum upload size {_serverConfiguration.MaxUploadSize.Bytes}!");
+
+        try
+        {
+            var resolvedPath = Path.Combine(_serverConfiguration.UserContentDirectory, fileName);
+            await using FileStream fs = new(resolvedPath, FileMode.Create);
+        }
+        catch (IOException e)
+        {
+            return Result<UploadedFile, Exception>.Failure(e);
+        }
+
+        var createdFile = await _dbContext.UploadedFile.AddAsync(new UploadedFile()
+        {
+            RelativePath = fileName,
+            Name = WebUtility.HtmlEncode(name),
+            Id = fileId,
+            MimeType = contentType,
+            Etag = $"{fileId.GetHashCode():X}{DateTime.Now.GetHashCode():X}",
+            UploadedById = null,
+            Usages = new List<FileUsage>()
+            {
+                new()
+                {
+                    ProjectId = null,
+                    CardId = null,
+                    UploadedFileId = fileId,
+                    Public = true,
+                }
+            }
+        });
+
+        await _dbContext.SaveChangesAsync();
+
+        return Result<UploadedFile, Exception>.Success(createdFile.Entity);
+    }
+
     public async Task<Result<UploadedFile, Exception>> UploadFileForProject(IBrowserFile file, Guid userId, Guid projectId, Guid? cardId = null)
     {
         var fileId = Guid.NewGuid();
@@ -107,7 +151,7 @@ public sealed class FileService
     public async Task<IResult> GetUserFileAsResult(ClaimsPrincipal principal, Guid fileId)
     {
         var file = await _dbContext.UploadedFile.FirstOrDefaultAsync(file =>
-            file.Id == fileId && file.UploadedBy.Id == principal.Claims.GetUserId());
+            file.Id == fileId && file.UploadedBy != null && file.UploadedBy.Id == principal.Claims.GetUserId());
 
         if (file == null)
             return Results.NotFound();

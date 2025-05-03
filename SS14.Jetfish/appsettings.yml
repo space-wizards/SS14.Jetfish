@@ -15,3 +15,15 @@ Serilog:
   Enrich: [ "FromLogContext" ]
 
 AllowedHosts: "*"
+
+User:
+  DefaultProfilePictures:
+    Monk: https://static.wikitide.net/rainworldwiki/e/e9/Monk_portrait.png
+    Survivor: https://static.wikitide.net/rainworldwiki/a/a7/Survivor_portrait.png
+    Hunter: https://static.wikitide.net/rainworldwiki/0/09/Hunter_portrait.png
+    Gourmand: https://static.wikitide.net/rainworldwiki/b/ba/Gourmand_portrait.png
+    Artificer: https://static.wikitide.net/rainworldwiki/2/29/Artificer_portrait.png
+    Rivulet: https://static.wikitide.net/rainworldwiki/5/5c/Rivulet_portrait.png
+    Spearmaster: https://static.wikitide.net/rainworldwiki/8/8a/Spearmaster_portrait.png
+    Saint: https://static.wikitide.net/rainworldwiki/6/6e/Saint_portrait.png
+    Watcher: https://static.wikitide.net/rainworldwiki/1/1a/Nightcat_portrait.png
