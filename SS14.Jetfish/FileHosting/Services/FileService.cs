@@ -20,9 +20,11 @@ public sealed class FileService
     private readonly IAuthorizationService _authorizationService;
     private readonly ApplicationDbContext _dbContext;
     private readonly ServerConfiguration _serverConfiguration = new();
+    private readonly ILogger<FileService> _logger;
 
-    public FileService(IAuthorizationService authorizationService, ApplicationDbContext context, IConfiguration configuration)
+    public FileService(IAuthorizationService authorizationService, ApplicationDbContext context, IConfiguration configuration, ILogger<FileService> logger)
     {
+        _logger = logger;
         _authorizationService = authorizationService;
         _dbContext = context;
         configuration.Bind(ServerConfiguration.Name, _serverConfiguration);
@@ -169,7 +171,7 @@ public sealed class FileService
         var resolvedPath = Path.Combine(_serverConfiguration.UserContentDirectory, file.RelativePath);
         if (!File.Exists(resolvedPath))
         {
-            Log.Error("File exists in DB but not in file system. Path {File}", file.RelativePath);
+            _logger.LogError("File exists in DB but not in file system. Path {File}", file.RelativePath);
             return Results.InternalServerError("File does not exist in file system, but exists in DB.");
         }
 
@@ -183,5 +185,56 @@ public sealed class FileService
             .Where(usage => usage.Id == backgroundId)
             .Where(usage => usage.ProjectId == projectId)
             .ExecuteDeleteAsync();
+    }
+
+    /// <summary>
+    /// Deletes "lost files" that are in the file system but not the DB and deletes files without any usages.
+    /// </summary>
+    public async Task DeleteLostFiles()
+    {
+        if (!Directory.Exists(_serverConfiguration.UserContentDirectory))
+            return;
+
+        // TODO: Verify that the user content directory is not set to something "dangerous" like the root folder and we just delete every file in there
+        // Possibly if the directory is too shallow?
+
+        // Part 1, files that are not in the DB.
+        var files = Directory.EnumerateFiles(_serverConfiguration.UserContentDirectory);
+        foreach (var file in files)
+        {
+            var dbFileFound = await _dbContext.UploadedFile.AnyAsync(x => x.RelativePath == Path.GetFileName(file));
+            if (dbFileFound)
+                continue;
+
+            _logger.LogInformation("File {FilePath} was not found in the DB, but exists in the file system, deleting.", file);
+            File.Delete(file);
+        }
+
+        // Part 2, files without any usages.
+        var lostFiles = await _dbContext.UploadedFile
+            .Include(f => f.Usages)
+            .Where(f => f.Usages.Count == 0)
+            .ToListAsync();
+
+        foreach (var lostFile in lostFiles)
+        {
+            _logger.LogInformation("File {Name} has no usages, deleting.", lostFile.Name);
+            await DeleteFile(lostFile);
+        }
+    }
+
+    /// <summary>
+    /// Deletes a given file.
+    /// </summary>
+    // TODO: Make this use Result
+    public async Task DeleteFile(UploadedFile file)
+    {
+        _dbContext.UploadedFile.Remove(file);
+        await _dbContext.SaveChangesAsync();
+
+        if (File.Exists(Path.Combine(_serverConfiguration.UserContentDirectory, file.RelativePath)))
+            File.Delete(Path.Combine(_serverConfiguration.UserContentDirectory, file.RelativePath));
+
+        _logger.LogInformation("Deleted file {FileName} - {Id}", file.RelativePath, file.Id);
     }
 }

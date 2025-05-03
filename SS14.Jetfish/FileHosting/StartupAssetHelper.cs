@@ -80,5 +80,7 @@ public static class StartupAssetHelper
         }
 
         // TODO: Maybe delete old default profile pictures?
+
+        await fileService.DeleteLostFiles();
     }
 }
