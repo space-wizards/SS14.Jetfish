@@ -221,6 +221,22 @@ public sealed class FileService
             _logger.LogInformation("File {Name} has no usages, deleting.", lostFile.Name);
             await DeleteFile(lostFile);
         }
+
+        // Part 3: Files that are in the DB but have no file in the file system.
+        var dbFiles = await _dbContext.UploadedFile
+            .Select(f => new { f.RelativePath, f.Id, f.Name }) // thats the only part we care about
+            .ToListAsync();
+
+        foreach (var dbFile in dbFiles)
+        {
+            if (File.Exists(Path.Combine(_serverConfiguration.UserContentDirectory, dbFile.RelativePath)))
+                continue;
+
+            _logger.LogInformation("File {Name} has no attached file system file, deleting.", dbFile.Name);
+            // Db file is a tuple, so we refetch the file from the db
+            // realistically, the performance gain from querying all files and only taking 3 columns is much greater than refetching the file again.
+            await DeleteFile(_dbContext.UploadedFile.First(x => x.Id == dbFile.Id));
+        }
     }
 
     /// <summary>
