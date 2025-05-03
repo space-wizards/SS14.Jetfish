@@ -8,6 +8,5 @@ namespace SS14.Jetfish.Components.Pages.User;
 public partial class Settings : ComponentBase
 {
     [CascadingParameter]
-    public Task<AuthenticationState>? AuthenticationState { get; set; }
-
+    public Security.Model.User? User { get; set; }
 }

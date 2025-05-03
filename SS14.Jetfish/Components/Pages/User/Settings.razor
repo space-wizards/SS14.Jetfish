@@ -3,3 +3,22 @@
 <PageTitle>User Settings</PageTitle>
 <SectionContent SectionName="page-title">User Settings</SectionContent>
 
+<!-- Main vertical stack-->
+<MudStack AlignItems="AlignItems.Center">
+    <MudStack Row="true">
+        <MudPaper Class="pa-4 mr-6" MinWidth="600px" MaxWidth="600px">
+            <UserAvatar Size="Size.Large"/>
+            <MudText Typo="Typo.h4">@User?.DisplayName</MudText>
+        </MudPaper>
+        <MudPaper Class="pa-4 mr-6">
+            <MudStack>
+                <MudButton Color="Color.Tertiary">
+                    Change Profile Picture
+                </MudButton>
+                <MudButton Color="Color.Error">
+                    Delete Account
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+    </MudStack>
+</MudStack>
