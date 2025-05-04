@@ -65,7 +65,7 @@
     [Inject]
     private UserRepository UserRepository { get; set; } = null!;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         if (AuthenticationState == null)
             return;
