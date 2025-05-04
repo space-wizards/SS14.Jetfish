@@ -1,7 +1,16 @@
 ﻿<MudAvatar Color="Color.Transparent" Size="@Size">
-    @if (User != null)
+    @if (User != null || UserOverride != null)
     {
-        <MudImage Src="@UserProfilePictureLink"></MudImage>
+        if (Tooltip)
+        {
+            <MudTooltip Text="@GetTooltip()">
+                <MudImage Src="@UserProfilePictureLink()" Fluid="true"></MudImage>
+            </MudTooltip>
+        }
+        else
+        {
+            <MudImage Src="@UserProfilePictureLink()" Fluid="true"></MudImage>
+        }
     }
     else
     {

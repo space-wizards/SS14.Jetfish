@@ -5,11 +5,13 @@
 @using SS14.Jetfish.Security.Commands
 @using SS14.Jetfish.Security.Model.FormModel
 @using SS14.Jetfish.Components.Shared.Forms
+@using SS14.Jetfish.Components.Pages.User
+
 <MudDataGrid T="TeamMember" CommittedItemChanges="OnEditedMember" ReadOnly="false" Dense="true" Items="TeamMembers" EditMode="DataGridEditMode.Form" Elevation="0">
     <Columns>
         <TemplateColumn Title="Users">
             <CellTemplate>
-                <MudAvatar Size="Size.Small" Color="Color.Tertiary">@((context.Item?.User.DisplayName ?? "")[..2].ToUpper())</MudAvatar>
+                <UserAvatar Size="Size.Small" Tooltip="true" UserOverride="context.Item.User"/>
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Title="Name" Editable="false" Property="t => t.User.DisplayName">
@@ -47,18 +49,18 @@
     [Inject] private ICommandService CommandService { get; set; } = null!;
 
     [Inject] private ISnackbar Snackbar { get; set; } = null!;
-    
+
     [Inject]
     private IDialogService DialogService { get; set; } = null!;
-    
+
     [Inject]
     private UiErrorService UiErrorService { get; set; } = null!;
 
     [Inject] NavigationManager NavigationManager { get; set; } = null!;
-    
+
     [Parameter]
     public Team Team { get; set; } = null!;
-    
+
     [Parameter]
     public IEnumerable<TeamMember> TeamMembers { get; set; } = null!;
 
@@ -75,7 +77,7 @@
             await UiErrorService.HandleUiError(result.Result.Error);
             return;
         }
-        
+
         Snackbar.Add("Member Removed!", Severity.Success);
         StateHasChanged();
     }
@@ -88,7 +90,7 @@
         {
             Snackbar.Add("Failed to save changes!", Severity.Error);
         }
-        
+
         Snackbar.Add("Saved changes!", Severity.Success);
     }
 
@@ -112,7 +114,7 @@
             await UiErrorService.HandleUiError(commandResult.Result.Error);
             return;
         }
-        
+
         Snackbar.Add("Member Added!", Severity.Success);
         StateHasChanged();
     }

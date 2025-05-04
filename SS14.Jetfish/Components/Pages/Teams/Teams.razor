@@ -1,4 +1,6 @@
 @page "/teams"
+@using SS14.Jetfish.Components.Pages.User
+
 <SectionContent SectionName="page-title">Teams</SectionContent>
 <MudPaper Class="p-4">
     <MudDataGrid Hover="true" Style="cursor: pointer" RowClick="OnRowClick" @ref="_dataGrid" RowStyle="min-height: 61px;" T="Team" ServerData="LoadData" Filterable="false" SortMode="SortMode.None">
@@ -10,11 +12,7 @@
                         @if (context.Item != null)
                             @foreach (var member in context.Item.TeamMembers)
                         {
-                            <MudAvatar Size="Size.Small">
-                                <MudTooltip Text="@member.User.DisplayName">
-                                    <MudImage Src="https://static.wikitide.net/rainworldwiki/2/29/Artificer_portrait.png" Width="32" Height="32"></MudImage>
-                                </MudTooltip>
-                            </MudAvatar>
+                            <UserAvatar Size="Size.Small" Tooltip="true" UserOverride="member.User"/>
                         }
                     </MudAvatarGroup>
                 </CellTemplate>
