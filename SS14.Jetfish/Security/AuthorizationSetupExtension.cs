@@ -28,5 +28,6 @@ public static class AuthorizationSetupExtension
         builder.Services.AddScoped<ICommandHandler, DeleteTeamMemberCommandHandler>();
         builder.Services.AddScoped<ICommandHandler, CreateOrUpdatePolicyCommandHandler>();
         builder.Services.AddScoped<ICommandHandler, DeletePolicyCommandHandler>();
+        builder.Services.AddScoped<ICommandHandler, EditUserProfilePictureCommandHandler>();
     }
 }

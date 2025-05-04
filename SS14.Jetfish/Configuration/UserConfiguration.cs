@@ -12,5 +12,5 @@ public class UserConfiguration
     /// Key: name
     /// Value: url
     /// </summary>
-    public Dictionary<string, string> DefaultProfilePictures { get; set; } = new();
+    public Dictionary<string, string> DefaultProfilePictures { get; set; } = null!;
 }

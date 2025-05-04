@@ -34,6 +34,7 @@ builder.Configuration.AddYamlFile("appsettings.Secret.yml", true, true);
 var serverConfiguration = new ServerConfiguration();
 builder.Configuration.Bind(ServerConfiguration.Name, serverConfiguration);
 builder.Services.Configure<ServerConfiguration>(builder.Configuration.GetSection(ServerConfiguration.Name));
+builder.Services.Configure<UserConfiguration>(builder.Configuration.GetSection(UserConfiguration.Name));
 
 //Cors
 if (serverConfiguration.CorsOrigins != null)
@@ -84,6 +85,7 @@ builder.AddCommandHandling();
 builder.AddFileHosting();
 
 builder.Services.AddScoped<UiErrorService>();
+builder.Services.AddScoped<ConfigurationStoreService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

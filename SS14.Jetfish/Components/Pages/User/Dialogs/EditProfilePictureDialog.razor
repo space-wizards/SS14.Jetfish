@@ -1,0 +1,63 @@
+﻿@using SS14.Jetfish.FileHosting
+
+<div style="display: contents">
+    <MudDialog Style="min-width: 360px; max-width: 360px">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Photo" Class="mr-3 mb-n1"/>
+            @Dialog.Title
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm @ref="_form" Model="_model">
+            <DataAnnotationsValidator/>
+            <MudStack Row="true" Wrap="Wrap.Wrap" AlignItems="AlignItems.Center" Class="pa-4">
+                @foreach (var (name, fileId) in _defaultProfilePictures)
+                {
+                    var classes = "picture ";
+                    if (_model?.DefaultPicture == fileId)
+                    {
+                        classes += "selected-picture ";
+                    }
+
+                    <MudAvatar Size="Size.Large" Class="@classes" @onclick="() => SelectPicture(fileId)">
+                        <MudImage Fluid="true" Src="@($"global-file/{fileId}")">
+
+                        </MudImage>
+                    </MudAvatar>
+                }
+            </MudStack>
+            <MudDivider/>
+            <MudText>Or upload a custom profile picture:</MudText>
+            <MudFileUpload Error="@(!string.IsNullOrWhiteSpace(_fileError))" ErrorText="@_fileError"
+                           OnFilesChanged="@FilesChanges" @bind-Files="_model.UploadedPicture"
+                           MaximumFileCount="1" T="IBrowserFile" Required="false"
+                           Accept=".webp, .png, .jpg, .jpeg, .gif, .avif">
+                <SelectedTemplate Context="file">
+                    @if (file != null)
+                    {
+                        <MudText Typo="Typo.subtitle2">Selected @file.Name</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.subtitle2">No File Selected</MudText>
+                    }
+                </SelectedTemplate>
+                <ActivatorContent>
+                    <MudButton
+                        Variant="Variant.Filled"
+                        Color="Color.Primary"
+                        StartIcon="@Icons.Material.Filled.Image"
+                        FullWidth="true">
+                        Upload Profile Picture
+                    </MudButton>
+                </ActivatorContent>
+            </MudFileUpload>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" OnClick="Save">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+</div>

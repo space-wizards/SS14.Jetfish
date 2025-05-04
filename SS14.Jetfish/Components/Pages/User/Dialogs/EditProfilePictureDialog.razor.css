@@ -1,0 +1,8 @@
+﻿::deep .selected-picture
+{
+    border: #258cfb 2px solid;
+}
+
+::deep .picture {
+    cursor: pointer;
+}

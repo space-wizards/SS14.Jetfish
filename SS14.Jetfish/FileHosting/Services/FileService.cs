@@ -75,6 +75,45 @@ public sealed class FileService
         return Result<UploadedFile, Exception>.Success(createdFile.Entity);
     }
 
+    public async Task<Result<UploadedFile, Exception>> UploadGlobalFileUser(IBrowserFile file, Guid userId)
+    {
+        var fileId = Guid.NewGuid();
+        var fileName = $"{fileId}{Path.GetExtension(file.Name)}";
+
+        try
+        {
+            var resolvedPath = Path.Combine(_serverConfiguration.UserContentDirectory, fileName);
+            await using FileStream fs = new(resolvedPath, FileMode.Create);
+            await file.OpenReadStream(_serverConfiguration.MaxUploadSize).CopyToAsync(fs);
+        }
+        catch (IOException e)
+        {
+            return Result<UploadedFile, Exception>.Failure(e);
+        }
+
+        var createdFile = await _dbContext.UploadedFile.AddAsync(new UploadedFile()
+        {
+            RelativePath = fileName,
+            Name = WebUtility.HtmlEncode(file.Name),
+            Id = fileId,
+            MimeType = file.ContentType,
+            Etag = $"{fileId.GetHashCode():X}{DateTime.Now.GetHashCode():X}",
+            UploadedById = userId,
+            Usages = new List<FileUsage>()
+            {
+                new()
+                {
+                    UploadedFileId = fileId,
+                    Public = true,
+                }
+            }
+        });
+
+        await _dbContext.SaveChangesAsync();
+
+        return Result<UploadedFile, Exception>.Success(createdFile.Entity);
+    }
+
     public async Task<Result<UploadedFile, Exception>> UploadFileForProject(IBrowserFile file, Guid userId, Guid projectId, Guid? cardId = null)
     {
         var fileId = Guid.NewGuid();
@@ -238,6 +277,12 @@ public sealed class FileService
             // realistically, the performance gain from querying all files and only taking 3 columns is much greater than refetching the file again.
             await DeleteFile(_dbContext.UploadedFile.First(x => x.Id == dbFile.Id));
         }
+    }
+
+    public async Task DeleteFile(Guid fileId)
+    {
+        var file = await _dbContext.UploadedFile.FirstAsync(x => x.Id == fileId);
+        await DeleteFile(file);
     }
 
     /// <summary>
