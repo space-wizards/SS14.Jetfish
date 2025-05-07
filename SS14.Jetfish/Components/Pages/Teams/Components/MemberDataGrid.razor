@@ -22,7 +22,7 @@
                 <RoleSelect Roles="Team.Roles" @bind-Value="@context.Item.Role" Required/>
             </EditTemplate>
         </PropertyColumn>
-        <TemplateColumn HeaderStyle="height: 59px;" Title="Actions" CellStyle="min-height: 36.8px;" CellClass="d-flex justify-end" HeaderClass="d-flex justify-end">
+        <TemplateColumn HeaderStyle="height: 59px;" Title="Actions" CellStyle="min-height: 36.8px; padding-bottom: 9px" CellClass="d-flex justify-end" HeaderClass="d-flex justify-end">
             <CellTemplate>
                 <AuthorizeResource Policy="@nameof(Permission.TeamEdit)" Resource="Team">
                     <MudTooltip Delay="800" Text="Edit Membership">
