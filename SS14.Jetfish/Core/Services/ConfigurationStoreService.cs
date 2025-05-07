@@ -6,6 +6,10 @@ namespace SS14.Jetfish.Core.Services;
 /// <summary>
 /// Provides proxy methods with type casting for the ConfigurationStore.
 /// </summary>
+/// <remarks>
+/// Usually IConfiguration or any other Options pattern should be used instead.
+/// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/options
+/// </remarks>
 public class ConfigurationStoreService
 {
     private readonly ApplicationDbContext _applicationDbContext;

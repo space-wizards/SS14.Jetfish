@@ -61,11 +61,14 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
     /// <summary>
     /// Returns all teams a user has access to.
     /// </summary>
-    public async Task<ICollection<Team>> ListByMembership(Guid userId)
+    public async Task<ICollection<Team>> ListByMembership(Guid userId, bool includeProjects = false)
     {
-        return await _context.Team
-            .Include(t => t.Projects)
-            .Include(t => t.TeamMembers)
+        var query = _context.Team.AsSplitQuery();
+
+        if (includeProjects)
+            query = query.Include(t => t.Projects);
+
+        return await query.Include(t => t.TeamMembers)
             .Where(t => t.TeamMembers.Any(tm => tm.UserId == userId))
             .ToListAsync();
     }

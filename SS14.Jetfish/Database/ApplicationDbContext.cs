@@ -22,6 +22,8 @@ public partial class ApplicationDbContext : DbContext, IConfigDbContext
     public DbSet<UploadedFile> UploadedFile { get; set; }
     public DbSet<FileUsage> FileUsage { get; set; }
 
+    public DbSet<ConfigurationStore> ConfigurationStore { get; set; }
+
 
     public ApplicationDbContext(DbContextOptions options) : base(options)
     {
@@ -65,6 +67,4 @@ public partial class ApplicationDbContext : DbContext, IConfigDbContext
 
         return validationErrors;
     }
-
-    public DbSet<ConfigurationStore> ConfigurationStore { get; set; }
 }

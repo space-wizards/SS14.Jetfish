@@ -1,11 +1,9 @@
 ﻿using System.Net;
 using System.Security.Claims;
-using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
-using Serilog;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
@@ -179,8 +177,7 @@ public sealed class FileService
         if (file == null)
             return Results.NotFound();
 
-        var project = file.Usages.First(usage => usage.ProjectId == projectId);
-        var authorizationResult = await _authorizationService.AuthorizeAsync(principal, project, nameof(Permission.ProjectRead));
+        var authorizationResult = await _authorizationService.AuthorizeAsync(principal, projectId, nameof(Permission.ProjectRead));
         if (!authorizationResult.Succeeded)
             return Results.Unauthorized();
 

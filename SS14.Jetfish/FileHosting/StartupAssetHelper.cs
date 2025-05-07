@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using Microsoft.Extensions.Options;
+using Serilog;
 using SS14.ConfigProvider.Model;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Database;
@@ -24,7 +25,7 @@ public class StartupAssetHelper
     [
         "image/png",
         "image/jpeg",
-        "image/webp"
+        "image/webp",
     ];
 
     /// <summary>
@@ -34,12 +35,12 @@ public class StartupAssetHelper
     {
         using var scope       = builder.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
         await using var ctx   = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var config            = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+        var options            = scope.ServiceProvider.GetRequiredService<IOptions<UserConfiguration>>();
         var fileService       = scope.ServiceProvider.GetRequiredService<FileService>();
         var logger            = scope.ServiceProvider.GetRequiredService<ILogger<StartupAssetHelper>>();
 
-        var userConfig = new UserConfiguration();
-        config.Bind(UserConfiguration.Name, userConfig);
+
+        var userConfig = options.Value;
 
         if (userConfig.DefaultProfilePictures.Count == 0)
             throw new InvalidOperationException("There must be at least one default profile picture.");

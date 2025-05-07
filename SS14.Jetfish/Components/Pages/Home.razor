@@ -16,7 +16,7 @@
         <MudDivider/>
         <MudText Typo="Typo.h5">@team.Name</MudText>
         <MudStack AlignItems="AlignItems.Start" Wrap="Wrap.Wrap" Spacing="4" Row="true">
-            @foreach (var teamProject in team.Projects)
+            @foreach (var teamProject in _projects.Where(p => team.Projects.Select(x => x.Id).Contains(p.Id)))
             {
                 <ProjectCard Project="teamProject"/>
             }

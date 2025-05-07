@@ -27,14 +27,14 @@ builder.Configuration.AddYamlFile("appsettings.yml", false, true);
 builder.Configuration.AddYamlFile($"appsettings.{env.EnvironmentName}.yml", true, true);
 builder.Configuration.AddYamlFile("appsettings.Secret.yml", true, true);
 
+builder.Services.Configure<ServerConfiguration>(builder.Configuration.GetSection(ServerConfiguration.Name));
+builder.Services.Configure<UserConfiguration>(builder.Configuration.GetSection(UserConfiguration.Name));
+
 #endregion
 
 #region Server
-// Server configuration.
 var serverConfiguration = new ServerConfiguration();
 builder.Configuration.Bind(ServerConfiguration.Name, serverConfiguration);
-builder.Services.Configure<ServerConfiguration>(builder.Configuration.GetSection(ServerConfiguration.Name));
-builder.Services.Configure<UserConfiguration>(builder.Configuration.GetSection(UserConfiguration.Name));
 
 //Cors
 if (serverConfiguration.CorsOrigins != null)
