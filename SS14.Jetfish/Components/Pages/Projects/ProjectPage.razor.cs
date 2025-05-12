@@ -11,20 +11,21 @@ public partial class ProjectPage : ComponentBase
 {
     [Inject]
     private ApplicationDbContext Context { get; set; } = null!;
-    
+
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
-    
+
     [Parameter]
     public Guid ProjectId { get; set; }
-    
-    private Project? Project { get; set;}
-    
-    protected override async Task OnParametersSetAsync()
-    {
-        Project = await Context.Project.SingleOrDefaultAsync(p => p.Id == ProjectId);
 
-        //if (_project == null)
-            //Navigation.NavigateTo("/error");
+    private Project? Project { get; set;}
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        Project = await Context.Project.SingleOrDefaultAsync(p => p.Id == ProjectId);
+        StateHasChanged();
     }
 }

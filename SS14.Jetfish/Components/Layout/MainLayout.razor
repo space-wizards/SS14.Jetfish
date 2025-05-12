@@ -67,7 +67,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if (AuthenticationState == null)
+        if (AuthenticationState == null || User != null)
             return;
 
         await AuthenticationState;
