@@ -1,7 +1,7 @@
 ﻿@using SS14.Jetfish.Projects.Model
 
 <div style="display:contents">
-    <ProjectCardTemplate Style="@GetBackground()">
+    <ProjectCardTemplate Style="@GetBackground()" OnClick="RedirectToProject">
         <MudSkeleton Style="@(_displaySkeleton ? "" : "display: none;")" Width="100%" Height="100%" Animation="Animation.Wave" Class="skeleton-no-transform"/>
         @if (!_isImageLoaded && Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Image)
         {
