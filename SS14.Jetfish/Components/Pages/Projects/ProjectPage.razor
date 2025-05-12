@@ -5,10 +5,9 @@
 @if(Project == null)
 {
     <p>Project not found</p>
+    return;
 }
-else
-{
-<AuthorizeResource ResourceName="project" Policy="@(nameof(Permission.ProjectRead))" Resource="@ProjectId">
+
+<AuthorizeResource ResourceName="project" Policy="@(nameof(Permission.ProjectRead))" Resource="@ProjectId" DisplayError="true">
     <h3>Project</h3>
 </AuthorizeResource>
-}
