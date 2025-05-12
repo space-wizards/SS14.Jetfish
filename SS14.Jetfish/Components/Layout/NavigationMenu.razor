@@ -4,8 +4,12 @@
         <MudText HtmlTag="h1" Class="font-site-title" Typo="Typo.h4">Jetfish</MudText>
     </MudStack>
     <MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>
-    <MudNavLink Href="/projects" Match="NavLinkMatch.Prefix">Projects</MudNavLink>
-    <MudNavLink Href="/teams" Match="NavLinkMatch.Prefix">Teams</MudNavLink>
+    <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.ProjectRead))">
+        <MudNavLink Href="/projects" Match="NavLinkMatch.Prefix">Projects</MudNavLink>
+    </AuthorizeResource>
+    <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.TeamRead))">
+        <MudNavLink Href="/teams" Match="NavLinkMatch.Prefix">Teams</MudNavLink>
+    </AuthorizeResource>
     <MudNavGroup Title="Admin" Expanded="true" Class="nav-group-hide-empty">
         <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.PoliciesRead))">
             <MudNavLink Href="/admin/idp-roles" Match="NavLinkMatch.Prefix">Idp Roles</MudNavLink>
