@@ -1,5 +1,5 @@
 @page "/projects/{projectId:guid}"
-
+@using SS14.Jetfish.Projects.Model
 
 
 @if(Project == null)
@@ -9,5 +9,25 @@
 }
 
 <AuthorizeResource ResourceName="project" Policy="@(nameof(Permission.ProjectRead))" Resource="@ProjectId" DisplayError="true">
-    <h3>Project</h3>
+    @if (Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Image && !_isImageLoaded)
+    {
+        <!-- We load the image here to detect when it finishes loading into the browser cache, to then set the background -->
+        <img src="project-file/@Project.Id/file/@Project.Background"
+             style="display:none"
+             @onload="OnImageLoaded"/>
+    }
+
+    <div class="project-background" style="@GetBackground()">
+        <MudSkeleton Style="@(_displaySkeleton ? "transform: none;" : "display: none;")" Width="100%" Height="100%" Animation="Animation.Wave" Class="skeleton-no-transform"/>
+    </div>
+    <div style="display:contents;">
+        <MudContainer Class="project-navigation">
+            <MudStack AlignItems="AlignItems.Start" Row="true" Class="project-header">
+                <MudText Typo="Typo.h4">@Project.Name</MudText>
+                <AuthorizeResource ResourceName="project" Policy="@(nameof(Permission.ProjectEdit))" Resource="@ProjectId" DisplayError="false">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"/>
+                </AuthorizeResource>
+            </MudStack>
+        </MudContainer>
+    </div>
 </AuthorizeResource>

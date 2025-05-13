@@ -1,0 +1,26 @@
+﻿.project-background {
+    position: fixed;
+    top: 67px;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    z-index: -1;
+}
+
+::deep .project-navigation {
+    background-color: rgba(40, 40, 40, 0.42);
+    border-radius: 2px;
+    padding: 8px;
+}
+
+::deep .project-header button {
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+}
+
+::deep .project-header:hover button {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+}
