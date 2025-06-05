@@ -38,6 +38,8 @@ public sealed class Card : IEntityTypeConfiguration<Card>, IRecord<Guid>
     [Required]
     public float Order { get; set; }
 
+    public Guid? ThumbnailId { get; set; }
+
     public ICollection<CardComment> Comments { get; set; } = [];
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
