@@ -29,11 +29,17 @@ public sealed partial class Project : IEntityTypeConfiguration<Project>, IResour
     [MaxLength(200)]
     public required string Background { get; set; }
 
+    public ICollection<List> Lists { get; set; } = [];
+
     // TODO: Implement properties
 
     public void Configure(EntityTypeBuilder<Project> builder)
     {
         builder.ConfigureRowVersionGuid();
+        builder.HasMany(p => p.Lists)
+            .WithOne(l => l.Project)
+            .HasForeignKey(l => l.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -45,10 +51,10 @@ public sealed partial class Project : IEntityTypeConfiguration<Project>, IResour
         [
             new ValidationResult(
                 "Background specifier is set to color, but background is not a valid color.",
-                [nameof(Background)])
+                [nameof(Background)]),
         ];
     }
-    
+
     [GeneratedRegex(@"^#(?:[0-9a-fA-F]{3,4}){1,2}$")]
     private static partial Regex HexColor();
 
