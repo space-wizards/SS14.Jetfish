@@ -1,4 +1,4 @@
-﻿namespace SS14.Jetfish.Security;
+﻿namespace SS14.Jetfish.Security.Services.Interfaces;
 
 public interface IResource
 {

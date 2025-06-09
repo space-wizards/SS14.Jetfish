@@ -6,6 +6,7 @@ using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Security.Model;
+using SS14.Jetfish.Security.Services.Interfaces;
 
 namespace SS14.Jetfish.Security;
 
