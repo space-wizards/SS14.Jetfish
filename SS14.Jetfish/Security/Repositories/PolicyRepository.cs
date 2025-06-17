@@ -32,26 +32,59 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int?>
         _context.AccessPolicies.Remove(record);
         return await SaveChanges(record, _context);
     }
-    
+
     public async Task<int> CountAsync()
     {
         return await _context.AccessPolicies.AsNoTracking().CountAsync();
     }
-    
+
     public async Task<IEnumerable<AccessPolicy>> GetAllAsync(string? name = null, bool allPolicies = false, int limit = 0, int offset = 0, CancellationToken ct = new())
     {
         var query = _context.AccessPolicies.AsQueryable();
 
         if (!allPolicies)
             query = query.Where(policy => policy.TeamAssignable);
-        
+
         if (name != null)
             query = query.Where(policy =>  EF.Functions.ILike(policy.Name, $"{name}%"));
-            
+
         var finalQuery = query.OrderBy(role => role.Id).Skip(offset);
         if (limit != 0)
             finalQuery = finalQuery.Take(limit);
 
         return await finalQuery.ToListAsync(ct);
+    }
+
+    public async Task<IEnumerable<PermissionIdentity>> GetIdentityPermissions(Guid userId)
+    {
+        var userQuery = _context.User.AsNoTracking()
+            .Include(u => u.ResourcePolicies)
+            .ThenInclude(r => r.AccessPolicy)
+            .Where(u => u.Id == userId)
+            .SelectMany(u => u.ResourcePolicies.Select(p =>
+                new PermissionIdentity
+                {
+                    UserId = u.Id,
+                    Global = p.Global,
+                    Permissions = p.AccessPolicy.Permissions,
+                    ResourceId = p.ResourceId,
+                    ResourceType = p.ResourceType,
+                }));
+
+        var teamQuery = _context.TeamMember.AsNoTracking()
+            .Include(m => m.Role)
+            .ThenInclude(r => r.Policies)
+            .Where(m => m.UserId == userId)
+            .SelectMany(m => m.Role.Policies.Select(p =>
+                new PermissionIdentity
+                {
+                    UserId = m.UserId,
+                    Global = p.Global,
+                    Permissions = p.AccessPolicy.Permissions,
+                    ResourceId = p.ResourceId,
+                    ResourceType = p.ResourceType,
+                }));
+
+        return await userQuery.Union(teamQuery).ToListAsync();
     }
 }
