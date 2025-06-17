@@ -129,6 +129,7 @@ app.UseAntiforgery();
 app.UseFileHosting();
 
 app.UseAuthentication();
+app.UsePermissions();
 app.UseAuthorization();
 
 app.MapStaticAssets();

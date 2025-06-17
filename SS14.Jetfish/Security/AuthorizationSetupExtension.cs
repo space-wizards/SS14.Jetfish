@@ -18,6 +18,7 @@ public static class AuthorizationSetupExtension
         builder.Services.AddScoped<UserRepository>();
         builder.Services.AddScoped<TeamMemberRepository>();
         builder.Services.AddScoped<PolicyRepository>();
+        builder.Services.AddScoped<PermissionsMiddleware>();
         builder.Services.AddScoped<ICommandHandler, RoleAddOrRemoveCommandHandler>();
         builder.Services.AddScoped<ICommandHandler, DeleteRoleCommandHandler>();
         builder.Services.AddScoped<ICommandHandler, DeleteTeamCommandHandler>();
@@ -29,5 +30,10 @@ public static class AuthorizationSetupExtension
         builder.Services.AddScoped<ICommandHandler, CreateOrUpdatePolicyCommandHandler>();
         builder.Services.AddScoped<ICommandHandler, DeletePolicyCommandHandler>();
         builder.Services.AddScoped<ICommandHandler, EditUserProfilePictureCommandHandler>();
+    }
+
+    public static void UsePermissions(this IApplicationBuilder builder)
+    {
+        builder.UseMiddleware<PermissionsMiddleware>();
     }
 }
