@@ -1,10 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using SS14.Jetfish.Components.Layout;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Projects.Model;
-using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Components.Pages.Projects;
 
@@ -26,7 +24,10 @@ public partial class ProjectPage : ComponentBase
         if (!firstRender)
             return;
 
-        Project = await Context.Project.SingleOrDefaultAsync(p => p.Id == ProjectId);
+        Project = await Context.Project
+            .AsNoTracking() // mudblazor stuff works via ref params, we dont want to accidentally edit the db
+            .SingleOrDefaultAsync(p => p.Id == ProjectId);
+
         if (Project != null)
         {
             Validator.ValidateObject(Project, new ValidationContext(Project), true);

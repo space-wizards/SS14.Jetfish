@@ -1,12 +1,14 @@
 @page "/projects/{projectId:guid}"
 @using SS14.Jetfish.Projects.Model
 
-
 @if(Project == null)
 {
     <p>Project not found</p>
     return;
 }
+
+<PageTitle>@Project.Name</PageTitle>
+<SectionContent SectionName="page-title">@Project.Name</SectionContent>
 
 <AuthorizeResource ResourceName="project" Policy="@(nameof(Permission.ProjectRead))" Resource="@ProjectId" DisplayError="true">
     @if (Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Image && !_isImageLoaded)
