@@ -55,16 +55,15 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int?>
         return await finalQuery.ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<PermissionIdentity>> GetIdentityPermissions(Guid userId, List<string> idpRoles)
+    public async Task<IEnumerable<PermissionClaim>> GetIdentityPermissions(Guid userId, List<string> idpRoles)
     {
         var userQuery = _context.User.AsNoTracking()
             .Include(u => u.ResourcePolicies)
             .ThenInclude(r => r.AccessPolicy)
             .Where(u => u.Id == userId)
             .SelectMany(u => u.ResourcePolicies.Select(p =>
-                new PermissionIdentity
+                new PermissionClaim
                 {
-                    UserId = userId,
                     Global = p.Global,
                     Permissions = p.AccessPolicy.Permissions,
                     ResourceId = p.ResourceId,
@@ -76,9 +75,8 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int?>
             .ThenInclude(r => r.Policies)
             .Where(m => m.UserId == userId)
             .SelectMany(m => m.Role.Policies.Select(p =>
-                new PermissionIdentity
+                new PermissionClaim
                 {
-                    UserId = userId,
                     Global = p.Global,
                     Permissions = p.AccessPolicy.Permissions,
                     ResourceId = p.ResourceId,
@@ -93,9 +91,8 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int?>
             .ThenInclude(rp => rp.AccessPolicy)
             .Where(r => r.IdpName != null && idpRoles.Contains(r.IdpName))
             .SelectMany(r => r.Policies.Select(p =>
-                new PermissionIdentity
+                new PermissionClaim
                 {
-                    UserId = userId,
                     Global = p.Global,
                     Permissions = p.AccessPolicy.Permissions,
                     ResourceId = p.ResourceId,
