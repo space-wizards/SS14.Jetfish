@@ -55,7 +55,7 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int?>
         return await finalQuery.ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<PermissionIdentity>> GetIdentityPermissions(Guid userId)
+    public async Task<IEnumerable<PermissionIdentity>> GetIdentityPermissions(Guid userId, List<string> idpRoles)
     {
         var userQuery = _context.User.AsNoTracking()
             .Include(u => u.ResourcePolicies)
@@ -64,7 +64,7 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int?>
             .SelectMany(u => u.ResourcePolicies.Select(p =>
                 new PermissionIdentity
                 {
-                    UserId = u.Id,
+                    UserId = userId,
                     Global = p.Global,
                     Permissions = p.AccessPolicy.Permissions,
                     ResourceId = p.ResourceId,
@@ -78,13 +78,30 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int?>
             .SelectMany(m => m.Role.Policies.Select(p =>
                 new PermissionIdentity
                 {
-                    UserId = m.UserId,
+                    UserId = userId,
                     Global = p.Global,
                     Permissions = p.AccessPolicy.Permissions,
                     ResourceId = p.ResourceId,
                     ResourceType = p.ResourceType,
                 }));
 
-        return await userQuery.Union(teamQuery).ToListAsync();
+        if (idpRoles.Count == 0)
+            return await userQuery.Union(teamQuery).ToListAsync();
+
+        var idpQuery = _context.Role.AsNoTracking()
+            .Include(r => r.Policies)
+            .ThenInclude(rp => rp.AccessPolicy)
+            .Where(r => r.IdpName != null && idpRoles.Contains(r.IdpName))
+            .SelectMany(r => r.Policies.Select(p =>
+                new PermissionIdentity
+                {
+                    UserId = userId,
+                    Global = p.Global,
+                    Permissions = p.AccessPolicy.Permissions,
+                    ResourceId = p.ResourceId,
+                    ResourceType = p.ResourceType,
+                }));
+
+        return await userQuery.Union(teamQuery).Union(idpQuery).ToListAsync();
     }
 }

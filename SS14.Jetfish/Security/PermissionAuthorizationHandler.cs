@@ -36,15 +36,14 @@ public sealed class PermissionAuthorizationHandler : AuthorizationHandler<Permis
             return;
         }
 
+        #endregion
+
         Guid? resourceId = context.Resource switch
         {
             Guid guid => guid,
             IResource resource => resource.Id,
             _ => null
         };
-
-        #endregion
-
 
         #region Idp Roles
 
