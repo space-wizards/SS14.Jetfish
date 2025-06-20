@@ -84,7 +84,7 @@ public sealed class TeamRepository : BaseRepository<Team, Guid>, IResourceReposi
         if (limit.HasValue)
             skipTakeQuery = skipTakeQuery != null ? skipTakeQuery.Take(limit.Value) : query.Take(limit.Value);
 
-        return skipTakeQuery != null ? await skipTakeQuery.ToListAsync() : await query.ToListAsync();
+        return skipTakeQuery != null ? await skipTakeQuery.AsSplitQuery().ToListAsync() : await query.AsSplitQuery().ToListAsync();
     }
 
     public async Task<ICollection<Team>> GetMultiple(IEnumerable<Guid> ids)
