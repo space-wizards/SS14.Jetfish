@@ -46,7 +46,7 @@ public class PermissionsMiddleware : IMiddleware
         {
             var name = permission.ClaimName();
             var value = claims.TryGetValue(name, out var claim)
-                ? permission.AppendClaimValue(claim)
+                ? permission.ClaimValue(claim)
                 : permission.ClaimValue();
 
             if (claim != null)

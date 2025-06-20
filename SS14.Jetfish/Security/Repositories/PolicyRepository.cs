@@ -66,8 +66,7 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int?>
                 {
                     Global = p.Global,
                     Permissions = p.AccessPolicy.Permissions,
-                    ResourceId = p.ResourceId,
-                    ResourceType = p.ResourceType,
+                    ResourceId = p.ResourceId
                 }));
 
         var teamQuery = _context.TeamMember.AsNoTracking()
@@ -79,8 +78,7 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int?>
                 {
                     Global = p.Global,
                     Permissions = p.AccessPolicy.Permissions,
-                    ResourceId = p.ResourceId,
-                    ResourceType = p.ResourceType,
+                    ResourceId = p.ResourceId
                 }));
 
         if (idpRoles.Count == 0)
@@ -95,8 +93,7 @@ public class PolicyRepository : BaseRepository<AccessPolicy, int?>
                 {
                     Global = p.Global,
                     Permissions = p.AccessPolicy.Permissions,
-                    ResourceId = p.ResourceId,
-                    ResourceType = p.ResourceType,
+                    ResourceId = p.ResourceId
                 }));
 
         return await userQuery.Union(teamQuery).Union(idpQuery).ToListAsync();
