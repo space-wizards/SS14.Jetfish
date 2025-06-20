@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using MudBlazor.Services;
 using Serilog;
 using SS14.ConfigProvider;
@@ -72,6 +73,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     {
         o.ConfigureDataSource(s => s.EnableDynamicJson());
     });
+    opt.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
 });
 
 #endregion
