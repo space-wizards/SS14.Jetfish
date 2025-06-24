@@ -8,6 +8,7 @@ public static class PermissionClaimParserExtension
 {
     public const string ClaimPrefix = "perm_";
     public const string GlobalClaimKey = "perm_global";
+    public const string AnyClaimKey = "perm_generic";
 
     public static string ClaimName(this PermissionClaim claim)
     {
@@ -18,7 +19,7 @@ public static class PermissionClaimParserExtension
     {
         var value = new StringBuilder(previousValue);
 
-        AppendPermissions(claim, value);
+        AppendPermissions(claim.Permissions, value);
 
         return value.ToString();
     }
@@ -40,18 +41,17 @@ public static class PermissionClaimParserExtension
 
     private static string ClaimName(bool global, Guid? resourceId)
     {
-        var resId = resourceId.HasValue
-            ? resourceId.Value.ToString()
-            : "generic";
+        if (!resourceId.HasValue)
+            return AnyClaimKey;
 
         return global
             ? GlobalClaimKey
-            : ClaimPrefix + resId;
+            : ClaimPrefix + resourceId.Value;
     }
 
-    private static void AppendPermissions(PermissionClaim claim, StringBuilder value)
+    public static void AppendPermissions(IEnumerable<Permission> permissions, StringBuilder value)
     {
-        foreach (var permission in claim.Permissions)
+        foreach (var permission in permissions)
         {
             value.Append((short)permission);
             value.Append(';');

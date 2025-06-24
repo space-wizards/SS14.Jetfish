@@ -1,8 +1,10 @@
 using System.Security.Claims;
+using System.Text;
 using Microsoft.Extensions.Options;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Core.Extensions;
 using SS14.Jetfish.Helpers;
+using SS14.Jetfish.Security.Model;
 using SS14.Jetfish.Security.Repositories;
 
 namespace SS14.Jetfish.Security;
@@ -41,9 +43,17 @@ public class PermissionsMiddleware : IMiddleware
 
         var permissions = await _repository.GetIdentityPermissions(userId.Value, roles);
         var claims = new Dictionary<string, string>();
+        var anyPermissions = new HashSet<Permission>();
 
         foreach (var permission in permissions)
         {
+
+            foreach (var permissionValue in permission.Permissions)
+                anyPermissions.Add(permissionValue);
+
+            if (!permission.ResourceId.HasValue)
+                continue;
+
             var name = permission.ClaimName();
             var value = claims.TryGetValue(name, out var claim)
                 ? permission.ClaimValue(claim)
@@ -54,6 +64,10 @@ public class PermissionsMiddleware : IMiddleware
 
             claims.Add(name, value);
         }
+
+        var anyValue = new StringBuilder();
+        PermissionClaimParserExtension.AppendPermissions(anyPermissions, anyValue);
+        claims.Add(PermissionClaimParserExtension.AnyClaimKey, anyValue.ToString());
 
         var identity = new ClaimsIdentity(nameof(PermissionsMiddleware), "name", "role");
         identity.AddClaims(claims.Select(c => new Claim(c.Key, c.Value)));
