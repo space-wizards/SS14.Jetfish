@@ -1,0 +1,9 @@
+﻿::deep .loading-spinner {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+::deep .mudtext-wawa-slugcats > .mud-select {
+    display: inline-block !important;
+}

@@ -3,13 +3,13 @@
 @code {
     private bool _isDarkMode;
     private MudThemeProvider _mudThemeProvider = null!;
-    
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
-            await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+            _isDarkMode = await _mudThemeProvider.GetSystemDarkModeAsync();
+            await _mudThemeProvider.WatchSystemDarkModeAsync(OnSystemPreferenceChanged);
             StateHasChanged();
         }
     }
@@ -24,7 +24,7 @@
     private static readonly string[] SignikaStack = ["Signika", "Helvetica", "Arial", "sans-serif"];
     private static readonly string[] ExoStack = ["Exo", "Helvetica", "Arial", "sans-serif"];
     private static readonly string[] NotoSansStack = ["Noto Sans", "Helvetica", "Arial", "sans-serif"];
-    
+
     private MudTheme _theme = new()
     {
         Typography = new Typography

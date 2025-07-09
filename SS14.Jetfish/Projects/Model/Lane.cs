@@ -6,13 +6,19 @@ using SS14.Jetfish.Core.Repositories;
 
 namespace SS14.Jetfish.Projects.Model;
 
+/// <summary>
+/// Represents a lane in the kanban model.
+/// </summary>
 [PrimaryKey(nameof(ProjectId), nameof(ListId))]
-public sealed class List : IEntityTypeConfiguration<List>, IRecord<(Guid, int)>
+public sealed class Lane : IEntityTypeConfiguration<Lane>, IRecord<(Guid, int)>
 {
     public const int ListTitleMaxLength = 128;
 
     [NotMapped]
     public (Guid, int) Id => (ProjectId, ListId);
+
+    [ConcurrencyCheck]
+    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public int Version { get; set; }
 
     public Guid ProjectId { get; set; }
@@ -31,11 +37,16 @@ public sealed class List : IEntityTypeConfiguration<List>, IRecord<(Guid, int)>
     [Required]
     public float Order { get; set; }
 
-    public void Configure(EntityTypeBuilder<List> builder)
+    public IList<Card> Cards { get; set; } = null!;
+
+    public void Configure(EntityTypeBuilder<Lane> builder)
     {
-        builder.Property(x => x.Version).IsRowVersion();
-        builder.HasMany<Card>()
-            .WithOne(c => c.List)
+        builder.Property(x => x.Version)
+            .IsRowVersion()
+            .ValueGeneratedOnAddOrUpdate();
+
+        builder.HasMany<Card>(list => list.Cards)
+            .WithOne(c => c.Lane)
             .HasForeignKey(c => new { c.ProjectId, c.ListId })
             .OnDelete(DeleteBehavior.Cascade);
     }

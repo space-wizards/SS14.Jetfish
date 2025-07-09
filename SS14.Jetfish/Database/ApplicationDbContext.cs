@@ -21,6 +21,8 @@ public partial class ApplicationDbContext : DbContext, IConfigDbContext
     public DbSet<Project> Project { get; set; }
     public DbSet<UploadedFile> UploadedFile { get; set; }
     public DbSet<FileUsage> FileUsage { get; set; }
+    public DbSet<Lane> List { get; set; }
+    public DbSet<Card> Card { get; set; }
 
     public DbSet<ConfigurationStore> ConfigurationStore { get; set; }
 

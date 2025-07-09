@@ -1,11 +1,10 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using MudBlazor;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Helpers;
+using SS14.Jetfish.Projects.Hubs;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security.Model;
 
@@ -14,10 +13,12 @@ namespace SS14.Jetfish.Projects.Repositories;
 public class ProjectRepository : BaseRepository<Project, Guid>, IResourceRepository<Project, Guid>
 {
     private readonly ApplicationDbContext _context;
+    private readonly ProjectHub _hub;
 
-    public ProjectRepository(ApplicationDbContext context)
+    public ProjectRepository(ApplicationDbContext context, ProjectHub hub)
     {
         _context = context;
+        _hub = hub;
     }
 
     public override async Task<Result<Project, Exception>> AddOrUpdate(Project record)
@@ -152,5 +153,211 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
     public async Task<ICollection<Project>> GetMultiple(IEnumerable<Guid> ids)
     {
         return await _context.Project.Where(x => ids.Contains(x.Id)).ToListAsync();
+    }
+
+    /// <summary>
+    /// Adds a new lane to a Project and returns it.
+    /// </summary>
+    public async Task<Lane> AddLane(Guid projectId, string name)
+    {
+        if (_context.List.Any(list => list.ProjectId == projectId && list.Title == name))
+            throw new InvalidOperationException("List with the same name already exists");
+
+        var project = await _context.Project
+            .AsNoTracking()
+            .Include(project => project.Lists)
+            .FirstAsync(x => x.Id == projectId);
+
+        var order = 1f;
+
+        if (project.Lists.Count != 0)
+            order = project.Lists.OrderBy(x => x.Order).Last().Order + 1;
+
+        var listToAdd = new Lane()
+        {
+            Title = name,
+            ProjectId = projectId,
+            Order = order,
+            Cards = [],
+            ListId = await GetListId(projectId),
+        };
+
+        _context.List.Add(listToAdd);
+        await _context.SaveChangesAsync();
+
+        var returnList = await _context.List
+            .AsNoTracking()
+            .FirstAsync(x => x.ProjectId == projectId && x.ListId == listToAdd.ListId);
+
+        await _hub.PublishAsync(projectId,
+            new LaneCreatedEvent()
+            {
+                Title = returnList.Title,
+                ListId = returnList.ListId,
+            });
+
+        return returnList;
+    }
+
+    /// <summary>
+    /// Gets an available listId to use.
+    /// </summary>
+    private async Task<int> GetListId(Guid projectId)
+    {
+        var maxListId = await _context.List
+            .Where(l => l.ProjectId == projectId)
+            .Select(l => l.ListId)
+            .MaxAsync();
+
+        return maxListId + 1;
+    }
+
+    /// <summary>
+    /// Adds a card... Yep.
+    /// </summary>
+    public async Task<Card> AddCard(Guid projectId, int laneId, string name, Guid userId)
+    {
+        var lane = await _context.List
+            .Include(list => list.Cards)
+            .FirstAsync(list => list.ProjectId == projectId && list.ListId == laneId);
+
+        var order = 1f;
+        if (lane.Cards.Count != 0)
+            order = lane.Cards.OrderBy(x => x.Order).Last().Order + 1;
+
+        var card = new Card()
+        {
+            Title = name,
+            Order = order,
+            ProjectId = projectId,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            ListId = laneId,
+            AuthorId = userId,
+        };
+        lane.Cards.Add(card);
+        await _context.SaveChangesAsync();
+
+        return _context.Card
+            .AsNoTracking() // Dont wanna change it on accident.
+            .Include(x => x.Lane)
+            .First(x => x.Id == card.Id);
+    }
+
+    /// <summary>
+    /// Updates a cards position
+    /// </summary>
+    public async Task UpdateCardPosition(Guid projectId, string laneName, Guid userId, Guid cardId, int zoneIndex)
+    {
+        _context.ChangeTracker.Clear();
+
+        var card = await _context.Card
+            .FirstAsync(x => x.Id == cardId);
+
+        var targetLane = await _context.List
+            .AsNoTracking()
+            .FirstAsync(x => x.Title == laneName && x.ProjectId == projectId);
+
+        var cardsInLane = await _context.Card
+            .Where(c => c.ListId == targetLane.ListId && c.Id != cardId)
+            .OrderBy(c => c.Order)
+            .ToListAsync();
+
+        zoneIndex = Math.Max(0, Math.Min(zoneIndex, cardsInLane.Count));
+
+        cardsInLane.Insert(zoneIndex, card);
+
+        // reorder all cards
+        for (var i = 0; i < cardsInLane.Count; i++)
+        {
+            cardsInLane[i].Order = i;
+        }
+
+        var previousList = card.ListId;
+
+        card.ListId = targetLane.ListId;
+        card.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+
+        var updatedCard = await _context.Card
+            .AsNoTracking()
+            .Include(x => x.Lane)
+            .FirstAsync(x => x.Id == cardId);
+
+        var orders = await _context.Card
+            .AsNoTracking()
+            .Where(c => c.ListId == updatedCard.ListId && c.ProjectId == updatedCard.ProjectId)
+            .Select(x => new
+            {
+                x.Id,
+                x.Order,
+            })
+            .ToDictionaryAsync(x => x.Id, x => x.Order);
+
+        await _hub.PublishAsync(projectId, new CardMovedEvent()
+        {
+            CardId = updatedCard.Id,
+            NewListId = updatedCard.ListId,
+            OldListId = previousList,
+            Orders = orders,
+        });
+    }
+
+    /// <summary>
+    /// Gets a card including the lane its on.
+    /// </summary>
+    public async Task<Card?> GetCard(Guid cardId)
+    {
+        return await _context.Card
+            .Include(x => x.Lane)
+            .FirstOrDefaultAsync(x => x.Id == cardId);
+    }
+
+    /// <summary>
+    /// Deletes a section from a project. Also deletes all cards in the section.
+    /// </summary>
+    public async Task DeleteLane(Guid projectId, int backingLaneId)
+    {
+        var lane = await _context.List
+            .Include(list => list.Cards)
+            .Where(x => x.ProjectId == projectId && x.ListId == backingLaneId)
+            .FirstAsync();
+
+        _context.List.Remove(lane);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        await _hub.PublishAsync(projectId,
+            new LaneRemovedEvent()
+            {
+                ListId = lane.ListId,
+            });
+    }
+
+    public async Task SetLaneName(Guid projectId, int laneId, string newTitle)
+    {
+        var lane = await _context.List
+            .FirstAsync(list => list.ProjectId == projectId && list.ListId == laneId);
+
+        lane.Title = newTitle;
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        await _hub.PublishAsync(projectId,
+            new LaneUpdatedEvent()
+            {
+                Title = newTitle,
+                LaneId = laneId,
+            });
+    }
+
+    public async Task<List<Lane>> GetLanes(Guid projectId)
+    {
+        return await _context.List
+            .Where(list => list.ProjectId == projectId)
+            .OrderBy(list => list.Order)
+            .ToListAsync();
     }
 }

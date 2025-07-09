@@ -30,7 +30,7 @@ public sealed partial class Project : IEntityTypeConfiguration<Project>, IResour
     [MaxLength(200)]
     public required string Background { get; set; }
 
-    public ICollection<List> Lists { get; set; } = [];
+    public ICollection<Lane> Lists { get; set; } = [];
 
     // TODO: Implement properties
 

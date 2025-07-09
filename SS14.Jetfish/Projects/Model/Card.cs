@@ -17,12 +17,13 @@ public sealed class Card : IEntityTypeConfiguration<Card>, IRecord<Guid>
     public int Version { get; set; }
 
     public User Author { get; set; } = null!;
+    public Guid AuthorId { get; set; }
 
     public Guid ProjectId { get; set; }
 
     public int ListId { get; set; }
 
-    public List List { get; set; } = null!;
+    public Lane Lane { get; set; } = null!;
 
     [Required]
     [MaxLength(CardTitleMaxLength)]

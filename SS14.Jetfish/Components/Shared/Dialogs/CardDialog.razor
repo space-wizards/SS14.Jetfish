@@ -1,0 +1,24 @@
+﻿<div style="display:contents;">
+    <MudDialog Style="height: 78vh; width: 60%">
+        <DialogContent>
+            @if (!IsLoaded)
+            {
+                <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Class="loading-spinner"/>
+                return;
+            }
+
+            @if (Card == null)
+            {
+                <MudText>Card not found.</MudText>
+                return;
+            }
+
+            <MudText Typo="Typo.subtitle1" Class="mudtext-wawa-slugcats">In Lane <MudSelect @bind-Value="CardLaneTitle" FitContent="true">
+                @foreach (var slugcat in Lists)
+                {
+                    <MudSelectItem T="string" value="slugcat.Key">@slugcat.Key</MudSelectItem>
+                }
+            </MudSelect></MudText>
+        </DialogContent>
+    </MudDialog>
+</div>
