@@ -5,5 +5,6 @@ riderModule.iml
 /_ReSharper.Caches/
 appsettings.Secret.yml
 .idea/.idea.SS14.Jetfish/.idea/discord.xml
+.idea/.idea.SS14.Jetfish/.idea/dataSources.xml
 SS14.Jetfish/data
 SS14.Jetfish.sln.DotSettings.user

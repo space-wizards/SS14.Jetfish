@@ -206,10 +206,9 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
     {
         var maxListId = await _context.List
             .Where(l => l.ProjectId == projectId)
-            .Select(l => l.ListId)
-            .MaxAsync();
+            .MaxAsync(x => (int?)x.ListId);
 
-        return maxListId + 1;
+        return maxListId + 1 ?? 1;
     }
 
     /// <summary>
