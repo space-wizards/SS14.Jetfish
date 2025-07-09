@@ -45,7 +45,6 @@
       <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-Medium.ttf" />
       <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-Regular.ttf" />
       <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-SemiBold.ttf" />
-      <_ContentIncludedByDefault Remove="wwwroot\js\signalr\dist\browser\signalr.js" />
     </ItemGroup>
 
 </Project>
