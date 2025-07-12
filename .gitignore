@@ -8,3 +8,6 @@ appsettings.Secret.yml
 .idea/.idea.SS14.Jetfish/.idea/dataSources.xml
 SS14.Jetfish/data
 SS14.Jetfish.sln.DotSettings.user
+node_modules
+stats.html
+/SS14.Jetfish/wwwroot/js/*.bundle.js

@@ -1,0 +1,34 @@
+﻿@inherits MudComponentBase
+
+<div style="display: contents;" class="editor-root">
+    <MudTabs
+        KeepPanelsAlive="true"
+        Elevation="2"
+        Rounded="true"
+        ApplyEffectsToContainer="true"
+        Class="@Class"
+        Style="@Style"
+        OnPreviewInteraction="OnPreviewInteraction"
+        @attributes="UserAttributes">
+        <MudTabPanel Text="Editor">
+            <div id="editor-container" class="editor"></div>
+        </MudTabPanel>
+        <MudTabPanel Text="Preview">
+            @if (string.IsNullOrEmpty(Text))
+            {
+            <MarkdownText Text="Nothing to preview..."/>
+            }
+            else
+            {
+            <MarkdownText Text="@Text"/>
+            }
+        </MudTabPanel>
+    </MudTabs>
+    <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled">
+        @if (CancelText != null)
+        {
+            <MudButton OnClick="@(() => ButtonClicked(OnCancelClick))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">@CancelText</MudButton>
+        }
+        <MudButton OnClick="@(() => ButtonClicked(OnSubmitClick))" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Save" Color="Color.Primary">@SubmitText</MudButton>
+    </MudButtonGroup>
+</div>

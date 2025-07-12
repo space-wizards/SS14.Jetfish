@@ -8,6 +8,11 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+      <Exec Command="npm install" WorkingDirectory="npm" />
+      <Exec Command="npm run build" WorkingDirectory="npm" />
+    </Target>
+
     <ItemGroup>
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
@@ -24,6 +29,7 @@
       <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="9.0.3" />
       <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
       <PackageReference Include="MudBlazor" Version="8.9.0" />
+      <PackageReference Include="MudBlazor.Markdown" Version="8.9.0" />
       <PackageReference Include="NetEscapades.Configuration.Yaml" Version="3.1.0" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
       <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />

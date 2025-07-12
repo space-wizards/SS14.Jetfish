@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using MudBlazor;
 using MudBlazor.Services;
 using Serilog;
 using SS14.ConfigProvider;
@@ -94,6 +95,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
+builder.Services.AddMudMarkdownServices();
 
 var app = builder.Build();
 

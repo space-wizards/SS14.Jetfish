@@ -1,0 +1,13 @@
+﻿::deep .editor {
+    background-color: #1f232b;
+    overflow-y: scroll;
+    height: 100%;
+    width: 100%;
+    min-height: 244px;
+    resize: vertical;
+}
+
+::deep .editor-root > .mud-tabs-panels {
+    height: 100%;
+    overflow: scroll;
+}
