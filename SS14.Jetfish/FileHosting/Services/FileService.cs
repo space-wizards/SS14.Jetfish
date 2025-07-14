@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
@@ -293,15 +293,17 @@ public sealed class FileService
         }
 
         // Part 1.5, converted files that are not in the DB.
-        var convertedFiles = Directory.EnumerateFiles(Path.Combine(_serverConfiguration.UserContentDirectory, ConvertedDirectory));
-        foreach (var file in convertedFiles)
-        {
-            var dbFileFound = await _dbContext.ConvertedFile.AnyAsync(x => x.RelativePath == Path.GetFileName(file));
-            if (dbFileFound)
-                continue;
+        if(Directory.Exists(Path.Combine(_serverConfiguration.UserContentDirectory, ConvertedDirectory))) {
+            var convertedFiles = Directory.EnumerateFiles(Path.Combine(_serverConfiguration.UserContentDirectory, ConvertedDirectory));
+            foreach (var file in convertedFiles)
+            {
+                var dbFileFound = await _dbContext.ConvertedFile.AnyAsync(x => x.RelativePath == Path.GetFileName(file));
+                if (dbFileFound)
+                    continue;
 
-            _logger.LogInformation("File {FilePath} was not found in the DB, but exists in the file system, deleting.", file);
-            File.Delete(file);
+                _logger.LogInformation("File {FilePath} was not found in the DB, but exists in the file system, deleting.", file);
+                File.Delete(file);
+            }
         }
 
         // Part 2, files without any usages.

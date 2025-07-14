@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  jetfish-pg:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  jetfish:
+    #image: ss14.jetfish
+    ports:
+      - "8050:80"
+    build:
+      context: ./
+    volumes:
+      - jetfish_data:/app/data/
+
+
+volumes:
+  postgres_data:
+  jetfish_data:
