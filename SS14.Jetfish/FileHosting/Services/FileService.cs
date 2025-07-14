@@ -7,6 +7,7 @@ using Microsoft.Net.Http.Headers;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
+using SS14.Jetfish.FileHosting.Converters;
 using SS14.Jetfish.FileHosting.Model;
 using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Security.Model;
@@ -15,10 +16,14 @@ namespace SS14.Jetfish.FileHosting.Services;
 
 public sealed class FileService
 {
+    private const string ConvertedDirectory = "Converted";
+
     private readonly IAuthorizationService _authorizationService;
     private readonly ApplicationDbContext _dbContext;
     private readonly ServerConfiguration _serverConfiguration = new();
     private readonly ILogger<FileService> _logger;
+
+    private readonly Dictionary<string, List<IUploadConverter>> _converters = new();
 
     public FileService(IAuthorizationService authorizationService, ApplicationDbContext context, IConfiguration configuration, ILogger<FileService> logger)
     {
@@ -26,6 +31,8 @@ public sealed class FileService
         _authorizationService = authorizationService;
         _dbContext = context;
         configuration.Bind(ServerConfiguration.Name, _serverConfiguration);
+
+        _converters.Add("image/gif", [new ToWebpImageConverter("static")]);
     }
 
     public async Task<Result<UploadedFile, Exception>> UploadGlobalFile(Stream fileStream, string name, string contentType)
@@ -70,6 +77,8 @@ public sealed class FileService
 
         await _dbContext.SaveChangesAsync();
 
+        await RunConversions(createdFile.Entity);
+
         return Result<UploadedFile, Exception>.Success(createdFile.Entity);
     }
 
@@ -109,6 +118,8 @@ public sealed class FileService
 
         await _dbContext.SaveChangesAsync();
 
+        await RunConversions(createdFile.Entity);
+
         return Result<UploadedFile, Exception>.Success(createdFile.Entity);
     }
 
@@ -128,7 +139,7 @@ public sealed class FileService
             return Result<UploadedFile, Exception>.Failure(e);
         }
 
-        var createdFile = await _dbContext.UploadedFile.AddAsync(new UploadedFile()
+        var createdFile = await _dbContext.UploadedFile.AddAsync(new UploadedFile
         {
             RelativePath = fileName,
             Name = WebUtility.HtmlEncode(file.Name),
@@ -149,7 +160,41 @@ public sealed class FileService
 
         await _dbContext.SaveChangesAsync();
 
+        await RunConversions(createdFile.Entity);
+
         return Result<UploadedFile, Exception>.Success(createdFile.Entity);
+    }
+
+    private async Task RunConversions(UploadedFile file)
+    {
+        if (!_converters.TryGetValue(file.MimeType, out var converters))
+            return;
+
+        var outputPath = Path.Combine(_serverConfiguration.UserContentDirectory, ConvertedDirectory);
+        Directory.CreateDirectory(outputPath);
+
+        foreach (var converter in converters)
+        {
+
+            var resolvedPath = Path.Combine(_serverConfiguration.UserContentDirectory, file.RelativePath);
+            var ctSource = new CancellationTokenSource();
+            ctSource.CancelAfter(TimeSpan.FromSeconds(30));
+            var ct = ctSource.Token;
+            var fileId = Guid.NewGuid();
+            var result = await converter.Convert(resolvedPath, outputPath, ct);
+
+            await _dbContext.ConvertedFile.AddAsync(new ConvertedFile
+            {
+                UploadedFileId = file.Id,
+                RelativePath = result.Path,
+                Id = fileId,
+                MimeType = result.MimeType,
+                Label = converter.ConverterLabel,
+                Etag = $"{fileId.GetHashCode():X}{DateTime.Now.GetHashCode():X}",
+            }, ct);
+        }
+
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<IResult> GetGlobalFileAsResult(Guid fileId)
@@ -240,6 +285,18 @@ public sealed class FileService
         foreach (var file in files)
         {
             var dbFileFound = await _dbContext.UploadedFile.AnyAsync(x => x.RelativePath == Path.GetFileName(file));
+            if (dbFileFound)
+                continue;
+
+            _logger.LogInformation("File {FilePath} was not found in the DB, but exists in the file system, deleting.", file);
+            File.Delete(file);
+        }
+
+        // Part 1.5, converted files that are not in the DB.
+        var convertedFiles = Directory.EnumerateFiles(Path.Combine(_serverConfiguration.UserContentDirectory, ConvertedDirectory));
+        foreach (var file in convertedFiles)
+        {
+            var dbFileFound = await _dbContext.ConvertedFile.AnyAsync(x => x.RelativePath == Path.GetFileName(file));
             if (dbFileFound)
                 continue;
 
