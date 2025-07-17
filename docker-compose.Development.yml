@@ -1,22 +1,31 @@
 version: '3.8'
 
 services:
-  jetfish-pg:
+  postgres:
     image: postgres:latest
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      start_period: 5s
+      retries: 5
+      
   jetfish:
-    #image: ss14.jetfish
     ports:
       - "8050:80"
     build:
       context: ./
+      dockerfile: ./Dockerfiles/Development.Dockerfile
     volumes:
       - jetfish_data:/app/data/
-
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:

@@ -20,13 +20,12 @@ RUN dotnet publish "SS14.Jetfish.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 FROM base AS final
 WORKDIR /app
 ENV DOTNET_ENVIRONMENT=Production
+
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://*:80
 COPY ./SS14.Jetfish/appsettings.yml .
 COPY ./SS14.Jetfish/appsettings.Secret.yml .
-#COPY ./SS14.MapServer/appsettings.Production.yaml .
+
 COPY --from=publish /app/publish .
-#RUN chown -R 20202:20202 /app
-#USER 20202:20202
 RUN mkdir -p /app/data/uploads/Converted
 ENTRYPOINT ["dotnet", "SS14.Jetfish.dll"]

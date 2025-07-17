@@ -17,7 +17,7 @@ Serilog:
 AllowedHosts: "*"
 
 ConnectionStrings:
-  default: "Server=jetfish-pg;Port=5432;Database=jetfish;User Id=postgres;Password=postgres;Include Error Detail=true;"
+  default: "Server=postgres;Port=5432;Database=jetfish;User Id=postgres;Password=postgres;Include Error Detail=true;"
 
 User:
   DefaultProfilePictures:
