@@ -16,6 +16,9 @@ Serilog:
 
 AllowedHosts: "*"
 
+ConnectionStrings:
+  default: "Server=postgres;Port=5432;Database=jetfish;User Id=postgres;Password=postgres;Include Error Detail=true;"
+
 User:
   DefaultProfilePictures:
     Monk: https://static.wikitide.net/rainworldwiki/e/e9/Monk_portrait.png
