@@ -1,0 +1,21 @@
+@using MudBlazor.Extensions
+
+<MudTooltip Delay="600">
+    <ChildContent>
+        <span date="@Date.ToString("u")" class="date @Class">-</span>
+    </ChildContent>
+    <TooltipContent>
+        <MudText Typo="Typo.subtitle2" UserAttributes="@(new Dictionary<string, object?>()
+                                                       {
+                                                        {"date-full", Date.ToString("u")},
+                                                       })"></MudText>
+    </TooltipContent>
+</MudTooltip>
+
+@code {
+    [Parameter]
+    public required DateTime Date { get; set; }
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+}

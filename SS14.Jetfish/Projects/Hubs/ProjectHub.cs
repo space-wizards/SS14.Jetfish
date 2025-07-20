@@ -1,4 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using SS14.Jetfish.Projects.Model;
 
 namespace SS14.Jetfish.Projects.Hubs;
 
@@ -143,6 +145,21 @@ public class LaneUpdatedEvent : ProjectEvent
     // TODO: Order?
     public required string Title { get; set; }
     public required int LaneId { get; set; }
+}
+
+public class CardUpdatedEvent : ProjectEvent
+{
+    public required Card Card { get; set; }
+}
+
+public class CommentAddedEvent : ProjectEvent
+{
+    public required CardComment Comment { get; set; }
+}
+
+public class CommentEditedEvent : ProjectEvent
+{
+    public required CardComment Comment { get; set; }
 }
 
 public abstract class ProjectEvent

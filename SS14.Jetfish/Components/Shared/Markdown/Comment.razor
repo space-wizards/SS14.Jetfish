@@ -1,0 +1,32 @@
+@using SS14.Jetfish.Components.Pages.User
+@inherits MudComponentBase
+
+
+<MudPaper Class="pa-4 ma-2" Elevation="0" Style="@Style" Outlined="true">
+    <MudStack Row="true">
+        <UserAvatar Size="Size.Small" UserOverride="Author"/>
+        <MudText Typo="Typo.subtitle1">@Author.DisplayName <LocalDate Class="date" Date="@Date"/></MudText>
+        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Edit" OnClick="@(() => IsEdit = true)"/>
+    </MudStack>
+
+    @if (IsEdit)
+    {
+        <MarkdownEditor
+            CancelText="Cancel"
+            SubmitText="Save"
+            OnCancelClick="ExitCallback"
+            OnSubmitClick="SaveCallback"
+            ParameterText="@Text"/>
+    }
+    else
+    {
+        @if (string.IsNullOrEmpty(Text))
+        {
+            <MarkdownText Text="*Nothing here but cats...*"/>
+        }
+        else
+        {
+            <MarkdownText Text="@Text"/>
+        }
+    }
+</MudPaper>

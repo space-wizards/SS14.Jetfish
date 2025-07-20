@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Core.Types;
@@ -305,12 +306,17 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
     }
 
     /// <summary>
-    /// Gets a card including the lane its on.
+    /// Gets a card including the lane its on and its author
     /// </summary>
     public async Task<Card?> GetCard(Guid cardId)
     {
         return await _context.Card
+            .AsNoTracking()
+            .Include(x => x.Author)
             .Include(x => x.Lane)
+            .Include(x => x.Comments)
+            .ThenInclude(x => x.Author)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(x => x.Id == cardId);
     }
 
@@ -355,8 +361,79 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
     public async Task<List<Lane>> GetLanes(Guid projectId)
     {
         return await _context.List
+            .AsNoTracking()
             .Where(list => list.ProjectId == projectId)
             .OrderBy(list => list.Order)
             .ToListAsync();
+    }
+
+    public async Task UpdateCardLite(Card toUpdate)
+    {
+        var card = await _context.Card
+            .FirstAsync(x => x.Id == toUpdate.Id);
+
+        // this sucks and i dont care
+        card.Title = toUpdate.Title;
+        card.Description = toUpdate.Description;
+        card.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        var toReturn = await _context.Card
+            .AsNoTracking()
+            .FirstAsync(x => x.Id == toUpdate.Id);
+
+        await _hub.PublishAsync((toUpdate.Id, toUpdate.ProjectId),
+            new CardUpdatedEvent()
+            {
+                Card = toReturn,
+            });
+    }
+
+    public async Task AddComment(Guid cardId, User user, string text)
+    {
+        var card = await _context.Card
+            .FirstAsync(card => card.Id == cardId);
+
+        card.Comments.Add(new CardComment()
+        {
+            Content = text,
+            CreatedAt = DateTime.UtcNow,
+            Author = user,
+            CardId = cardId,
+        });
+
+        await _context.SaveChangesAsync();
+
+        var returnValue = await _context.CardComment
+            .AsNoTracking()
+            .Include(c => c.Author)
+            .OrderBy(c => c.CreatedAt)
+            .LastAsync(c => c.Author.Id == user.Id);
+
+        await _hub.PublishAsync((card.Id, card.ProjectId),
+            new CommentAddedEvent()
+            {
+                Comment = returnValue,
+            });
+    }
+
+    public async Task EditComment(Guid commentId, string newText)
+    {
+        var comment = await _context.CardComment
+            .FirstAsync(x => x.Id == commentId);
+
+        comment.Content = newText;
+        comment.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        await _hub.PublishAsync((comment.CardId, comment.Id),
+            new CommentEditedEvent()
+            {
+                Comment = _context.CardComment
+                    .AsNoTracking()
+                    .First(x => x.Id == commentId),
+            });
     }
 }

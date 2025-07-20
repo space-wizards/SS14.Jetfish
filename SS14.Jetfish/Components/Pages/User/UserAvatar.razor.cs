@@ -5,6 +5,9 @@ namespace SS14.Jetfish.Components.Pages.User;
 
 public partial class UserAvatar : ComponentBase
 {
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
     [CascadingParameter]
     public Security.Model.User? User { get; set; }
 

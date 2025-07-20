@@ -1,6 +1,8 @@
 ﻿@using SS14.Jetfish.Components.Shared.Markdown
+@using SS14.Jetfish.Components.Pages.User
+
 <div style="display:contents;">
-    <MudDialog Style="height: 78vh; width: 60%">
+    <MudDialog Style="height: 78vh; width: 100%">
         <DialogContent>
             @if (!IsLoaded)
             {
@@ -17,9 +19,38 @@
             <MudText Typo="Typo.subtitle1" Class="mudtext-wawa-slugcats">In Lane <MudSelect @bind-Value="CardLaneTitle" FitContent="true">
                 @foreach (var slugcat in Lists)
                 {
-                    <MudSelectItem T="string" value="slugcat.Key">@slugcat.Key</MudSelectItem>
+                    <MudSelectItem T="string" value="@slugcat.Key">@slugcat.Key</MudSelectItem>
                 }
             </MudSelect></MudText>
+
+            <Comment Date="@Card.CreatedAt" OnEditCallback="OnEditCardDescription" Text="@Card.Description" Author="Card.Author" />
+            <MudDivider/>
+            @if (Card.Comments.Count == 0)
+            {
+                <MudText Typo="Typo.h5" Class="mt-8 mb-8">No comments yet.</MudText>
+            }
+
+            <MudTimeline TimelineAlign="TimelineAlign.Start" TimelinePosition="TimelinePosition.Start">
+                @foreach (var comment in Card.Comments)
+                {
+                    <MudTimelineItem Variant="Variant.Outlined">
+                        <ItemContent>
+                            <Comment Style="position: inherit;left:-4%;" OnEditCallback="@((string newText) => OnEditComment(comment, newText))" Text="@comment.Content" Author="@comment.Author" Date="@comment.CreatedAt"/>
+                        </ItemContent>
+                    </MudTimelineItem>
+                }
+            </MudTimeline>
+
+
+            <MudDivider/>
+
+            <MudPaper Class="pa-4 ma-2" Outlined="true" Square="true">
+                <MudStack Row="true" Class="mb-4">
+                    <MudText>Add a comment</MudText>
+                    <UserAvatar Size="Size.Medium"/>
+                </MudStack>
+                <MarkdownEditor SpinnerOnSubmit="true" @ref="CommentEditor" OnSubmitClick="CommentSubmit"/>
+            </MudPaper>
         </DialogContent>
     </MudDialog>
 </div>

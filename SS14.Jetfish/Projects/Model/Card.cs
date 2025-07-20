@@ -31,7 +31,7 @@ public sealed class Card : IEntityTypeConfiguration<Card>, IRecord<Guid>
 
     [Column(TypeName = "Text")]
     [MaxLength(CardDescriptionMaxLength)]
-    public string? Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
     /// <summary>
     /// The order of this list in the project

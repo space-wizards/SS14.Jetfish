@@ -7,13 +7,13 @@
 <Theme />
 <MudPopoverProvider />
 
-@* Needed for dialogs *@
-<MudDialogProvider />
-
 @* Needed for snackbars *@
 <MudSnackbarProvider />
 
 <CascadingValue Value="@User" TValue="User">
+    @* Needed for dialogs *@
+    <MudDialogProvider />
+
     <MudLayout>
         <MudAppBar>
             <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())"/>
@@ -28,7 +28,7 @@
                 </ActivatorContent>
                 <ChildContent>
                     <MudMenuItem Label="Settings" Href="/user/settings"/>
-                    <MudMenuItem Label="Logout" Href="/logout" />
+                    <MudMenuItem Label="Logout" Href="/logout"/>
                 </ChildContent>
             </MudMenu>
         </MudAppBar>
