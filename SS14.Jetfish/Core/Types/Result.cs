@@ -26,3 +26,11 @@ public record Result<TResult, TError>(TResult? Value, TError? Error) where TResu
         return new Result<TResult, TError>(null, error);
     }
 }
+
+/// <summary>
+/// Used to signify that a result does not return any data, but was successful.
+/// </summary>
+public sealed class Void
+{
+    public static Void Nothing = new Void();
+}

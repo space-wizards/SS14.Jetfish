@@ -24,6 +24,12 @@ public partial class Comment : MudComponentBase
     [Parameter]
     public required EventCallback<string> OnEditCallback { get; set; }
 
+    /// <summary>
+    /// Called when the comment is deleted.
+    /// </summary>
+    [Parameter]
+    public required EventCallback OnDeleteCallback { get; set; }
+
     public void ExitCallback(string text)
     {
         IsEdit = false;

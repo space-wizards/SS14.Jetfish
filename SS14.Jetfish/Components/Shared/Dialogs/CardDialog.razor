@@ -35,7 +35,14 @@
                 {
                     <MudTimelineItem Variant="Variant.Outlined">
                         <ItemContent>
-                            <Comment Style="position: inherit;left:-4%;" OnEditCallback="@((string newText) => OnEditComment(comment, newText))" Text="@comment.Content" Author="@comment.Author" Date="@comment.CreatedAt"/>
+                            <Comment
+                                Style="position: inherit;left:-4%;"
+                                OnEditCallback="@((string newText) => OnEditComment(comment, newText))"
+                                Text="@comment.Content"
+                                Author="@comment.Author"
+                                Date="@comment.CreatedAt"
+                                OnDeleteCallback="@(() => OnDeleteComment(comment))"
+                                />
                         </ItemContent>
                     </MudTimelineItem>
                 }

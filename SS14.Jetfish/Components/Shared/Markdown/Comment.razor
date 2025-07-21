@@ -7,6 +7,7 @@
         <UserAvatar Size="Size.Small" UserOverride="Author"/>
         <MudText Typo="Typo.subtitle1">@Author.DisplayName <LocalDate Class="date" Date="@Date"/></MudText>
         <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Edit" OnClick="@(() => IsEdit = true)"/>
+        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="@OnDeleteCallback"/>
     </MudStack>
 
     @if (IsEdit)

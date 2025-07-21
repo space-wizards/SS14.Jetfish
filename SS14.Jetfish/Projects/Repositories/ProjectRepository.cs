@@ -367,7 +367,7 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
             .ToListAsync();
     }
 
-    public async Task UpdateCardLite(Card toUpdate)
+    public async Task<Core.Types.Void> UpdateCardLite(Card toUpdate)
     {
         var card = await _context.Card
             .FirstAsync(x => x.Id == toUpdate.Id);
@@ -389,9 +389,11 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
             {
                 Card = toReturn,
             });
+
+        return Core.Types.Void.Nothing;
     }
 
-    public async Task AddComment(Guid cardId, User user, string text)
+    public async Task<Core.Types.Void> AddComment(Guid cardId, User user, string text)
     {
         var card = await _context.Card
             .FirstAsync(card => card.Id == cardId);
@@ -417,9 +419,11 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
             {
                 Comment = returnValue,
             });
+
+        return Core.Types.Void.Nothing;
     }
 
-    public async Task EditComment(Guid commentId, string newText)
+    public async Task<Core.Types.Void> EditComment(Guid commentId, string newText)
     {
         var comment = await _context.CardComment
             .FirstAsync(x => x.Id == commentId);
@@ -435,5 +439,24 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
                     .AsNoTracking()
                     .First(x => x.Id == commentId),
             });
+
+        return Core.Types.Void.Nothing;
+    }
+
+    public async Task<Core.Types.Void> DeleteComment(Guid commentId)
+    {
+        var comment = await _context.CardComment
+            .FirstAsync(x => x.Id == commentId);
+
+        _context.CardComment.Remove(comment);
+        await _context.SaveChangesAsync();
+
+        await _hub.PublishAsync((comment.CardId, comment.Id),
+            new CommentDeletedEvent()
+            {
+                CommentId = commentId,
+            });
+
+        return Core.Types.Void.Nothing;
     }
 }
