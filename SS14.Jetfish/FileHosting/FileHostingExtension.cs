@@ -1,5 +1,6 @@
 ﻿using System.Reflection.Emit;
 using System.Security.Claims;
+using SS14.Jetfish.FileHosting.Model;
 using SS14.Jetfish.FileHosting.Repositories;
 using SS14.Jetfish.FileHosting.Services;
 
@@ -25,4 +26,12 @@ public static class FileHostingExtension
         app.MapGet("/global-file/{fileId:guid}", async (Guid fileId, string? label, FileService fileService) =>
             await fileService.GetGlobalFileAsResult(fileId, label));
     }
+
+    public static string FileTypeUrl(this FileType type) => type switch
+    {
+        FileType.Global => "global-file",
+        FileType.User => "user-file",
+        FileType.Project => "project-file",
+        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+    };
 }

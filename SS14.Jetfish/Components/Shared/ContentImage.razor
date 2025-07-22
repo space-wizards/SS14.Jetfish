@@ -1,0 +1,81 @@
+@using Microsoft.EntityFrameworkCore
+@using SS14.Jetfish.Database
+@using SS14.Jetfish.FileHosting
+@using SS14.Jetfish.FileHosting.Model
+@inherits MudComponentBase
+
+<MudImage Class="@Class" Style="@Style" Src="@GetUrl()" data-active-url="@GetActiveUrl()" Fluid="@Fluid"></MudImage>
+
+@code {
+
+    [Inject]
+    private ApplicationDbContext DbContext { get; set; } = null!;
+
+    /// <summary>
+    /// The type of image source being used
+    /// </summary>
+    [Parameter]
+    public FileType Type { get; set; } = FileType.Global;
+
+    /// <summary>
+    /// The image source path
+    /// </summary>
+    [Parameter]
+    public Guid? FileId { get; set; }
+
+    /// <summary>
+    /// The project id used for the <see cref="Type"/> parameter is set FileType.Project.<br/>
+    /// </summary>
+    [Parameter]
+    public Guid? ProjectId { get; set; }
+
+    [Parameter]
+    public bool Fluid { get; set; }
+
+    private string? _mimeType;
+
+    protected override void OnParametersSet()
+    {
+        if (!FileId.HasValue)
+            return;
+
+        _mimeType = DbContext.UploadedFile
+            .Where(x => x.Id.Equals(FileId.Value))
+            .Select(x => x.MimeType)
+            .SingleOrDefault();
+    }
+
+    private string GetUrl()
+    {
+        if (!FileId.HasValue)
+            return string.Empty;
+
+        if (Type is FileType.Project)
+            return $"{Type.FileTypeUrl()}/{ProjectId}/file/{FileId.Value}?{GetLabelParameter()}";
+
+        return $"{Type.FileTypeUrl()}/{FileId.Value}?{GetLabelParameter()}";
+    }
+
+    private string GetActiveUrl()
+    {
+        if (!FileId.HasValue)
+            return string.Empty;
+
+        if (Type is FileType.Project)
+            return $"{Type.FileTypeUrl()}/{ProjectId}/file/{FileId.Value}?{GetHoverLabelParameter()}";
+
+        return $"{Type.FileTypeUrl()}/{FileId.Value}?{GetHoverLabelParameter()}";
+    }
+
+    private string GetLabelParameter() => _mimeType switch
+    {
+        "image/gif" => "label=static",
+        _ => "",
+    };
+
+    private string GetHoverLabelParameter() => _mimeType switch
+    {
+        _ => "",
+    };
+
+}

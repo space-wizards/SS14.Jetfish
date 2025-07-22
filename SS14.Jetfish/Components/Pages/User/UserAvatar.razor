@@ -1,15 +1,17 @@
-﻿<MudAvatar Color="Color.Transparent" Size="@Size">
+﻿@using SS14.Jetfish.FileHosting.Model
+<MudAvatar Color="Color.Transparent" Size="@Size">
     @if (User != null || UserOverride != null)
     {
         if (Tooltip)
         {
             <MudTooltip Text="@GetTooltip()">
-                <MudImage Src="@UserProfilePictureLink()" Fluid="true"></MudImage>
+                @*<MudImage Src="@UserProfilePictureLink()" Fluid="true"></MudImage>*@
+                <ContentImage Fluid="true" Type="FileType.Global" FileId="@UserProfilePicture()"></ContentImage>
             </MudTooltip>
         }
         else
         {
-            <MudImage Src="@UserProfilePictureLink()" Fluid="true"></MudImage>
+            <ContentImage Fluid="true" Type="FileType.Global" FileId="@UserProfilePicture()"></ContentImage>
         }
     }
     else

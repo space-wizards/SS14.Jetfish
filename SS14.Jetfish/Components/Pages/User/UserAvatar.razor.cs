@@ -8,9 +8,11 @@ public partial class UserAvatar : ComponentBase
     [CascadingParameter]
     public Security.Model.User? User { get; set; }
 
-    private string UserProfilePictureLink()
+    private Guid UserProfilePicture()
     {
-        return UserOverride != null ? $"global-file/{UserOverride.ProfilePicture}" : $"global-file/{User!.ProfilePicture}";
+        //return UserOverride != null ? $"global-file/{UserOverride.ProfilePicture}" : $"global-file/{User!.ProfilePicture}";
+        var profilePictureId = UserOverride?.ProfilePicture ?? User!.ProfilePicture;
+        return Guid.Parse(profilePictureId);
     }
 
     private string GetTooltip()
