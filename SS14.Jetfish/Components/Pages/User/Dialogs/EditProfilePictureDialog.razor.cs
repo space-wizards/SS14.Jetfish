@@ -26,7 +26,7 @@ public partial class EditProfilePictureDialog : ComponentBase
     [Inject]
     private IOptions<UserConfiguration> UserConfiguration { get; set; } = null!;
     [Inject]
-    private IOptions<ServerConfiguration> ServerConfiguration { get; set; } = null!;
+    private IOptions<FileConfiguration> FileConfiguration { get; set; } = null!;
     [Inject]
     private ConfigurationStoreService ConfigurationStoreService { get; set; } = null!;
     [Inject]
@@ -66,10 +66,10 @@ public partial class EditProfilePictureDialog : ComponentBase
 
     private bool CheckFileSize()
     {
-        if (_model.UploadedPicture == null || _model.UploadedPicture.Size <= ServerConfiguration.Value.MaxUploadSize)
+        if (_model.UploadedPicture == null || _model.UploadedPicture.Size <= FileConfiguration.Value.MaxUploadSize)
             return true;
 
-        _fileError = $"Maximum upload size of {ServerConfiguration.Value.MaxUploadSize} exceeded!";
+        _fileError = $"Maximum upload size of {FileConfiguration.Value.MaxUploadSize} exceeded!";
         StateHasChanged();
         return false;
     }

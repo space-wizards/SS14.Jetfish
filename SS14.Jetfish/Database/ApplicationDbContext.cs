@@ -20,6 +20,7 @@ public partial class ApplicationDbContext : DbContext, IConfigDbContext
     public DbSet<Role> Role { get; set; }
     public DbSet<Project> Project { get; set; }
     public DbSet<UploadedFile> UploadedFile { get; set; }
+    public DbSet<ConvertedFile> ConvertedFile { get; set; }
     public DbSet<FileUsage> FileUsage { get; set; }
     public DbSet<Lane> List { get; set; }
     public DbSet<Card> Card { get; set; }
