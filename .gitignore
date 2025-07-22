@@ -6,5 +6,6 @@ riderModule.iml
 appsettings.Secret.yml
 .idea/.idea.SS14.Jetfish/.idea/discord.xml
 .idea/.idea.SS14.Jetfish/.idea/dataSources.xml
+.idea/.idea.SS14.Jetfish/.idea/.name
 SS14.Jetfish/data
 SS14.Jetfish.sln.DotSettings.user
