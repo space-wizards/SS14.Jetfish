@@ -31,7 +31,7 @@ public static class PermissionClaimParserExtension
         bool global = false)
     {
         var key = ClaimName(global, resourceId);
-        var claim = principal.FindFirstValue(key);
+        var claim = principal.FindFirstValue(key)?.Split(';');
         if (claim == null)
             return false;
 
