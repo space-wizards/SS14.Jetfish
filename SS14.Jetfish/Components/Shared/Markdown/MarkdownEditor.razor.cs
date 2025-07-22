@@ -5,7 +5,7 @@ using MudBlazor;
 
 namespace SS14.Jetfish.Components.Shared.Markdown;
 
-public partial class MarkdownEditor : MudComponentBase
+public partial class MarkdownEditor : MudComponentBase, IAsyncDisposable
 {
     private string Text { set; get; } = string.Empty;
 
@@ -36,7 +36,13 @@ public partial class MarkdownEditor : MudComponentBase
 
     private bool _isLoading = false;
 
-    private readonly Guid _editorId = Guid.NewGuid();
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrEmpty(ParameterText))
+            Text = ParameterText;
+        else
+            Text = string.Empty;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -63,7 +69,7 @@ public partial class MarkdownEditor : MudComponentBase
         {
             // Switching to preview.
             await FetchText();
-            await JsRuntime.InvokeVoidAsync("cmInterop.destroy", _editorId);
+            await JsRuntime.InvokeVoidAsync("cmInterop.destroy", Editor.EditorGuid);
         }
     }
 
@@ -89,7 +95,19 @@ public partial class MarkdownEditor : MudComponentBase
         else
             Text = string.Empty;
 
-        await JsRuntime.InvokeVoidAsync("cmInterop.setValue", _editorId, Text);
+        await JsRuntime.InvokeVoidAsync("cmInterop.setValue", Editor.EditorGuid, Text);
         _isLoading = false;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("cmInterop.destroy", Editor.EditorGuid);
+        }
+        catch (JSDisconnectedException)
+        {
+            // we can safely ignore that.
+        }
     }
 }

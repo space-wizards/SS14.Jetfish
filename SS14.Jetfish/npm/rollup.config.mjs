@@ -16,7 +16,7 @@ export default {
             browser: true,
             moduleDirectories: ['node_modules']
         }),
-        commonjs(),
+        //commonjs(),
         terser(),
         visualizer({ filename: './stats.html' })
     ],

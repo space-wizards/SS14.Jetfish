@@ -1,6 +1,7 @@
 ﻿import { EditorView, minimalSetup } from "codemirror"
 import { markdown } from "@codemirror/lang-markdown";
 import { placeholder } from "@codemirror/view";
+import { oneDark } from "@codemirror/theme-one-dark"
 
 let views = new Map();
 
@@ -16,9 +17,10 @@ export function initializeEditor(domId) {
         extensions: [
             minimalSetup,
             markdown(),
-            placeholder("Click to start typing... Markdown supported!")
+            placeholder("Click to start typing... Markdown supported!"),
+            oneDark
         ],
-        parent: parent
+        parent: parent,
     })
 
     views.set(domId, view);

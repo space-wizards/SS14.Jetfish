@@ -25,7 +25,7 @@ public class ProjectHub
     /// <param name="method">The method to call.</param>
     /// <typeparam name="T">What you expect the method to return.</typeparam>
     /// <returns>A result of type T or an exception raised by the method.</returns>
-    public async Task<Result<T, Exception>> AttemptCallSynced<T>(object sender, Guid state, Task<T> method) where T : class
+    public async Task<Result<T, Exception>> AttemptCallSynced<T>(object sender, Guid state, Func<Task<T>> method) where T : class
     {
         if (_states.TryGetValue(sender, out var hubState))
         {
@@ -35,7 +35,7 @@ public class ProjectHub
 
         try
         {
-            return Result<T, Exception>.Success(await method);
+            return Result<T, Exception>.Success(await method());
         }
         catch (Exception e)
         {

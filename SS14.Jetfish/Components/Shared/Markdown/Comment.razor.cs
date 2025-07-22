@@ -13,6 +13,12 @@ public partial class Comment : MudComponentBase
     public string Text { get; set; } = string.Empty;
 
     [Parameter]
+    public Guid ProjectId { get; set; }
+
+    [CascadingParameter]
+    public Security.Model.User? User { get; set; }
+
+    [Parameter]
     public required DateTime Date { get; set; }
 
     [Parameter]
@@ -30,6 +36,12 @@ public partial class Comment : MudComponentBase
     [Parameter]
     public required EventCallback OnDeleteCallback { get; set; }
 
+    [Inject]
+    public IJsApiService JsApiService { get; set; } = null!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
+
     public void ExitCallback(string text)
     {
         IsEdit = false;
@@ -39,5 +51,15 @@ public partial class Comment : MudComponentBase
     {
         IsEdit = false;
         await OnEditCallback.InvokeAsync(text);
+    }
+
+    private async Task CopyText()
+    {
+        await JsApiService.CopyToClipboardAsync(Text);
+        Snackbar.Add("Copied text to clipboard!", Severity.Success,
+            options =>
+            {
+                options.Icon = Icons.Material.Rounded.Check;
+            });
     }
 }

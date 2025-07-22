@@ -23,7 +23,7 @@
                 }
             </MudSelect></MudText>
 
-            <Comment Date="@Card.CreatedAt" OnEditCallback="OnEditCardDescription" Text="@Card.Description" Author="Card.Author" />
+            <Comment ProjectId="Card.ProjectId" Date="@Card.CreatedAt" OnEditCallback="OnEditCardDescription" Text="@Card.Description" Author="Card.Author" />
             <MudDivider/>
             @if (Card.Comments.Count == 0)
             {
@@ -42,6 +42,7 @@
                                 Author="@comment.Author"
                                 Date="@comment.CreatedAt"
                                 OnDeleteCallback="@(() => OnDeleteComment(comment))"
+                                ProjectId="Card.ProjectId"
                                 />
                         </ItemContent>
                     </MudTimelineItem>
@@ -49,15 +50,22 @@
             </MudTimeline>
 
 
-            <MudDivider/>
 
-            <MudPaper Class="pa-4 ma-2" Outlined="true" Square="true">
-                <MudStack Row="true" Class="mb-4">
-                    <MudText>Add a comment</MudText>
-                    <UserAvatar Size="Size.Medium"/>
-                </MudStack>
-                <MarkdownEditor SpinnerOnSubmit="true" @ref="CommentEditor" OnSubmitClick="CommentSubmit"/>
-            </MudPaper>
+            <AuthorizeResource DisplayError="true" Policy="@(nameof(Permission.ProjectCardComment))" Resource="@Card.ProjectId">
+                <ChildContent>
+                    <MudDivider/>
+                    <MudPaper Class="pa-4 ma-2" Outlined="true" Square="true">
+                        <MudStack Row="true" Class="mb-4">
+                            <MudText>Add a comment</MudText>
+                            <UserAvatar Size="Size.Medium"/>
+                        </MudStack>
+                        <MarkdownEditor SpinnerOnSubmit="true" @ref="CommentEditor" OnSubmitClick="CommentSubmit"/>
+                    </MudPaper>
+                </ChildContent>
+                <CustomError>
+                    <MudText Color="Color.Primary"><MudIcon Icon="@Icons.Material.Filled.Lock" Color="Color.Primary" Size="Size.Small"/> You cannot write comments.</MudText>
+                </CustomError>
+            </AuthorizeResource>
         </DialogContent>
     </MudDialog>
 </div>

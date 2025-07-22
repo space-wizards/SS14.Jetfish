@@ -113,7 +113,7 @@ h1:focus {
 }
 
 .editor {
-    background-color: #1f232b;
+    background-color: #282c34;
     overflow-y: scroll;
     height: 100%;
     width: 100%;

@@ -1,13 +1,37 @@
 @using SS14.Jetfish.Components.Pages.User
 @inherits MudComponentBase
 
-
 <MudPaper Class="pa-4 ma-2" Elevation="0" Style="@Style" Outlined="true">
-    <MudStack Row="true">
+    <MudStack Row="true" StretchItems="StretchItems.End">
         <UserAvatar Size="Size.Small" UserOverride="Author"/>
         <MudText Typo="Typo.subtitle1">@Author.DisplayName <LocalDate Class="date" Date="@Date"/></MudText>
-        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Edit" OnClick="@(() => IsEdit = true)"/>
-        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="@OnDeleteCallback"/>
+        <MudStack Row="true" Justify="Justify.FlexEnd">
+            <AuthorizeResource DisplayError="true" Policy="@(nameof(Permission.ProjectCardCommentEdit))" Resource="@ProjectId">
+                <ChildContent>
+                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Rounded.ModeEdit" OnClick="@(() => IsEdit = true)"/>
+                </ChildContent>
+                <CustomError>
+                    @if (Author.Id == User?.Id)
+                    {
+                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Rounded.ModeEdit" OnClick="@(() => IsEdit = true)"/>
+                    }
+                </CustomError>
+            </AuthorizeResource>
+            <MudMenu Icon="@Icons.Material.Rounded.MoreHoriz" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" ListClass="pa-2 d-flex flex-column" PopoverClass="mud-elevation-25">
+                <MudButton Size="Size.Small" StartIcon="@Icons.Material.Rounded.ContentCopy" OnClick="CopyText">Copy text</MudButton>
+                <AuthorizeResource DisplayError="true" Policy="@(nameof(Permission.ProjectCardCommentDelete))" Resource="ProjectId">
+                    <ChildContent>
+                        <MudButton Size="Size.Small" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="@OnDeleteCallback">Delete</MudButton>
+                    </ChildContent>
+                    <CustomError>
+                        @if (Author.Id == User?.Id)
+                        {
+                            <MudButton Size="Size.Small" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="@OnDeleteCallback">Delete</MudButton>
+                        }
+                    </CustomError>
+                </AuthorizeResource>
+            </MudMenu>
+        </MudStack>
     </MudStack>
 
     @if (IsEdit)

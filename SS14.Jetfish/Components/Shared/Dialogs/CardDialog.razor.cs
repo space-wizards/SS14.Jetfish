@@ -58,6 +58,8 @@ public partial class CardDialog : ComponentBase, IDisposable
         Hub.RegisterHandler<CommentEditedEvent>(OnCommentEdited);
         Hub.RegisterHandler<CommentDeletedEvent>(OnCommentDeleted);
 
+        _cardState = Hub.GetNextState((Card!.Id, Card!.ProjectId));
+
         IsLoaded = true;
         StateHasChanged();
     }
@@ -94,6 +96,7 @@ public partial class CardDialog : ComponentBase, IDisposable
     {
         if (((Guid, Guid))sender != (Card!.Id, Card!.ProjectId))
             return;
+        AttemptStateSynchronize(e);
 
         Card!.Comments.Remove(Card!.Comments.First(x => x.Id == e.CommentId));
         await InvokeAsync(StateHasChanged);
@@ -123,14 +126,14 @@ public partial class CardDialog : ComponentBase, IDisposable
     {
         // i *think* this card is not tracked by ef
         Card!.Description = description;
-        var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId), _cardState, ProjectRepository.UpdateCardLite(Card!));
+        var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId), _cardState, () => ProjectRepository.UpdateCardLite(Card!));
         if (!result.IsSuccess)
             await UiErrorService.HandleUiError(result.Error);
     }
 
     private async Task CommentSubmit(string text)
     {
-        var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId), _cardState, ProjectRepository.AddComment(Card!.Id, User!, text));
+        var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId), _cardState, () => ProjectRepository.AddComment(Card!.Id, User!, text));
         if (!result.IsSuccess)
             await UiErrorService.HandleUiError(result.Error);
 
@@ -141,7 +144,7 @@ public partial class CardDialog : ComponentBase, IDisposable
     {
         var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId),
             _cardState,
-            ProjectRepository.EditComment(comment.Id, newText));
+            () => ProjectRepository.EditComment(comment.Id, newText));
 
         if (!result.IsSuccess)
             await UiErrorService.HandleUiError(result.Error);
@@ -151,7 +154,7 @@ public partial class CardDialog : ComponentBase, IDisposable
     {
         var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId),
             _cardState,
-            ProjectRepository.DeleteComment(comment.Id));
+            () => ProjectRepository.DeleteComment(comment.Id));
 
         if (!result.IsSuccess)
             await UiErrorService.HandleUiError(result.Error);

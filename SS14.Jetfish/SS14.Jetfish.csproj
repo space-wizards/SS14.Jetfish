@@ -8,10 +8,19 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
-    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Target Name="NpmInstall" Inputs="npm/package.json" Outputs="npm/node_modules/.install-stamp">
       <Exec Command="npm install" WorkingDirectory="npm" />
-      <Exec Command="npm run build" WorkingDirectory="npm" />
+      <Touch Files="npm/node_modules/.install-stamp" AlwaysCreate="true" />
     </Target>
+
+    <Target Name="NpmRunBuild" DependsOnTargets="NpmInstall" BeforeTargets="BeforeBuild" Inputs="@(NpmSourceFiles)" Outputs="npm/.build-stamp">
+      <Exec Command="npm run build" WorkingDirectory="npm" />
+      <Touch Files="npm/.build-stamp" AlwaysCreate="true" />
+    </Target>
+
+    <ItemGroup>
+      <NpmSourceFiles Include="npm/src/**/*.*" />
+    </ItemGroup>
 
     <ItemGroup>
       <Content Include="..\.dockerignore">
@@ -40,17 +49,4 @@
       <Folder Include="data\uploads\" />
       <Folder Include="wwwroot\fonts\" />
     </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Components\Shared\Forms\NewTeamForm.razor" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\NotoEmoji-VariableFont_wght.ttf" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\OFL.txt" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\README.txt" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-Bold.ttf" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-Light.ttf" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-Medium.ttf" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-Regular.ttf" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\Noto_Emoji\static\NotoEmoji-SemiBold.ttf" />
-    </ItemGroup>
-
 </Project>

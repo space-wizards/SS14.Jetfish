@@ -239,7 +239,9 @@ public partial class ProjectPage : ComponentBase, IDisposable
         StateHasChanged();
 
         //the container refreshes the internal state
-        _dropContainer.Refresh();
+        // We use conditional access here as the drop container is null when the person has no access to the project,
+        // as the drop container is never rendered
+        _dropContainer?.Refresh();
     }
 
     private bool _displaySkeleton = true;

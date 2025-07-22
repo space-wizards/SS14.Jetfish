@@ -10,4 +10,5 @@ SS14.Jetfish/data
 SS14.Jetfish.sln.DotSettings.user
 node_modules
 stats.html
+.build-stamp
 /SS14.Jetfish/wwwroot/js/*.bundle.js

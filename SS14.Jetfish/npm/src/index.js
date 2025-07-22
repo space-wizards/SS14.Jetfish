@@ -1,6 +1,5 @@
 ﻿import * as cm from './codemirrorInterop.js';
 import * as dh from './dateHandler';
-import {notifyEditorGone} from "./codemirrorInterop.js";
 
 window.cmInterop = {
     initialize: cm.initializeEditor,
@@ -11,3 +10,5 @@ window.cmInterop = {
 };
 
 dh.init();
+
+console.log("Made with love <3, go play Space Station 14!")

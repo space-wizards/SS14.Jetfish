@@ -426,13 +426,14 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
     public async Task<Core.Types.Void> EditComment(Guid commentId, string newText)
     {
         var comment = await _context.CardComment
+            .Include(cardComment => cardComment.Card)
             .FirstAsync(x => x.Id == commentId);
 
         comment.Content = newText;
         comment.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
-        await _hub.PublishAsync((comment.CardId, comment.Id),
+        await _hub.PublishAsync((comment.CardId, comment.Card.ProjectId),
             new CommentEditedEvent()
             {
                 Comment = _context.CardComment
@@ -446,12 +447,13 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
     public async Task<Core.Types.Void> DeleteComment(Guid commentId)
     {
         var comment = await _context.CardComment
+            .Include(cardComment => cardComment.Card)
             .FirstAsync(x => x.Id == commentId);
 
         _context.CardComment.Remove(comment);
         await _context.SaveChangesAsync();
 
-        await _hub.PublishAsync((comment.CardId, comment.Id),
+        await _hub.PublishAsync((comment.CardId, comment.Card.ProjectId),
             new CommentDeletedEvent()
             {
                 CommentId = commentId,
