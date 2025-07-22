@@ -28,6 +28,7 @@ builder.Configuration.AddYamlFile("appsettings.yml", false, true);
 builder.Configuration.AddYamlFile($"appsettings.{env.EnvironmentName}.yml", true, true);
 builder.Configuration.AddYamlFile("appsettings.Secret.yml", true, true);
 
+builder.Services.Configure<FileConfiguration>(builder.Configuration.GetSection(FileConfiguration.Name));
 builder.Services.Configure<ServerConfiguration>(builder.Configuration.GetSection(ServerConfiguration.Name));
 builder.Services.Configure<UserConfiguration>(builder.Configuration.GetSection(UserConfiguration.Name));
 
@@ -85,6 +86,7 @@ builder.AddProjects();
 
 builder.AddCommandHandling();
 builder.AddFileHosting();
+builder.AddStartupCheck();
 
 builder.Services.AddScoped<UiErrorService>();
 builder.Services.AddScoped<ConfigurationStoreService>();
@@ -112,8 +114,6 @@ if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_D
         o.ConfigureDataSource(s => s.EnableDynamicJson());
     }));
 }
-
-await StartupAssetHelper.FirstTimeAssetSetup(app);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -152,4 +152,12 @@ app.MapGet("/test", async (ICommandService commandService) =>
 })
 .RequireAuthorization(nameof(Permission.TeamCreate));
 
+// Abort starting the server when the startup check fails
+if (app.RunStartupCheck())
+    return 1;
+
+await StartupAssetHelper.FirstTimeAssetSetup(app);
+
 app.Run();
+
+return 0;
