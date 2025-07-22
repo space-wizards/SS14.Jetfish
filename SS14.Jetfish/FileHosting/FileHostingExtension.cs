@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Reflection.Emit;
+using System.Security.Claims;
 using SS14.Jetfish.FileHosting.Repositories;
 using SS14.Jetfish.FileHosting.Services;
 
@@ -15,13 +16,13 @@ public static class FileHostingExtension
     public static void UseFileHosting(this WebApplication app)
     {
         app.MapGet("/project-file/{projectId:guid}/file/{fileId:guid}",
-            async (Guid fileId, Guid projectId, FileService fileService, ClaimsPrincipal user) =>
-                await fileService.GetProjectFileAsResult(user, projectId, fileId));
+            async (Guid fileId, Guid projectId, string? label, FileService fileService, ClaimsPrincipal user) =>
+                await fileService.GetProjectFileAsResult(user, projectId, fileId, label));
 
-        app.MapGet("/user-file/{fileId:guid}", async (Guid fileId, FileService fileService, ClaimsPrincipal user) =>
-            await fileService.GetUserFileAsResult(user, fileId));
+        app.MapGet("/user-file/{fileId:guid}", async (Guid fileId, string? label, FileService fileService, ClaimsPrincipal user) =>
+            await fileService.GetUserFileAsResult(user, fileId, label));
 
-        app.MapGet("/global-file/{fileId:guid}", async (Guid fileId, FileService fileService) =>
-            await fileService.GetGlobalFileAsResult(fileId));
+        app.MapGet("/global-file/{fileId:guid}", async (Guid fileId, string? label, FileService fileService) =>
+            await fileService.GetGlobalFileAsResult(fileId, label));
     }
 }

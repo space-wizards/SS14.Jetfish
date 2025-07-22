@@ -28,8 +28,9 @@ public class ToWebpImageConverter : IUploadConverter
     {
         var metadata = image.Metadata.GetWebpMetadata();
         metadata.FileFormat = WebpFileFormatType.Lossless;
-        await image.SaveAsWebpAsync(Path.Combine(outputPath, Guid.NewGuid() + ".webp"), ct);
+        var filename = Guid.NewGuid() + ".webp";
+        await image.SaveAsWebpAsync(Path.Combine(outputPath, filename), ct);
 
-        return new ConversionResult(outputPath, "image/webp");
+        return new ConversionResult(filename, "image/webp");
     }
 }

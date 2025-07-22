@@ -197,7 +197,7 @@ public sealed class FileService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<IResult> GetGlobalFileAsResult(Guid fileId)
+    public async Task<IResult> GetGlobalFileAsResult(Guid fileId, string? label = null)
     {
         var file = await _dbContext.UploadedFile
             .Include(file => file.Usages)
@@ -208,10 +208,10 @@ public sealed class FileService
         if (file == null)
             return Results.NotFound();
 
-        return InternalGetFileResult(file);
+        return await InternalGetFileResult(file, label);
     }
 
-    public async Task<IResult> GetProjectFileAsResult(ClaimsPrincipal principal, Guid projectId, Guid fileId)
+    public async Task<IResult> GetProjectFileAsResult(ClaimsPrincipal principal, Guid projectId, Guid fileId, string? label = null)
     {
         var file = await _dbContext.UploadedFile
             .Include(file => file.Usages)
@@ -226,13 +226,13 @@ public sealed class FileService
         if (!authorizationResult.Succeeded)
             return Results.Unauthorized();
 
-        return InternalGetFileResult(file);
+        return await InternalGetFileResult(file, label);
     }
 
     /*
      * Gets a file uploaded by the given user principal
      */
-    public async Task<IResult> GetUserFileAsResult(ClaimsPrincipal principal, Guid fileId)
+    public async Task<IResult> GetUserFileAsResult(ClaimsPrincipal principal, Guid fileId, string? label = null)
     {
         var file = await _dbContext.UploadedFile.FirstOrDefaultAsync(file =>
             file.Id == fileId && file.UploadedBy != null && file.UploadedBy.Id == principal.Claims.GetUserId());
@@ -245,20 +245,35 @@ public sealed class FileService
         if (!authorizationResult.Succeeded)
             return Results.Unauthorized();
         */
-        return InternalGetFileResult(file);
+        return await InternalGetFileResult(file, label);
     }
 
-    private IResult InternalGetFileResult(UploadedFile file)
+    private async Task<IResult> InternalGetFileResult(UploadedFile file, string? label)
     {
-        var resolvedPath = Path.Combine(_fileConfiguration.UserContentDirectory, file.RelativePath);
+        var (path, rawEtag, mimeType) = await ResolveConversions(file, label);
+
+        var resolvedPath = Path.Combine(_fileConfiguration.UserContentDirectory, path);
         if (!File.Exists(resolvedPath))
         {
-            _logger.LogError("File exists in DB but not in file system. Path {File}", file.RelativePath);
+            _logger.LogError("File exists in DB but not in file system. Path {File}", path);
             return Results.InternalServerError("File does not exist in file system, but exists in DB.");
         }
 
-        var etag = new EntityTagHeaderValue($"\"{file.Etag}\"");
-        return Results.File(Path.GetFullPath(resolvedPath), file.MimeType, file.Name, file.LastModified, etag, true);
+        var etag = new EntityTagHeaderValue($"\"{rawEtag}\"");
+        return Results.File(Path.GetFullPath(resolvedPath), mimeType, file.Name, file.LastModified, etag, true);
+    }
+
+    private async Task<(string path, string rawEtag, string mimeType)> ResolveConversions(UploadedFile file, string? label)
+    {
+        var alternative = await _dbContext.ConvertedFile
+            .Where(convertedFile => convertedFile.UploadedFileId == file.Id)
+            .Where(convertedFile => convertedFile.Label == label)
+            .SingleOrDefaultAsync();
+
+
+        return alternative != null
+            ? (Path.Combine(ConvertedDirectory, alternative.RelativePath), alternative.Etag, alternative.MimeType)
+            :  (file.RelativePath, file.Etag, file.MimeType);
     }
 
     public async Task DeleteProjectFileUsage(Guid projectId, Guid backgroundId)
@@ -296,7 +311,7 @@ public sealed class FileService
         var convertedFiles = Directory.EnumerateFiles(Path.Combine(_fileConfiguration.UserContentDirectory, ConvertedDirectory));
         foreach (var file in convertedFiles)
         {
-            var dbFileFound = await _dbContext.ConvertedFile.AnyAsync(x => x.RelativePath == Path.GetFileName(file));
+            var dbFileFound = await _dbContext.ConvertedFile.AnyAsync(x => x.RelativePath == Path.Combine(ConvertedDirectory, Path.GetFileName(file)));
             if (dbFileFound)
                 continue;
 
@@ -315,6 +330,8 @@ public sealed class FileService
             _logger.LogInformation("File {Name} has no usages, deleting.", lostFile.Name);
             await DeleteFile(lostFile);
         }
+
+        // TODO: do this for converted files as well
 
         // Part 3: Files that are in the DB but have no file in the file system.
         var dbFiles = await _dbContext.UploadedFile
