@@ -12,11 +12,11 @@ namespace SS14.Jetfish.Components.Shared.Forms;
 public partial class ProjectForm : ComponentBase
 {
     [Inject]
-    private IOptions<ServerConfiguration> ServerConfiguration { get; set; } = null!;
-    
-    [Parameter] 
+    private IOptions<FileConfiguration> FileConfiguration { get; set; } = null!;
+
+    [Parameter]
     public EventCallback<EditContext> OnValidSubmit { get; set; }
-    
+
     [Parameter]
     public ProjectFormModel? Model { get; set; }
 
@@ -51,7 +51,7 @@ public partial class ProjectForm : ComponentBase
     {
         _model = Model ?? new ProjectFormModel();
     }
-    
+
     /// <summary>
     /// Validates the model before returning it
     /// </summary>
@@ -63,7 +63,7 @@ public partial class ProjectForm : ComponentBase
             model = null;
             return false;
         }
-        
+
         var valid = _form.EditContext?.Validate() ?? false;
         model = valid ? _model : null;
         return valid;
@@ -71,10 +71,10 @@ public partial class ProjectForm : ComponentBase
 
     private bool CheckFileSize()
     {
-        if (_model.BackgroundSpecifier == ProjectBackgroundSpecifier.Color || _model.BackgroundFile == null || _model.BackgroundFile.Size <= ServerConfiguration.Value.MaxUploadSize) 
+        if (_model.BackgroundSpecifier == ProjectBackgroundSpecifier.Color || _model.BackgroundFile == null || _model.BackgroundFile.Size <= FileConfiguration.Value.MaxUploadSize)
             return true;
-        
-        _fileError = $"Maximum upload size of {ServerConfiguration.Value.MaxUploadSize} exceeded!";
+
+        _fileError = $"Maximum upload size of {FileConfiguration.Value.MaxUploadSize} exceeded!";
         StateHasChanged();
         return false;
     }

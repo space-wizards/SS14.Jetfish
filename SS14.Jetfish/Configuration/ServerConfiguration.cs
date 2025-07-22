@@ -54,11 +54,4 @@ public class ServerConfiguration
     /// The claim to use for filling in roles.
     /// </summary>
     public string RoleClaim { get; set; } = ClaimTypes.Role;
-
-    /// <summary>
-    /// The directory where user uploaded files are stored.
-    /// </summary>
-    public string UserContentDirectory { get; set; } = "data/uploads";
-
-    public FileSize MaxUploadSize { get; set; } = FileSize.Parse("20MB");
 }
