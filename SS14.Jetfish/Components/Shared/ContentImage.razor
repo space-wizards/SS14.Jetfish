@@ -1,7 +1,7 @@
-@using Microsoft.EntityFrameworkCore
 @using SS14.Jetfish.Database
 @using SS14.Jetfish.FileHosting
 @using SS14.Jetfish.FileHosting.Model
+
 @inherits MudComponentBase
 
 <MudImage
@@ -9,8 +9,8 @@
     Style="@Style"
     Src="@GetUrl()"
     data-active-url="@GetActiveUrl()"
-    onmouseover="ContentImageActivate"
-    onmouseout="ContentImageDeactivate"
+    onmouseover="window.contentImage.activate"
+    onmouseout="window.contentImage.deactivate"
     Fluid="@Fluid">
 </MudImage>
 

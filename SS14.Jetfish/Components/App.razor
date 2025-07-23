@@ -20,60 +20,6 @@
 <script src="@Assets["/js/interop.bundle.js"]"></script>
 <script src="_framework/blazor.web.js"></script>
 <script src="_content/MudBlazor/MudBlazor.min.js"></script>
-@*TODO: Move this to a separate file after merging the markdown PR*@
-<script>
-
-    function ContentImageActivate(e)
-    {
-        const image = e.target;
-        console.log('activate', e);
-    }
-
-    function ContentImageDeactivate(e)
-    {
-        const image = e.target;
-        console.log('deactivate',e);
-    }
-
-    window.addEventListener('load', () =>
-    {
-        console.log('setting up images');
-        const contentImages = document.querySelectorAll('[data-active-url]');
-        console.log(contentImages);
-        for (const contentImage of contentImages)
-        {
-            console.log(contentImage);
-            contentImage.addEventListener('mouseover', () =>
-            {
-                contentImage.setAttribute('data-inactive-url', contentImage.getAttribute('src'));
-                contentImage.setAttribute('src', contentImage.getAttribute('data-active-url'));
-
-            });
-
-            contentImage.addEventListener('mouseout', () =>
-            {
-                const inactiveUrl = contentImage.getAttribute('data-inactive-url');
-                contentImage.removeAttribute('data-inactive-url');
-                contentImage.setAttribute('src', inactiveUrl)
-
-            });
-
-            /*
-            console.log('hovering');
-
-                if (inactiveUrl)
-                {
-                    contentImage.removeAttribute('data-inactive-url');
-                    contentImage.setAttribute('src', inactiveUrl)
-                }
-                else
-                {
-
-                }
-             */
-        }
-    });
-</script>
 <script src="_content/MudBlazor.Markdown/MudBlazor.Markdown.min.js"></script>
 </body>
 
