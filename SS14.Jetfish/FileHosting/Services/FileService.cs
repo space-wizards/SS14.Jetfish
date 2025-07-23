@@ -311,7 +311,7 @@ public sealed class FileService
         var convertedFiles = Directory.EnumerateFiles(Path.Combine(_fileConfiguration.UserContentDirectory, ConvertedDirectory));
         foreach (var file in convertedFiles)
         {
-            var dbFileFound = await _dbContext.ConvertedFile.AnyAsync(x => x.RelativePath == Path.Combine(ConvertedDirectory, Path.GetFileName(file)));
+            var dbFileFound = await _dbContext.ConvertedFile.AnyAsync(x => x.RelativePath.Equals(Path.GetFileName(file)));
             if (dbFileFound)
                 continue;
 

@@ -4,7 +4,15 @@
 @using SS14.Jetfish.FileHosting.Model
 @inherits MudComponentBase
 
-<MudImage Class="@Class" Style="@Style" Src="@GetUrl()" data-active-url="@GetActiveUrl()" Fluid="@Fluid"></MudImage>
+<MudImage
+    Class="@Class"
+    Style="@Style"
+    Src="@GetUrl()"
+    data-active-url="@GetActiveUrl()"
+    onmouseover="ContentImageActivate"
+    onmouseout="ContentImageDeactivate"
+    Fluid="@Fluid">
+</MudImage>
 
 @code {
 
