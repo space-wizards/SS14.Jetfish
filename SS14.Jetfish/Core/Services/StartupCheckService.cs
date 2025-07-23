@@ -6,24 +6,26 @@ namespace SS14.Jetfish.Core.Services;
 
 public sealed class StartupCheckService
 {
+    private readonly ILogger<StartupCheckService> _logger;
     private readonly FileConfiguration _fileConfiguration = new();
 
-    public StartupCheckService(IConfiguration configuration)
+    public StartupCheckService(IConfiguration configuration, ILogger<StartupCheckService> logger)
     {
+        _logger = logger;
         configuration.Bind(FileConfiguration.Name, _fileConfiguration);
     }
 
     public bool RunStartupCheck()
     {
-        Log.Information("Running startup check:");
+        _logger.LogInformation("Running startup check:");
 
         if (CheckMissingDirectories(_fileConfiguration.CreateMissingDirectories))
         {
-            Log.Error("Startup check failed");
+            _logger.LogError("Startup check failed");
             return true;
         }
 
-        Log.Information("Startup check complete");
+        _logger.LogInformation("Startup check complete");
         return false;
     }
 
@@ -42,11 +44,11 @@ public sealed class StartupCheckService
 
         if (!createMissing)
         {
-            Log.Error("- {PathName} is missing at: {Path}", pathName, path);
+            _logger.LogError("- {PathName} is missing at: {Path}", pathName, path);
             return true;
         }
 
-        Log.Information("- Creating missing {PathName} at {Path}", pathName, path);
+        _logger.LogInformation("- Creating missing {PathName} at {Path}", pathName, path);
         Directory.CreateDirectory(path);
         return false;
     }
