@@ -13,11 +13,13 @@ public class PermissionsMiddleware : IMiddleware
 {
     private readonly PolicyRepository _repository;
     private readonly IOptions<ServerConfiguration> _serverConfiguration;
+    private readonly ILogger<PermissionsMiddleware> _logger;
 
-    public PermissionsMiddleware(PolicyRepository repository, IOptions<ServerConfiguration> serverConfiguration)
+    public PermissionsMiddleware(PolicyRepository repository, IOptions<ServerConfiguration> serverConfiguration, ILogger<PermissionsMiddleware> logger)
     {
         _repository = repository;
         _serverConfiguration = serverConfiguration;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -41,13 +43,14 @@ public class PermissionsMiddleware : IMiddleware
             .Select(c => c.Value)
             .ToList();
 
+        _logger.LogDebug("Roles for {userId}: {roles}", userId, string.Join(",", roles));
+
         var permissions = await _repository.GetIdentityPermissions(userId.Value, roles);
         var claims = new Dictionary<string, string>();
         var anyPermissions = new HashSet<Permission>();
 
         foreach (var permission in permissions)
         {
-
             foreach (var permissionValue in permission.Permissions)
                 anyPermissions.Add(permissionValue);
 
@@ -64,6 +67,8 @@ public class PermissionsMiddleware : IMiddleware
 
             claims.Add(name, value);
         }
+
+        _logger.LogDebug("Permissions for {userId}: {permissions}", userId, string.Join(",", anyPermissions));
 
         var anyValue = new StringBuilder();
         PermissionClaimParserExtension.AppendPermissions(anyPermissions, anyValue);

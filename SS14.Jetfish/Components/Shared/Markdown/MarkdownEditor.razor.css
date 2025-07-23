@@ -1,0 +1,10 @@
+﻿::deep .editor-root > .mud-tabs-panels {
+    height: 100%;
+    overflow: scroll;
+}
+
+::deep .loading-spinner {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}

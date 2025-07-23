@@ -105,3 +105,18 @@ h1:focus {
     overflow-wrap: anywhere;
     margin-right: 0.5rem;
 }
+
+.date {
+    font-size: 0.875rem;
+    font-weight: lighter;
+    text-decoration: underline dotted;
+}
+
+.editor {
+    background-color: #282c34;
+    overflow-y: scroll;
+    height: 100%;
+    width: 100%;
+    min-height: 244px;
+    resize: vertical;
+}

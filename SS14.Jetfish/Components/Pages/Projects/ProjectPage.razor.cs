@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
-using Serilog;
 using SS14.Jetfish.Components.Shared.Dialogs;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Projects.Hubs;
@@ -56,6 +55,7 @@ public partial class ProjectPage : ComponentBase, IDisposable
         Hub.RegisterHandler<LaneCreatedEvent>(OnLaneCreated);
         Hub.RegisterHandler<LaneRemovedEvent>(OnLaneRemoved);
         Hub.RegisterHandler<LaneUpdatedEvent>(OnLaneUpdated);
+        Hub.RegisterHandler<CardUpdatedEvent>(OnCardUpdated);
     }
 
     public void Dispose()
@@ -65,6 +65,27 @@ public partial class ProjectPage : ComponentBase, IDisposable
         Hub.UnregisterHandler<LaneCreatedEvent>(OnLaneCreated);
         Hub.UnregisterHandler<LaneRemovedEvent>(OnLaneRemoved);
         Hub.UnregisterHandler<LaneUpdatedEvent>(OnLaneUpdated);
+        Hub.UnregisterHandler<CardUpdatedEvent>(OnCardUpdated);
+    }
+
+    private async Task OnCardUpdated(object sender, CardUpdatedEvent e)
+    {
+        // Not calling CheckState as the state ID is different
+        // as the sender is a tuple of the card id and project id.
+
+        if ((((Guid, Guid))sender).Item2 != ProjectId)
+            return;
+
+        // We need to find the card in the tasks list
+        var card = _tasks.FirstOrDefault(x => x.Id == e.Card.Id);
+
+        if (card == null)
+            return; // ignore, we apperantly do not have the card. State is probably fucked, will be refreshed by other events
+
+        card.Description = e.Card.Description;
+        card.Title = e.Card.Title;
+
+        await InvokeAsync(RefreshContainer);
     }
 
     private async Task OnLaneUpdated(object sender, LaneUpdatedEvent e)
@@ -218,7 +239,9 @@ public partial class ProjectPage : ComponentBase, IDisposable
         StateHasChanged();
 
         //the container refreshes the internal state
-        _dropContainer.Refresh();
+        // We use conditional access here as the drop container is null when the person has no access to the project,
+        // as the drop container is never rendered
+        _dropContainer?.Refresh();
     }
 
     private bool _displaySkeleton = true;
@@ -310,6 +333,7 @@ public partial class ProjectPage : ComponentBase, IDisposable
         }, new DialogOptions()
         {
             BackdropClick = true,
+            MaxWidth = MaxWidth.Medium,
         });
     }
 

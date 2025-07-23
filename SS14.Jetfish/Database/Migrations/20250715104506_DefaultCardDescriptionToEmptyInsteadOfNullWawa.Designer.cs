@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SS14.Jetfish.Database;
@@ -11,9 +12,11 @@ using SS14.Jetfish.Database;
 namespace SS14.Jetfish.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250715104506_DefaultCardDescriptionToEmptyInsteadOfNullWawa")]
+    partial class DefaultCardDescriptionToEmptyInsteadOfNullWawa
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,45 +66,6 @@ namespace SS14.Jetfish.Migrations
                         .IsUnique();
 
                     b.ToTable("ConfigurationStore");
-                });
-
-            modelBuilder.Entity("SS14.Jetfish.FileHosting.Model.ConvertedFile", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Etag")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)");
-
-                    b.Property<string>("Label")
-                        .IsRequired()
-                        .HasMaxLength(260)
-                        .HasColumnType("character varying(260)");
-
-                    b.Property<string>("MimeType")
-                        .IsRequired()
-                        .HasMaxLength(180)
-                        .HasColumnType("character varying(180)");
-
-                    b.Property<string>("RelativePath")
-                        .IsRequired()
-                        .HasMaxLength(260)
-                        .HasColumnType("character varying(260)");
-
-                    b.Property<Guid>("UploadedFileId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Version")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UploadedFileId");
-
-                    b.ToTable("ConvertedFile");
                 });
 
             modelBuilder.Entity("SS14.Jetfish.FileHosting.Model.FileUsage", b =>
@@ -464,15 +428,6 @@ namespace SS14.Jetfish.Migrations
                     b.HasOne("SS14.Jetfish.Security.Model.Team", null)
                         .WithMany()
                         .HasForeignKey("TeamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("SS14.Jetfish.FileHosting.Model.ConvertedFile", b =>
-                {
-                    b.HasOne("SS14.Jetfish.FileHosting.Model.UploadedFile", null)
-                        .WithMany()
-                        .HasForeignKey("UploadedFileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

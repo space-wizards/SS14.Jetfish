@@ -1,0 +1,36 @@
+<div id="@EditorGuid" class="editor"></div>
+
+@code {
+
+    [Parameter]
+    public string TextToInitWith { get; set; } = string.Empty;
+
+    [Inject]
+    private IJSRuntime JsRuntime { get; set; } = null!;
+
+    public readonly Guid EditorGuid = Guid.NewGuid();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        await InitializeEditor(TextToInitWith);
+    }
+
+    private async Task InitializeEditor(string withText = "")
+    {
+        await JsRuntime.InvokeVoidAsync("cmInterop.initialize", EditorGuid);
+        await JsRuntime.InvokeVoidAsync("cmInterop.setValue", EditorGuid, withText);
+    }
+
+    public async Task<string?> GetText()
+    {
+        return await JsRuntime.InvokeAsync<string?>("cmInterop.getValue", EditorGuid);
+    }
+
+    public async Task SetText(string text)
+    {
+        await JsRuntime.InvokeVoidAsync("cmInterop.setValue", EditorGuid, text);
+    }
+}

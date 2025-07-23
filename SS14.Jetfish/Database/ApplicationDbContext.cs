@@ -24,6 +24,7 @@ public partial class ApplicationDbContext : DbContext, IConfigDbContext
     public DbSet<FileUsage> FileUsage { get; set; }
     public DbSet<Lane> List { get; set; }
     public DbSet<Card> Card { get; set; }
+    public DbSet<CardComment> CardComment { get; set; }
 
     public DbSet<ConfigurationStore> ConfigurationStore { get; set; }
 

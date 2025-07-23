@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="@Assets["fonts.css"]"/>
     <link rel="stylesheet" href="@Assets["SS14.Jetfish.styles.css"]"/>
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="_content/MudBlazor.Markdown/MudBlazor.Markdown.min.css" rel="stylesheet" />
     <ImportMap/>
     <link rel="icon" type="image/png" href="@Assets["images/logo.png"]"/>
     <HeadOutlet @rendermode="InteractiveServer"/>
@@ -16,6 +17,7 @@
 
 <body style="height: 100vh;">
 <Routes @rendermode="InteractiveServer"/>
+<script src="@Assets["/js/interop.bundle.js"]"></script>
 <script src="_framework/blazor.web.js"></script>
 <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 @*TODO: Move this to a separate file after merging the markdown PR*@
@@ -72,6 +74,7 @@
         }
     });
 </script>
+<script src="_content/MudBlazor.Markdown/MudBlazor.Markdown.min.js"></script>
 </body>
 
 </html>

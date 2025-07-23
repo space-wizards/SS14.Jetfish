@@ -1,5 +1,8 @@
-﻿<div style="display:contents;">
-    <MudDialog Style="height: 78vh; width: 60%">
+﻿@using SS14.Jetfish.Components.Shared.Markdown
+@using SS14.Jetfish.Components.Pages.User
+
+<div style="display:contents;">
+    <MudDialog Style="height: 78vh; width: 100%">
         <DialogContent>
             @if (!IsLoaded)
             {
@@ -13,12 +16,101 @@
                 return;
             }
 
-            <MudText Typo="Typo.subtitle1" Class="mudtext-wawa-slugcats">In Lane <MudSelect @bind-Value="CardLaneTitle" FitContent="true">
-                @foreach (var slugcat in Lists)
+            <AuthorizeResource DisplayError="true" Policy="@(nameof(Permission.ProjectCardEdit))" Resource="Card.ProjectId">
+                <ChildContent>
+                    <MudText Typo="Typo.subtitle1" Class="mudtext-wawa-slugcats">In Lane <MudSelect T="string" ValueChanged="LaneChanged" Value="CardLaneTitle" FitContent="true">
+                        @foreach (var slugcat in Lists)
+                        {
+                            <MudSelectItem T="string" value="@slugcat.Key">@slugcat.Key</MudSelectItem>
+                        }
+                    </MudSelect></MudText>
+                </ChildContent>
+                <CustomError>
+                    <MudText Typo="Typo.subtitle1" Class="mudtext-wawa-slugcats">In Lane @CardLaneTitle</MudText>
+                </CustomError>
+            </AuthorizeResource>
+
+
+            <MudPaper Class="pa-4 ma-2" Elevation="0" Outlined="true">
+                <MudText Typo="Typo.h6">Description</MudText>
+                <MudText Typo="Typo.subtitle1">Created <LocalDate Date="@Card.CreatedAt"></LocalDate></MudText>
+                @if (_isEditing)
                 {
-                    <MudSelectItem T="string" value="slugcat.Key">@slugcat.Key</MudSelectItem>
+                    <MarkdownEditor
+                        CancelText="Cancel"
+                        SubmitText="Save"
+                        OnCancelClick="ToggleEdit"
+                        OnSubmitClick="OnEditCardDescription"
+                        ParameterText="@Card.Description"/>
                 }
-            </MudSelect></MudText>
+                else
+                {
+                    <AuthorizeResource DisplayError="true" Policy="@(nameof(Permission.ProjectCardEdit))" Resource="Card.ProjectId">
+                        <ChildContent>
+                            <div @onclick="ToggleEdit" style="cursor: pointer;">
+                                @if (string.IsNullOrWhiteSpace(Card.Description))
+                                {
+                                <MarkdownText Text="*No description provided, click to edit.*"/>
+                                }
+                                else
+                                {
+                                <MarkdownText Text="@Card.Description"/>
+                                }
+                            </div>
+                        </ChildContent>
+                        <CustomError>
+                            @if (string.IsNullOrWhiteSpace(Card.Description))
+                            {
+                                <MarkdownText Text="*No description provided...*"/>
+                            }
+                            else
+                            {
+                                <MarkdownText Text="@Card.Description"/>
+                            }
+                        </CustomError>
+                    </AuthorizeResource>
+                }
+            </MudPaper>
+            <MudDivider/>
+            @if (Card.Comments.Count == 0)
+            {
+                <MudText Typo="Typo.h5" Class="mt-8 mb-8">No comments yet.</MudText>
+            }
+
+            <MudTimeline TimelineAlign="TimelineAlign.Start" TimelinePosition="TimelinePosition.Start">
+                @foreach (var comment in Card.Comments)
+                {
+                    <MudTimelineItem Variant="Variant.Outlined">
+                        <ItemContent>
+                            <Comment
+                                Style="position: inherit;left:-4%;"
+                                OnEditCallback="@((string newText) => OnEditComment(comment, newText))"
+                                Text="@comment.Content"
+                                Author="@comment.Author"
+                                Date="@comment.CreatedAt"
+                                OnDeleteCallback="@(() => OnDeleteComment(comment))"
+                                ProjectId="Card.ProjectId"
+                                />
+                        </ItemContent>
+                    </MudTimelineItem>
+                }
+            </MudTimeline>
+
+            <AuthorizeResource DisplayError="true" Policy="@(nameof(Permission.ProjectCardComment))" Resource="@Card.ProjectId">
+                <ChildContent>
+                    <MudDivider/>
+                    <MudPaper Class="pa-4 ma-2" Outlined="true" Square="true">
+                        <MudStack Row="true" Class="mb-4">
+                            <MudText>Add a comment</MudText>
+                            <UserAvatar Size="Size.Medium"/>
+                        </MudStack>
+                        <MarkdownEditor SpinnerOnSubmit="true" @ref="CommentEditor" OnSubmitClick="CommentSubmit"/>
+                    </MudPaper>
+                </ChildContent>
+                <CustomError>
+                    <MudText Color="Color.Primary"><MudIcon Icon="@Icons.Material.Filled.Lock" Color="Color.Primary" Size="Size.Small"/> You cannot write comments.</MudText>
+                </CustomError>
+            </AuthorizeResource>
         </DialogContent>
     </MudDialog>
 </div>

@@ -1,4 +1,7 @@
 ﻿using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using SS14.Jetfish.Core.Types;
+using SS14.Jetfish.Projects.Model;
 
 namespace SS14.Jetfish.Projects.Hubs;
 
@@ -12,6 +15,32 @@ public class ProjectHub
     public ProjectHub(ILogger<ProjectHub> logger)
     {
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Attempts to call the method passed in. This method checks for the state and fails if you are behind.
+    /// </summary>
+    /// <param name="sender">The object key you are trying to update.</param>
+    /// <param name="state">The state that *you* are aware of.</param>
+    /// <param name="method">The method to call.</param>
+    /// <typeparam name="T">What you expect the method to return.</typeparam>
+    /// <returns>A result of type T or an exception raised by the method.</returns>
+    public async Task<Result<T, Exception>> AttemptCallSynced<T>(object sender, Guid state, Func<Task<T>> method) where T : class
+    {
+        if (_states.TryGetValue(sender, out var hubState))
+        {
+            if (hubState != state)
+                return Result<T, Exception>.Failure(new SynchronizationException(sender, state, hubState));
+        }
+
+        try
+        {
+            return Result<T, Exception>.Success(await method());
+        }
+        catch (Exception e)
+        {
+            return Result<T, Exception>.Failure(e);
+        }
     }
 
     public void RegisterHandler<TEvent>(Func<object, TEvent, Task> handler) where TEvent : ProjectEvent
@@ -107,6 +136,21 @@ public class ProjectHub
     }
 }
 
+/// <summary>
+/// Exception that indicates that a state passed into the method does not reflect the real state.
+/// </summary>
+public sealed class SynchronizationException : Exception
+{
+    public override string Message { get; }
+
+    public SynchronizationException(object sender, Guid expectedState, Guid realState)
+    {
+        Message = $"State for object {sender} was {realState}, expected {expectedState}";
+        Data.Add(UiException.RequiresReloadKey, true);
+    }
+}
+
+
 public class CardMovedEvent : ProjectEvent
 {
     /// <summary>
@@ -143,6 +187,26 @@ public class LaneUpdatedEvent : ProjectEvent
     // TODO: Order?
     public required string Title { get; set; }
     public required int LaneId { get; set; }
+}
+
+public class CardUpdatedEvent : ProjectEvent
+{
+    public required Card Card { get; set; }
+}
+
+public class CommentAddedEvent : ProjectEvent
+{
+    public required CardComment Comment { get; set; }
+}
+
+public class CommentEditedEvent : ProjectEvent
+{
+    public required CardComment Comment { get; set; }
+}
+
+public class CommentDeletedEvent : ProjectEvent
+{
+    public required Guid CommentId { get; set; }
 }
 
 public abstract class ProjectEvent
