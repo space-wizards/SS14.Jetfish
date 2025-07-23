@@ -37,6 +37,7 @@ public partial class CardDialog : ComponentBase, IDisposable
     private Dictionary<string, int> Lists { get; set; } = new Dictionary<string, int>();
     private string CardLaneTitle { get; set; } = string.Empty;
     public MarkdownEditor CommentEditor { get; set; } = null!;
+    private bool _isEditing;
 
     private Guid _cardState = Guid.Empty;
 
@@ -57,6 +58,7 @@ public partial class CardDialog : ComponentBase, IDisposable
         Hub.RegisterHandler<CommentAddedEvent>(OnCommentAdded);
         Hub.RegisterHandler<CommentEditedEvent>(OnCommentEdited);
         Hub.RegisterHandler<CommentDeletedEvent>(OnCommentDeleted);
+        Hub.RegisterHandler<CardMovedEvent>(OnCardMoved);
 
         _cardState = Hub.GetNextState((Card!.Id, Card!.ProjectId));
 
@@ -79,6 +81,19 @@ public partial class CardDialog : ComponentBase, IDisposable
         Hub.UnregisterHandler<CommentAddedEvent>(OnCommentAdded);
         Hub.UnregisterHandler<CommentEditedEvent>(OnCommentEdited);
         Hub.UnregisterHandler<CommentDeletedEvent>(OnCommentDeleted);
+        Hub.UnregisterHandler<CardMovedEvent>(OnCardMoved);
+    }
+
+    private async Task OnCardMoved(object sender, CardMovedEvent e)
+    {
+        if (e.CardId != CardId)
+            return;
+
+        var newList = Lists.FirstOrDefault(x => x.Value == e.NewListId);
+        Card!.ListId = newList.Value;
+        Card.Lane.Title = newList.Key;
+        CardLaneTitle = newList.Key;
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task OnCommentEdited(object sender, CommentEditedEvent e)
@@ -129,6 +144,9 @@ public partial class CardDialog : ComponentBase, IDisposable
         var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId), _cardState, () => ProjectRepository.UpdateCardLite(Card!));
         if (!result.IsSuccess)
             await UiErrorService.HandleUiError(result.Error);
+
+        _isEditing = false;
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task CommentSubmit(string text)
@@ -158,5 +176,16 @@ public partial class CardDialog : ComponentBase, IDisposable
 
         if (!result.IsSuccess)
             await UiErrorService.HandleUiError(result.Error);
+    }
+
+    private void ToggleEdit()
+    {
+        _isEditing = !_isEditing;
+        StateHasChanged();
+    }
+
+    private async Task LaneChanged(string newLane)
+    {
+        await ProjectRepository.UpdateCardPosition(Card!.ProjectId, newLane, User!.Id, CardId, 0);
     }
 }

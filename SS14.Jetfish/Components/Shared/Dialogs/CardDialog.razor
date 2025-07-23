@@ -16,14 +16,61 @@
                 return;
             }
 
-            <MudText Typo="Typo.subtitle1" Class="mudtext-wawa-slugcats">In Lane <MudSelect @bind-Value="CardLaneTitle" FitContent="true">
-                @foreach (var slugcat in Lists)
-                {
-                    <MudSelectItem T="string" value="@slugcat.Key">@slugcat.Key</MudSelectItem>
-                }
-            </MudSelect></MudText>
+            <AuthorizeResource DisplayError="true" Policy="@(nameof(Permission.ProjectCardEdit))" Resource="Card.ProjectId">
+                <ChildContent>
+                    <MudText Typo="Typo.subtitle1" Class="mudtext-wawa-slugcats">In Lane <MudSelect T="string" ValueChanged="LaneChanged" Value="CardLaneTitle" FitContent="true">
+                        @foreach (var slugcat in Lists)
+                        {
+                            <MudSelectItem T="string" value="@slugcat.Key">@slugcat.Key</MudSelectItem>
+                        }
+                    </MudSelect></MudText>
+                </ChildContent>
+                <CustomError>
+                    <MudText Typo="Typo.subtitle1" Class="mudtext-wawa-slugcats">In Lane @CardLaneTitle</MudText>
+                </CustomError>
+            </AuthorizeResource>
 
-            <Comment ProjectId="Card.ProjectId" Date="@Card.CreatedAt" OnEditCallback="OnEditCardDescription" Text="@Card.Description" Author="Card.Author" />
+
+            <MudPaper Class="pa-4 ma-2" Elevation="0" Outlined="true">
+                <MudText Typo="Typo.h6">Description</MudText>
+                <MudText Typo="Typo.subtitle1">Created <LocalDate Date="@Card.CreatedAt"></LocalDate></MudText>
+                @if (_isEditing)
+                {
+                    <MarkdownEditor
+                        CancelText="Cancel"
+                        SubmitText="Save"
+                        OnCancelClick="ToggleEdit"
+                        OnSubmitClick="OnEditCardDescription"
+                        ParameterText="@Card.Description"/>
+                }
+                else
+                {
+                    <AuthorizeResource DisplayError="true" Policy="@(nameof(Permission.ProjectCardEdit))" Resource="Card.ProjectId">
+                        <ChildContent>
+                            <div @onclick="ToggleEdit" style="cursor: pointer;">
+                                @if (string.IsNullOrWhiteSpace(Card.Description))
+                                {
+                                <MarkdownText Text="*No description provided, click to edit.*"/>
+                                }
+                                else
+                                {
+                                <MarkdownText Text="@Card.Description"/>
+                                }
+                            </div>
+                        </ChildContent>
+                        <CustomError>
+                            @if (string.IsNullOrWhiteSpace(Card.Description))
+                            {
+                                <MarkdownText Text="*No description provided...*"/>
+                            }
+                            else
+                            {
+                                <MarkdownText Text="@Card.Description"/>
+                            }
+                        </CustomError>
+                    </AuthorizeResource>
+                }
+            </MudPaper>
             <MudDivider/>
             @if (Card.Comments.Count == 0)
             {
@@ -48,8 +95,6 @@
                     </MudTimelineItem>
                 }
             </MudTimeline>
-
-
 
             <AuthorizeResource DisplayError="true" Policy="@(nameof(Permission.ProjectCardComment))" Resource="@Card.ProjectId">
                 <ChildContent>
