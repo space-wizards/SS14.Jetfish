@@ -12,8 +12,8 @@ using SS14.Jetfish.Database;
 namespace SS14.Jetfish.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250428172005_WHYARETHESEINDEXESUNIQUE")]
-    partial class WHYARETHESEINDEXESUNIQUE
+    [Migration("20250723165524_InitalMigration")]
+    partial class InitalMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,6 +38,73 @@ namespace SS14.Jetfish.Migrations
                     b.HasIndex("TeamId");
 
                     b.ToTable("ProjectTeam");
+                });
+
+            modelBuilder.Entity("SS14.ConfigProvider.Model.ConfigurationStore", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Value")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("ConfigurationStore");
+                });
+
+            modelBuilder.Entity("SS14.Jetfish.FileHosting.Model.ConvertedFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Etag")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)");
+
+                    b.Property<string>("MimeType")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)");
+
+                    b.Property<string>("RelativePath")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("character varying(260)");
+
+                    b.Property<Guid>("UploadedFileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UploadedFileId");
+
+                    b.ToTable("ConvertedFile");
                 });
 
             modelBuilder.Entity("SS14.Jetfish.FileHosting.Model.FileUsage", b =>
@@ -102,7 +169,7 @@ namespace SS14.Jetfish.Migrations
                         .HasMaxLength(260)
                         .HasColumnType("character varying(260)");
 
-                    b.Property<Guid>("UploadedById")
+                    b.Property<Guid?>("UploadedById")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Version")
@@ -124,6 +191,73 @@ namespace SS14.Jetfish.Migrations
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(50000)
+                        .HasColumnType("Text");
+
+                    b.Property<int>("ListId")
+                        .HasColumnType("integer");
+
+                    b.Property<float>("Order")
+                        .HasColumnType("real");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ThumbnailId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("ProjectId", "ListId");
+
+                    b.ToTable("Card");
+                });
+
+            modelBuilder.Entity("SS14.Jetfish.Projects.Model.CardComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CardId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(50000)
+                        .HasColumnType("Text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("Version")
                         .HasColumnType("integer");
 
@@ -131,7 +265,9 @@ namespace SS14.Jetfish.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Card");
+                    b.HasIndex("CardId");
+
+                    b.ToTable("CardComment");
                 });
 
             modelBuilder.Entity("SS14.Jetfish.Projects.Model.Lane", b =>
@@ -139,15 +275,25 @@ namespace SS14.Jetfish.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("LaneId")
+                    b.Property<int>("ListId")
                         .HasColumnType("integer");
+
+                    b.Property<float>("Order")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
-                    b.HasKey("ProjectId", "LaneId");
+                    b.HasKey("ProjectId", "ListId");
 
-                    b.ToTable("Lane");
+                    b.ToTable("List");
                 });
 
             modelBuilder.Entity("SS14.Jetfish.Projects.Model.Project", b =>
@@ -295,6 +441,11 @@ namespace SS14.Jetfish.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
 
+                    b.Property<string>("ProfilePicture")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<int>("Version")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
@@ -316,6 +467,15 @@ namespace SS14.Jetfish.Migrations
                     b.HasOne("SS14.Jetfish.Security.Model.Team", null)
                         .WithMany()
                         .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SS14.Jetfish.FileHosting.Model.ConvertedFile", b =>
+                {
+                    b.HasOne("SS14.Jetfish.FileHosting.Model.UploadedFile", null)
+                        .WithMany()
+                        .HasForeignKey("UploadedFileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -345,9 +505,7 @@ namespace SS14.Jetfish.Migrations
                 {
                     b.HasOne("SS14.Jetfish.Security.Model.User", "UploadedBy")
                         .WithMany()
-                        .HasForeignKey("UploadedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UploadedById");
 
                     b.Navigation("UploadedBy");
                 });
@@ -360,13 +518,40 @@ namespace SS14.Jetfish.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SS14.Jetfish.Projects.Model.Lane", "Lane")
+                        .WithMany("Cards")
+                        .HasForeignKey("ProjectId", "ListId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Author");
+
+                    b.Navigation("Lane");
+                });
+
+            modelBuilder.Entity("SS14.Jetfish.Projects.Model.CardComment", b =>
+                {
+                    b.HasOne("SS14.Jetfish.Security.Model.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SS14.Jetfish.Projects.Model.Card", "Card")
+                        .WithMany("Comments")
+                        .HasForeignKey("CardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Card");
                 });
 
             modelBuilder.Entity("SS14.Jetfish.Projects.Model.Lane", b =>
                 {
                     b.HasOne("SS14.Jetfish.Projects.Model.Project", "Project")
-                        .WithMany()
+                        .WithMany("Lists")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -500,6 +685,21 @@ namespace SS14.Jetfish.Migrations
             modelBuilder.Entity("SS14.Jetfish.FileHosting.Model.UploadedFile", b =>
                 {
                     b.Navigation("Usages");
+                });
+
+            modelBuilder.Entity("SS14.Jetfish.Projects.Model.Card", b =>
+                {
+                    b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("SS14.Jetfish.Projects.Model.Lane", b =>
+                {
+                    b.Navigation("Cards");
+                });
+
+            modelBuilder.Entity("SS14.Jetfish.Projects.Model.Project", b =>
+                {
+                    b.Navigation("Lists");
                 });
 
             modelBuilder.Entity("SS14.Jetfish.Security.Model.Team", b =>
