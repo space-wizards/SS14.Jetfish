@@ -477,7 +477,7 @@ namespace SS14.Jetfish.Migrations
                 END;
                 $$ LANGUAGE plpgsql;
 
-                -- AccessPolicies, Role, Team, TeamMember, User, Project, Lane, Card, UploadedFile
+                -- AccessPolicies, Role, Team, TeamMember, User, Project, List, Card, UploadedFile
 
                 CREATE TRIGGER ""BeforeUpdateAccessPoliciesTrigger""
                     BEFORE UPDATE ON ""AccessPolicies""
@@ -509,8 +509,8 @@ namespace SS14.Jetfish.Migrations
                     FOR EACH ROW
                 EXECUTE FUNCTION fn_incremet_version();
 
-                CREATE TRIGGER ""BeforeUpdateLaneTrigger""
-                    BEFORE UPDATE ON ""Lane""
+                CREATE TRIGGER ""BeforeUpdateListTrigger""
+                    BEFORE UPDATE ON ""List""
                     FOR EACH ROW
                 EXECUTE FUNCTION fn_incremet_version();
 
@@ -542,7 +542,7 @@ namespace SS14.Jetfish.Migrations
 
                 DROP TRIGGER ""BeforeUpdateProjectTrigger"" ON ""Project"";
 
-                DROP TRIGGER ""BeforeUpdateLaneTrigger"" ON ""Lane"";
+                DROP TRIGGER ""BeforeUpdateListTrigger"" ON ""List"";
 
                 DROP TRIGGER ""BeforeUpdateCardTrigger"" ON ""Card"";
 
