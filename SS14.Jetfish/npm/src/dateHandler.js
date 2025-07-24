@@ -1,30 +1,25 @@
+import {ContentImageConfigure} from "./contentImage";
+
 export function init() {
     const config = { attributes: true, childList: true, subtree: true, attributeFilter: ["date", "date-full"] };
 
     const observer = new MutationObserver(mutation => {
         mutation.forEach((mutation) => {
-            if (mutation.type !== 'childList')
-                return;
-
             mutation.addedNodes.forEach(node => {
-                if (node instanceof Element) {
-                    let date = node.getAttribute("date");
+                if (!(node instanceof Element))
+                    return;
 
-                    if (date == null || date == "") {
-                        date = node.getAttribute("date-full");
-                        if (date == null || date == "")
-                            return;
+                ContentImageConfigure();
 
-                        let dateObj = new Date(date);
-                        node.innerHTML = dateObj.toLocaleString();
+                // Empty strings are falsy in javascript
+                let date = node.getAttribute("date") ?? node.getAttribute("data-date");
+                if (!date)
+                    return;
 
-                        return;
-                    }
+                let dateObj = new Date(date);
+                // TODO: Fancy date formatting (for example new comments should say "1 minute ago", "1 day ago" etc.)
+                node.innerHTML = dateObj.toLocaleDateString();
 
-                    let dateObj = new Date(date);
-                    // TODO: Fancy date formatting (for example new comments should say "1 minute ago", "1 day ago" etc.)
-                    node.innerHTML = dateObj.toLocaleDateString();
-                }
             })
         })
     })

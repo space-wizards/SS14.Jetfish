@@ -8,9 +8,12 @@
     Class="@Class"
     Style="@Style"
     Src="@GetUrl()"
+    data-activate-on-hover="@(ActivateOnHover ? "true" : "false")"
     data-active-url="@GetActiveUrl()"
-    onmouseover="window.contentImage.activate"
-    onmouseout="window.contentImage.deactivate"
+    data-inactive-url="@GetUrl()"
+    Alt="@Alt"
+    Height="@Height"
+    Width="@Width"
     Fluid="@Fluid">
 </MudImage>
 
@@ -39,6 +42,18 @@
 
     [Parameter]
     public bool Fluid { get; set; }
+
+    [Parameter]
+    public string? Alt { get; set; }
+
+    [Parameter]
+    public int? Height { get; set; }
+
+    [Parameter]
+    public int? Width { get; set; }
+
+    [Parameter]
+    public bool ActivateOnHover { get; set; } = true;
 
     private string? _mimeType;
 

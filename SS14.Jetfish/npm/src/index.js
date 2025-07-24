@@ -11,11 +11,9 @@ window.cmInterop = {
 };
 
 window.contentImage = {
-    activate: ci.ContentImageActivate,
-    deactivate: ci.ContentImageDeactivate,
+    configure: ci.ContentImageConfigure,
 }
 
 dh.init();
-ci.init();
 
 console.log("Made with love <3, go play Space Station 14!")
