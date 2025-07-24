@@ -42,7 +42,7 @@ public static class PermissionClaimParserExtension
     private static string ClaimName(bool global, Guid? resourceId)
     {
         if (!resourceId.HasValue)
-            return AnyClaimKey;
+            return global ? GlobalClaimKey : AnyClaimKey;
 
         return global
             ? GlobalClaimKey
