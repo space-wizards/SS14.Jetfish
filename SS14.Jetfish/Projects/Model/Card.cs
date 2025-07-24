@@ -45,7 +45,6 @@ public sealed class Card : IEntityTypeConfiguration<Card>, IRecord<Guid>
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public void Configure(EntityTypeBuilder<Card> builder)
