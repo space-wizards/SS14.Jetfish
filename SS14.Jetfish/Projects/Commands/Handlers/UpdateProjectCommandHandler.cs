@@ -3,6 +3,7 @@ using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.FileHosting.Services;
+using SS14.Jetfish.Projects.Hubs;
 using SS14.Jetfish.Projects.Model;
 
 namespace SS14.Jetfish.Projects.Commands.Handlers;
@@ -11,11 +12,13 @@ public class UpdateProjectCommandHandler : BaseCommandHandler<UpdateProjectComma
 {
     private readonly ApplicationDbContext _context;
     private readonly FileService _fileService;
+    private readonly ProjectHub _projectHub;
 
-    public UpdateProjectCommandHandler(ApplicationDbContext context, FileService fileService)
+    public UpdateProjectCommandHandler(ApplicationDbContext context, FileService fileService, ProjectHub hub)
     {
         _context = context;
         _fileService = fileService;
+        _projectHub = hub;
     }
 
     public override string CommandName => nameof(UpdateProjectCommand);
@@ -24,7 +27,7 @@ public class UpdateProjectCommandHandler : BaseCommandHandler<UpdateProjectComma
         // Clear tracked entities to prevent errors in case ef already tracked the project about to be updated
         _context.ChangeTracker.Clear();
         await using var transaction = await _context.Database.BeginTransactionAsync();
-        
+
         var project = await _context.Project.SingleOrDefaultAsync(project => project.Id == command.ProjectId);
         if (project == null)
         {
@@ -32,10 +35,10 @@ public class UpdateProjectCommandHandler : BaseCommandHandler<UpdateProjectComma
             await transaction.RollbackAsync();
             return command;
         }
-        
+
         project.Name = command.Model.Name;
         project.BackgroundSpecifier = command.Model.BackgroundSpecifier;
-        
+
         if (project.BackgroundSpecifier == ProjectBackgroundSpecifier.Image
             && (command.Model.BackgroundFile != null || command.Model.BackgroundSpecifier == ProjectBackgroundSpecifier.Color)
             && Guid.TryParse(project.Background, out var backgroundId))
@@ -57,11 +60,12 @@ public class UpdateProjectCommandHandler : BaseCommandHandler<UpdateProjectComma
 
         if (command.Model.BackgroundSpecifier == ProjectBackgroundSpecifier.Color)
             project.Background = command.Model.BackgroundColor ?? "#000000";
-        
+
         command.Model.Team.Projects.Add(project);
         await _context.SaveChangesAsync();
         command.Result = Result<Project, Exception>.Success(project);
         await transaction.CommitAsync();
+        await _projectHub.PublishAsync(project.Id, new ProjectUpdatedEvent());
         return command;
     }
 }

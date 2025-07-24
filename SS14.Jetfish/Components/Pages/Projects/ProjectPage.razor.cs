@@ -8,6 +8,7 @@ using SS14.Jetfish.Components.Shared.Dialogs;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Projects.Hubs;
 using SS14.Jetfish.Projects.Model;
+using SS14.Jetfish.Projects.Model.FormModel;
 using SS14.Jetfish.Projects.Repositories;
 
 namespace SS14.Jetfish.Components.Pages.Projects;
@@ -56,6 +57,7 @@ public partial class ProjectPage : ComponentBase, IDisposable
         Hub.RegisterHandler<LaneRemovedEvent>(OnLaneRemoved);
         Hub.RegisterHandler<LaneUpdatedEvent>(OnLaneUpdated);
         Hub.RegisterHandler<CardUpdatedEvent>(OnCardUpdated);
+        Hub.RegisterHandler<ProjectUpdatedEvent>(OnProjectUpdated);
     }
 
     public void Dispose()
@@ -66,6 +68,15 @@ public partial class ProjectPage : ComponentBase, IDisposable
         Hub.UnregisterHandler<LaneRemovedEvent>(OnLaneRemoved);
         Hub.UnregisterHandler<LaneUpdatedEvent>(OnLaneUpdated);
         Hub.UnregisterHandler<CardUpdatedEvent>(OnCardUpdated);
+        Hub.UnregisterHandler<ProjectUpdatedEvent>(OnProjectUpdated);
+    }
+
+    private async Task OnProjectUpdated(object sender, ProjectUpdatedEvent e)
+    {
+        if (!await CheckState(e, sender))
+            return;
+
+        await InvokeAsync(Refresh);
     }
 
     private async Task OnCardUpdated(object sender, CardUpdatedEvent e)
@@ -405,5 +416,42 @@ public partial class ProjectPage : ComponentBase, IDisposable
             Description = card.Description;
             Id = card.Id;
         }
+    }
+
+    private async Task OpenEditDialog()
+    {
+        var team = Context.Team
+            .Include(x => x.Projects)
+            .First(x => x.Projects.Any(y => y.Id == ProjectId));
+
+        var model = new ProjectFormModel()
+        {
+            UserId = User!.Id,
+            Team = team,
+            Name = Project!.Name,
+            BackgroundSpecifier = Project!.BackgroundSpecifier
+        };
+
+        if (Project!.BackgroundSpecifier == ProjectBackgroundSpecifier.Color)
+            model.BackgroundColor = Project!.Background;
+
+        var parameter = new DialogParameters<EditProjectDialog>()
+        {
+            { x => x.Model, model },
+            { x => x.ProjectId, Project!.Id }
+        };
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+        };
+
+        var dialogResult = await DialogService.ShowAsync<EditProjectDialog>("Edit Project", parameter, options);
+        var result = await dialogResult.Result;
+
+        if (result == null || result.Canceled || result.Data is not ProjectFormModel modelResult)
+            return;
+
+        StateHasChanged();
     }
 }

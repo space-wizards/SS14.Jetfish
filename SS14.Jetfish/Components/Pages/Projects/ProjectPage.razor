@@ -28,7 +28,7 @@
             <MudStack AlignItems="AlignItems.Start" Row="true" Class="project-header">
                 <MudText Typo="Typo.h4">@Project.Name</MudText>
                 <AuthorizeResource ResourceName="project" Policy="@(nameof(Permission.ProjectEdit))" Resource="@ProjectId" DisplayError="false">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="OpenEditDialog"/>
                 </AuthorizeResource>
             </MudStack>
         </MudContainer>

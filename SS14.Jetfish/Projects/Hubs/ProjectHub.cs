@@ -171,6 +171,11 @@ public class CardMovedEvent : ProjectEvent
     public required Dictionary<Guid, float> Orders { get; set; }
 }
 
+/// <summary>
+/// Basically means we updated background, name or anything else and we need to refresh the state.
+/// </summary>
+public class ProjectUpdatedEvent : ProjectEvent;
+
 public class LaneCreatedEvent : ProjectEvent
 {
     public required string Title { get; init; }
