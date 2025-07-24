@@ -48,11 +48,16 @@ public class PermissionsMiddleware : IMiddleware
         var permissions = await _repository.GetIdentityPermissions(userId.Value, roles);
         var claims = new Dictionary<string, string>();
         var anyPermissions = new HashSet<Permission>();
+        var globalPermissions = new HashSet<Permission>();
 
         foreach (var permission in permissions)
         {
             foreach (var permissionValue in permission.Permissions)
                 anyPermissions.Add(permissionValue);
+
+            if (permission.Global)
+                foreach (var permissionValue in permission.Permissions)
+                    globalPermissions.Add(permissionValue);
 
             if (!permission.ResourceId.HasValue)
                 continue;
@@ -73,6 +78,10 @@ public class PermissionsMiddleware : IMiddleware
         var anyValue = new StringBuilder();
         PermissionClaimParserExtension.AppendPermissions(anyPermissions, anyValue);
         claims.Add(PermissionClaimParserExtension.AnyClaimKey, anyValue.ToString());
+
+        var globalValue = new StringBuilder();
+        PermissionClaimParserExtension.AppendPermissions(globalPermissions, globalValue);
+        claims.Add(PermissionClaimParserExtension.GlobalClaimKey, globalValue.ToString());
 
         var identity = new ClaimsIdentity(nameof(PermissionsMiddleware), "name", "role");
         identity.AddClaims(claims.Select(c => new Claim(c.Key, c.Value)));
