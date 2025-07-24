@@ -170,6 +170,8 @@ namespace SS14.Jetfish.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -256,6 +258,8 @@ namespace SS14.Jetfish.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("integer");
 
                     b.HasKey("Id");

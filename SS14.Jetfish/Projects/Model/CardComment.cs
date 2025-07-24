@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SS14.Jetfish.Core.Extensions;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Security.Model;
 
@@ -31,6 +32,7 @@ public sealed class CardComment : IEntityTypeConfiguration<CardComment>, IRecord
 
     public void Configure(EntityTypeBuilder<CardComment> builder)
     {
+        builder.ConfigureRowVersionGuid();
         builder.Property(c => c.Content)
             .IsRequired()
             .HasMaxLength(MaxCommentContentLength);

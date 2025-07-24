@@ -18,7 +18,7 @@ namespace SS14.Jetfish.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
+                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false, defaultValue: 0),
                     Permissions = table.Column<short[]>(type: "smallint[]", nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     TeamAssignable = table.Column<bool>(type: "boolean", nullable: false)
@@ -48,7 +48,7 @@ namespace SS14.Jetfish.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
+                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false, defaultValue: 0),
                     Name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     BackgroundSpecifier = table.Column<int>(type: "integer", nullable: false),
                     Background = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false)
@@ -63,7 +63,7 @@ namespace SS14.Jetfish.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
+                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false, defaultValue: 0),
                     Name = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false)
                 },
                 constraints: table =>
@@ -76,7 +76,7 @@ namespace SS14.Jetfish.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
+                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false, defaultValue: 0),
                     DisplayName = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
                     ProfilePicture = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
                 },
@@ -91,7 +91,7 @@ namespace SS14.Jetfish.Migrations
                 {
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
                     ListId = table.Column<int>(type: "integer", nullable: false),
-                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
+                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false, defaultValue: 0),
                     Title = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Order = table.Column<float>(type: "real", nullable: false)
                 },
@@ -135,7 +135,7 @@ namespace SS14.Jetfish.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
+                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false, defaultValue: 0),
                     IdpName = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: true),
                     DisplayName = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
                     TeamId = table.Column<Guid>(type: "uuid", nullable: true)
@@ -155,7 +155,7 @@ namespace SS14.Jetfish.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Version = table.Column<int>(type: "integer", nullable: false),
+                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false, defaultValue: 0),
                     RelativePath = table.Column<string>(type: "character varying(260)", maxLength: 260, nullable: false),
                     MimeType = table.Column<string>(type: "character varying(180)", maxLength: 180, nullable: false),
                     Etag = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
@@ -207,7 +207,7 @@ namespace SS14.Jetfish.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false),
+                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false, defaultValue: 0),
                     AuthorId = table.Column<Guid>(type: "uuid", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
                     ListId = table.Column<int>(type: "integer", nullable: false),
@@ -270,7 +270,7 @@ namespace SS14.Jetfish.Migrations
                 {
                     TeamId = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Version = table.Column<int>(type: "integer", nullable: false),
+                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false, defaultValue: 0),
                     RoleId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
@@ -301,7 +301,7 @@ namespace SS14.Jetfish.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Version = table.Column<int>(type: "integer", nullable: false),
+                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false, defaultValue: 0),
                     UploadedFileId = table.Column<Guid>(type: "uuid", nullable: false),
                     Label = table.Column<string>(type: "character varying(260)", maxLength: 260, nullable: false),
                     RelativePath = table.Column<string>(type: "character varying(260)", maxLength: 260, nullable: false),
@@ -324,7 +324,7 @@ namespace SS14.Jetfish.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Version = table.Column<int>(type: "integer", nullable: false),
+                    Version = table.Column<int>(type: "integer", rowVersion: true, nullable: false, defaultValue: 0),
                     CardId = table.Column<Guid>(type: "uuid", nullable: false),
                     AuthorId = table.Column<Guid>(type: "uuid", nullable: false),
                     Content = table.Column<string>(type: "Text", maxLength: 50000, nullable: false),

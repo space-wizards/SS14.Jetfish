@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SS14.Jetfish.Core.Extensions;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security;
@@ -38,6 +39,8 @@ public sealed class UploadedFile : IEntityTypeConfiguration<UploadedFile>, IReso
 
     public void Configure(EntityTypeBuilder<UploadedFile> builder)
     {
+        builder.ConfigureRowVersionGuid();
+
         builder.HasMany(file => file.Usages)
             .WithOne()
             .HasForeignKey(usage => usage.UploadedFileId);

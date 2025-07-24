@@ -27,6 +27,7 @@ public class ConvertedFile  : IEntityTypeConfiguration<ConvertedFile>, IRecord<G
 
     public void Configure(EntityTypeBuilder<ConvertedFile> builder)
     {
+        //The row version on this entity isn't used
         builder.HasOne<UploadedFile>()
             .WithMany()
             .HasForeignKey(x => x.UploadedFileId);
