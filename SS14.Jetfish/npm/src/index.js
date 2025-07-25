@@ -1,6 +1,6 @@
 ﻿import * as cm from './codemirrorInterop.js';
-import * as dh from './dateHandler';
 import * as ci from './contentImage';
+import * as mutationObserver from './mutationObserver';
 
 window.cmInterop = {
     initialize: cm.initializeEditor,
@@ -12,8 +12,10 @@ window.cmInterop = {
 
 window.contentImage = {
     configure: ci.ContentImageConfigure,
+    activate: ci.ContentImageActivate,
+    deactivate: ci.ContentImageDeactivate,
 }
 
-dh.init();
+mutationObserver.init();
 
 console.log("Made with love <3, go play Space Station 14!")
