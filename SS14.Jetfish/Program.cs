@@ -19,6 +19,7 @@ using SS14.Jetfish.Projects;
 using SS14.Jetfish.Projects.Repositories;
 using SS14.Jetfish.Security;
 using SS14.Jetfish.Security.Model;
+using SS14.Jetfish.UserSettings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,6 +92,9 @@ builder.AddStartupCheck();
 
 builder.Services.AddScoped<UiErrorService>();
 builder.Services.AddScoped<ConfigurationStoreService>();
+builder.Services.AddScoped<UserSettingsService>();
+
+UserSettingsService.DiscoverSettings(typeof(User));
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

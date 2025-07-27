@@ -1,6 +1,7 @@
 ﻿@using SS14.Jetfish.Helpers
 @using SS14.Jetfish.Security.Repositories
 @using SS14.Jetfish.Components.Pages.User
+@using SS14.Jetfish.UserSettings
 @inherits LayoutComponentBase
 
 @* Required *@
@@ -65,6 +66,9 @@
     [Inject]
     private UserRepository UserRepository { get; set; } = null!;
 
+    [Inject]
+    private UserSettingsService UserSettingsService { get; set; } = null!;
+
     protected override async Task OnParametersSetAsync()
     {
         if (AuthenticationState == null || User != null)
@@ -76,5 +80,13 @@
             throw new InvalidOperationException("UserId is null");
 
         User = await UserRepository.GetAsync(userId.Value);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        await UserSettingsService.FillSettings(User!.Id);
     }
 }

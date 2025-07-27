@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
-using SS14.ConfigProvider.Model;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.FileHosting;

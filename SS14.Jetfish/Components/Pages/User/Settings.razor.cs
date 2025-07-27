@@ -1,8 +1,11 @@
-﻿using JetBrains.Annotations;
+﻿using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
 using MudBlazor;
 using SS14.Jetfish.Components.Pages.User.Dialogs;
+using SS14.Jetfish.UserSettings;
 
 namespace SS14.Jetfish.Components.Pages.User;
 
@@ -17,6 +20,9 @@ public partial class Settings : ComponentBase
 
     [Inject]
     private NavigationManager NavigationManager { get; set; } = null!;
+
+    [Inject]
+    private UserSettingsService UserSettingsService { get; set; } = null!;
 
     private async Task EditProfilePicture()
     {
@@ -45,5 +51,10 @@ public partial class Settings : ComponentBase
             yesText:"OK");
 
         NavigationManager.Refresh(true);
+    }
+
+    private async Task SetSetting((PropertyInfo property, string name) setting, object value)
+    {
+        await UserSettingsService.SetSetting(setting, User!.Id, value);
     }
 }

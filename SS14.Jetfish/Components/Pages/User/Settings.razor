@@ -1,10 +1,11 @@
 ﻿@page "/user/settings"
+@using SS14.Jetfish.UserSettings
 
 <PageTitle>User Settings</PageTitle>
 <SectionContent SectionName="page-title">User Settings</SectionContent>
 
 <!-- Main vertical stack-->
-<MudStack AlignItems="AlignItems.Center">
+<MudStack AlignItems="AlignItems.Stretch">
     <MudStack Row="true">
         <MudPaper Class="pa-4 mr-6" MinWidth="600px" MaxWidth="600px">
             <UserAvatar Size="Size.Large"/>
@@ -21,4 +22,28 @@
             </MudStack>
         </MudPaper>
     </MudStack>
+
+    <MudPaper Class="pa-4">
+        @foreach (var (cat, settings) in UserSettingsService.ReflectedSettings)
+        {
+            <MudText Typo="Typo.h4">@cat</MudText>
+            @foreach (var setting in settings)
+            {
+                if (User == null)
+                    continue;
+
+                var value = setting.property.GetValue(User)!;
+
+                switch (setting.property.PropertyType)
+                {
+                    case var t when t == typeof(bool):
+                        <MudSwitch T="bool" Label="@setting.name" Value="@((bool)value)" ValueChanged="b => SetSetting(setting, b)"/>
+                        break;
+
+                    default:
+                        throw new InvalidOperationException($"Property {setting.property.Name} of type {setting.property.PropertyType} does not have a UI element.");
+                }
+            }
+        }
+    </MudPaper>
 </MudStack>
