@@ -98,7 +98,11 @@ UserSettingsService.DiscoverSettings(typeof(User));
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents()
+    .AddHubOptions(o =>
+    {
+        o.MaximumReceiveMessageSize = null;
+    });
 
 builder.Services.AddMudServices();
 builder.Services.AddMudMarkdownServices();
