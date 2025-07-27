@@ -1,10 +1,10 @@
 ﻿@page "/"
+@attribute [Authorize]
 
 @using SS14.Jetfish.Components.Shared.ProjectCards
 
 <PageTitle>Jetfish</PageTitle>
 <SectionContent SectionName="page-title">Jetfish</SectionContent>
-
 
 @if (_teams.Count == 0)
 {

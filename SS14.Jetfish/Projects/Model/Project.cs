@@ -34,6 +34,8 @@ public sealed partial class Project : IEntityTypeConfiguration<Project>, IResour
 
     // TODO: Implement properties
 
+    public bool Public { get; set; } = false;
+
     public void Configure(EntityTypeBuilder<Project> builder)
     {
         builder.ConfigureRowVersionGuid();

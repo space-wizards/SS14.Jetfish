@@ -24,4 +24,7 @@ public class ProjectFormModel
 
     [Required]
     public Guid UserId { get; set; }
+
+    [Required]
+    public bool Public { get; set; }
 }

@@ -314,6 +314,9 @@ namespace SS14.Jetfish.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<bool>("Public")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("Version")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()

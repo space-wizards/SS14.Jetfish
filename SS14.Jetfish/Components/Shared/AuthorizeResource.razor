@@ -1,3 +1,9 @@
+@if (Override)
+{
+    @ChildContent
+    return;
+}
+
 <AuthorizeView Resource="@Resource" Policy="@Policy">
     <Authorized>
         @ChildContent
@@ -40,4 +46,10 @@
 
     [Parameter]
     public bool DisplayError { get; set; }
+
+    /// <summary>
+    /// If set, will not perform any checks and will just assume you have access.
+    /// </summary>
+    [Parameter]
+    public bool Override { get; set; } = false;
 }

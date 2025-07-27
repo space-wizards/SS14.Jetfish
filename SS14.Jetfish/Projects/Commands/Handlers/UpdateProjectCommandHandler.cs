@@ -38,6 +38,7 @@ public class UpdateProjectCommandHandler : BaseCommandHandler<UpdateProjectComma
 
         project.Name = command.Model.Name;
         project.BackgroundSpecifier = command.Model.BackgroundSpecifier;
+        project.Public = command.Model.Public;
 
         if (project.BackgroundSpecifier == ProjectBackgroundSpecifier.Image
             && (command.Model.BackgroundFile != null || command.Model.BackgroundSpecifier == ProjectBackgroundSpecifier.Color)

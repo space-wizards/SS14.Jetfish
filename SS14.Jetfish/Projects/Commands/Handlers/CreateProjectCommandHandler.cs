@@ -28,7 +28,8 @@ public class CreateProjectCommandHandler : BaseCommandHandler<CreateProjectComma
         {
             Name = command.Model.Name,
             BackgroundSpecifier = ProjectBackgroundSpecifier.Color,
-            Background = command.Model.BackgroundColor ?? "#000000"
+            Background = command.Model.BackgroundColor ?? "#000000",
+            Public = command.Model.Public,
         };
 
         var projectResult = await _context.Project.AddAsync(project);

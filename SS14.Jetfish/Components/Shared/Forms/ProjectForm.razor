@@ -9,6 +9,7 @@
         RequiredError="Project Name is required."
         MaxLength="@Project.ProjectNameMaxLength"
         For="() => _model.Name"/>
+    <MudSwitch Label="Public Project" T="bool" @bind-Value="_model.Public"/>
     <MudText Class="mt-4" Typo="Typo.subtitle1">Background</MudText>
     <MudTabs Centered ApplyEffectsToContainer="true" HideSlider MinimumTabWidth="160px" PanelClass="pa-6" @bind-ActivePanelIndex="BackgroundType">
         <MudTabPanel Text="Color">

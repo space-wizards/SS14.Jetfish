@@ -23,15 +23,22 @@
                 <SectionOutlet SectionName="page-title"/>
             </MudText>
             <MudSpacer/>
-            <MudMenu>
-                <ActivatorContent>
-                    <UserAvatar/>
-                </ActivatorContent>
-                <ChildContent>
-                    <MudMenuItem Label="Settings" Href="/user/settings"/>
-                    <MudMenuItem Label="Logout" Href="/logout"/>
-                </ChildContent>
-            </MudMenu>
+            @if (User == null)
+            {
+                <MudButton Href="/login">Login</MudButton>
+            }
+            else
+            {
+                <MudMenu>
+                    <ActivatorContent>
+                        <UserAvatar/>
+                    </ActivatorContent>
+                    <ChildContent>
+                        <MudMenuItem Label="Settings" Href="/user/settings"/>
+                        <MudMenuItem Label="Logout" Href="/logout"/>
+                    </ChildContent>
+                </MudMenu>
+            }
         </MudAppBar>
         <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
             <NavigationMenu/>
@@ -77,7 +84,7 @@
         await AuthenticationState;
         var userId = AuthenticationState.Result.User.Claims.GetUserId();
         if (!userId.HasValue)
-            throw new InvalidOperationException("UserId is null");
+            return;
 
         User = await UserRepository.GetAsync(userId.Value);
     }
@@ -87,6 +94,7 @@
         if (!firstRender)
             return;
 
-        await UserSettingsService.FillSettings(User!.Id);
+        if (User != null)
+            await UserSettingsService.FillSettings(User.Id);
     }
 }

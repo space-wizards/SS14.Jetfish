@@ -222,8 +222,13 @@ public sealed class FileService
         if (file == null)
             return Results.NotFound();
 
+        var isPublicProject = await _dbContext.Project
+            .Where(p => p.Id == projectId)
+            .Select(p => p.Public)
+            .FirstOrDefaultAsync();
+
         var authorizationResult = await _authorizationService.AuthorizeAsync(principal, projectId, nameof(Permission.ProjectRead));
-        if (!authorizationResult.Succeeded)
+        if (!authorizationResult.Succeeded && !isPublicProject)
             return Results.Unauthorized();
 
         return await InternalGetFileResult(file, label);
