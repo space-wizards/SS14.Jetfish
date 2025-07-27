@@ -1,5 +1,6 @@
 ﻿@using SS14.Jetfish.Components.Shared.Markdown
 @using SS14.Jetfish.Components.Pages.User
+@using SS14.Jetfish.Projects.Model
 
 <div style="display:contents;">
     <MudDialog Style="height: 78vh; width: 100%">
@@ -41,6 +42,7 @@
                         SubmitText="Save"
                         OnCancelClick="ToggleEdit"
                         OnSubmitClick="OnEditCardDescription"
+                        MaxLength="Card.CardDescriptionMaxLength"
                         ParameterText="@Card.Description"/>
                 }
                 else
@@ -104,7 +106,12 @@
                             <MudText>Add a comment</MudText>
                             <UserAvatar Size="Size.Medium"/>
                         </MudStack>
-                        <MarkdownEditor SpinnerOnSubmit="true" @ref="CommentEditor" OnSubmitClick="CommentSubmit"/>
+                        <MarkdownEditor
+                            SpinnerOnSubmit="true"
+                            @ref="CommentEditor"
+                            OnSubmitClick="CommentSubmit"
+                            MaxLength="CardComment.MaxCommentContentLength"
+                            />
                     </MudPaper>
                 </ChildContent>
                 <CustomError>

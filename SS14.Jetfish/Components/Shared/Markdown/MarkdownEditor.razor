@@ -27,10 +27,14 @@
         <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled" Class="mt-4">
             @if (CancelText != null)
             {
-                <MudButton OnClick="@(() => ButtonClicked(OnCancelClick, false))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">@CancelText</MudButton>
+                <MudButton OnClick="@(() => ButtonClicked(OnCancelClick, false, false))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">@CancelText</MudButton>
             }
-            <MudButton OnClick="@(() => ButtonClicked(OnSubmitClick, true))" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Save" Color="Color.Primary">@SubmitText</MudButton>
+            <MudButton OnClick="@(() => ButtonClicked(OnSubmitClick, true, true))" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Save" Color="Color.Primary">@SubmitText</MudButton>
         </MudButtonGroup>
+        @if (!string.IsNullOrEmpty(Error))
+        {
+            <MudText Color="Color.Error">@Error</MudText>
+        }
         <MudOverlay ZIndex="9999" Visible="_isLoading" DarkBackground="true" Absolute="true">
             <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Class="loading-spinner"/>
         </MudOverlay>

@@ -1,4 +1,5 @@
 @using SS14.Jetfish.Components.Pages.User
+@using SS14.Jetfish.Projects.Model
 @inherits MudComponentBase
 
 <MudPaper Class="pa-4 ma-2" Elevation="0" Style="@Style" Outlined="true">
@@ -41,6 +42,7 @@
             SubmitText="Save"
             OnCancelClick="ExitCallback"
             OnSubmitClick="SaveCallback"
+            MaxLength="CardComment.MaxCommentContentLength"
             ParameterText="@Text"/>
     }
     else

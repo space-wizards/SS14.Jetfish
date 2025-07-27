@@ -32,6 +32,23 @@ public partial class MarkdownEditor : MudComponentBase, IAsyncDisposable
     [Parameter]
     public bool SpinnerOnSubmit { get; set; } = false;
 
+    /// <summary>
+    /// If you are allowed to submit empty text.
+    /// </summary>
+    [Parameter]
+    public bool AllowEmpty { get; set; }
+
+    /// <summary>
+    /// The maximum length allowed in this input. Set to 0 to disable.
+    /// </summary>
+    /// <remarks>
+    /// Too high of values will cause SignalR to have a stroke as the text exceeds the maximum packet size.
+    /// </remarks>
+    [Parameter]
+    public int MaxLength { get; set; } = 0;
+
+    public string Error { get; set; } = string.Empty;
+
     public MarkdownEditorInterop Editor { get; set; } = null!;
 
     private bool _isLoading = false;
@@ -73,7 +90,7 @@ public partial class MarkdownEditor : MudComponentBase, IAsyncDisposable
         }
     }
 
-    private async Task ButtonClicked(EventCallback<string> callback, bool showSpinner)
+    private async Task ButtonClicked(EventCallback<string> callback, bool showSpinner, bool checkError)
     {
         if (showSpinner && SpinnerOnSubmit)
         {
@@ -82,6 +99,28 @@ public partial class MarkdownEditor : MudComponentBase, IAsyncDisposable
         }
 
         await FetchText();
+
+        if (checkError)
+        {
+            Error = string.Empty;
+
+            if (MaxLength != 0 && Text.Length > MaxLength)
+            {
+                Error = $"Text exceeds maximum length {MaxLength}";
+            }
+
+            if (Text.Length == 0)
+            {
+                Error = "Cannot submit empty text";
+            }
+
+            if (!string.IsNullOrEmpty(Error))
+            {
+                _isLoading = false;
+                return;
+            }
+        }
+
         await callback.InvokeAsync(Text);
     }
 
