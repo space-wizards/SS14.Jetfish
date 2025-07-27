@@ -6,6 +6,12 @@
 <PageTitle>Jetfish</PageTitle>
 <SectionContent SectionName="page-title">Jetfish</SectionContent>
 
+@if (_isLoading)
+{
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Class="loading-spinner"/>
+    return;
+}
+
 @if (_teams.Count == 0)
 {
     <MudAlert Severity="Severity.Warning">You are not part of any team.</MudAlert>

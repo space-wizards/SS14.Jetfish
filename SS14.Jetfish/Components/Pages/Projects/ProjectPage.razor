@@ -3,6 +3,12 @@
 @using SS14.Jetfish.Projects.Model
 @attribute [AllowAnonymous]
 
+@if (_isLoading)
+{
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Class="loading-spinner"/>
+    return;
+}
+
 @if(Project == null)
 {
     <p>Project not found</p>

@@ -27,6 +27,8 @@ public partial class Home : ComponentBase
     private ICollection<Team> _teams = [];
     private ICollection<Project> _projects = [];
 
+    private bool _isLoading = true;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
@@ -45,5 +47,6 @@ public partial class Home : ComponentBase
 
         _teams = await TeamRepository.ListByMembership(User.Id, true);
         _projects = await ProjectRepository.ListByPolicy(auth.User, Permission.ProjectRead);
+        _isLoading = false;
     }
 }

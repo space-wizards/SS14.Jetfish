@@ -49,6 +49,7 @@ public partial class ProjectPage : ComponentBase, IDisposable
     private readonly KanBanNewForm _newSectionModel = new KanBanNewForm();
 
     private Guid _nextState = Guid.Empty;
+    private bool _isLoading = true;
 
     private void SetupSignalR()
     {
@@ -239,6 +240,7 @@ public partial class ProjectPage : ComponentBase, IDisposable
         }
 
         _nextState = Hub.GetNextState(ProjectId);
+        _isLoading = false;
         Logger.LogInformation("Received next state: {state}", _nextState);
 
         RefreshContainer();
