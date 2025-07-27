@@ -77,7 +77,8 @@ public partial class MarkdownEditor : MudComponentBase, IAsyncDisposable
     private async Task FetchText()
     {
         var text = await Editor.GetText();
-        Text = text ?? string.Empty;
+        if (text != null)
+            Text = text;
     }
 
     private async Task OnPreviewInteraction(TabInteractionEventArgs arg)
