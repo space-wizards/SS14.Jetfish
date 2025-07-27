@@ -3,11 +3,12 @@ import {getSetting, SettingAlwaysPlayAnimatedMedia} from "./settings";
 let shouldAlwaysPlay = false;
 
 export function init() {
-    shouldAlwaysPlay = getSetting("SettingAlwaysPlayAnimatedMedia");
+    shouldAlwaysPlay = getSetting(SettingAlwaysPlayAnimatedMedia, false);
 
     window.addEventListener("settingchange", (event) => {
         if (event.name !== SettingAlwaysPlayAnimatedMedia)
             return;
+        shouldAlwaysPlay = getSetting(SettingAlwaysPlayAnimatedMedia, false);
 
         const contentImages = document.querySelectorAll('[data-activate-on-hover=true]');
 
@@ -21,7 +22,7 @@ export function init() {
 
 export function ContentImageConfigure()
 {
-    shouldAlwaysPlay = getSetting("SettingAlwaysPlayAnimatedMedia", false);
+    shouldAlwaysPlay = getSetting(SettingAlwaysPlayAnimatedMedia, false);
 
     const contentImages = document.querySelectorAll('[data-activate-on-hover=true]');
     for (const contentImage of contentImages)
