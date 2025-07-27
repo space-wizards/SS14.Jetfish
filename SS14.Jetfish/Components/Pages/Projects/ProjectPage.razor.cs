@@ -1,6 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
@@ -10,6 +13,7 @@ using SS14.Jetfish.Projects.Hubs;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Projects.Model.FormModel;
 using SS14.Jetfish.Projects.Repositories;
+using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Components.Pages.Projects;
 
@@ -195,6 +199,14 @@ public partial class ProjectPage : ComponentBase, IDisposable
     }
 
 
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    [Inject]
+    private IAuthorizationService AuthorizationService { get; set; } = null!;
+
+    public bool CanPlayTetrisWithCards = false;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
@@ -202,6 +214,13 @@ public partial class ProjectPage : ComponentBase, IDisposable
 
         await Refresh();
         SetupSignalR();
+
+        if (AuthenticationState != null)
+        {
+            await AuthenticationState;
+            var authorizationResult = await AuthorizationService.AuthorizeAsync(AuthenticationState.Result.User, ProjectId, nameof(Permission.ProjectCardEdit));
+            CanPlayTetrisWithCards = authorizationResult.Succeeded;
+        }
     }
 
     private async Task Refresh()
@@ -455,5 +474,10 @@ public partial class ProjectPage : ComponentBase, IDisposable
             return;
 
         StateHasChanged();
+    }
+
+    private bool CheckCanDragAndDrop(TaskItem arg)
+    {
+        return CanPlayTetrisWithCards;
     }
 }

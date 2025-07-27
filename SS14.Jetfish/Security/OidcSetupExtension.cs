@@ -70,9 +70,9 @@ public static class OidcSetupExtension
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Results.Redirect(returnUrl ?? context.Request.PathBase.Add("/"));
         });
-        
+
         app.MapGet("/chicken", () => """
-                                     
+
                                               __//
                                      Chicken /.__.\
                                              \ \/ /

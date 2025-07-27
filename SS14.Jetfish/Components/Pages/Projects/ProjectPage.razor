@@ -74,7 +74,7 @@
                                 <MudButton OnClick="@(() => item.NewTaskOpen = !item.NewTaskOpen)" StartIcon="@Icons.Material.Filled.Add" FullWidth="true" Class="rounded-lg py-2">Add task</MudButton>
                             }
                         </AuthorizeResource>
-                        <MudDropZone T="TaskItem" Identifier="@item.BackingLane.Title" Style="min-height: 10px" AllowReorder="true" Class="mud-height-full" />
+                        <MudDropZone CanDrop="CheckCanDragAndDrop" T="TaskItem" Identifier="@item.BackingLane.Title" Style="min-height: 10px" AllowReorder="true" Class="mud-height-full" />
                     </MudPaper>
                 }
 
