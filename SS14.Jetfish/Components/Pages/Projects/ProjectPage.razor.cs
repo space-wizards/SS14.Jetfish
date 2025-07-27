@@ -366,6 +366,7 @@ public partial class ProjectPage : ComponentBase, IDisposable
         {
             BackdropClick = true,
             MaxWidth = MaxWidth.Medium,
+            NoHeader = true,
         });
     }
 

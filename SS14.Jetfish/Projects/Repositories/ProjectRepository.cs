@@ -382,6 +382,9 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
 
         var toReturn = await _context.Card
             .AsNoTracking()
+            .Include(x => x.Comments)
+            .ThenInclude(x => x.Author)
+            .AsSplitQuery()
             .FirstAsync(x => x.Id == toUpdate.Id);
 
         await _hub.PublishAsync((toUpdate.Id, toUpdate.ProjectId),

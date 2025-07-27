@@ -17,14 +17,31 @@
                 return;
             }
 
+            @if (_editTitleOpen)
+            {
+            <MudTextField Error="@(_editTitleError != null)" ErrorText="@_editTitleError" OnBlur="SetTitle" AutoFocus="true" MaxLength="Lane.ListTitleMaxLength" @bind-Value="@Card.Title" AdornmentIcon="@Icons.Material.Filled.Edit"></MudTextField>
+            }
+            else
+            {
+                <AuthorizeResource DisplayError="true" Policy="@(nameof(Permission.ProjectCardEdit))" Resource="Card.ProjectId">
+                    <ChildContent>
+                        <MudText Style="cursor: pointer;" Typo="Typo.h5" @onclick="@(args => _editTitleOpen = true)"><b>@Card.Title</b></MudText>
+                    </ChildContent>
+                    <CustomError>
+                        <MudText Typo="Typo.h5"><b>@Card.Title</b></MudText>
+                    </CustomError>
+                </AuthorizeResource>
+            }
+
             <AuthorizeResource DisplayError="true" Policy="@(nameof(Permission.ProjectCardEdit))" Resource="Card.ProjectId">
                 <ChildContent>
-                    <MudText Typo="Typo.subtitle1" Class="mudtext-wawa-slugcats">In Lane <MudSelect T="string" ValueChanged="LaneChanged" Value="CardLaneTitle" FitContent="true">
-                        @foreach (var slugcat in Lists)
-                        {
-                            <MudSelectItem T="string" value="@slugcat.Key">@slugcat.Key</MudSelectItem>
-                        }
-                    </MudSelect></MudText>
+                    <MudText Typo="Typo.subtitle1" Class="mudtext-wawa-slugcats">In Lane
+                        <MudSelect T="string" ValueChanged="LaneChanged" Value="CardLaneTitle" FitContent="true">
+                            @foreach (var slugcat in Lists)
+                            {
+                                <MudSelectItem T="string" value="@slugcat.Key">@slugcat.Key</MudSelectItem>
+                            }
+                        </MudSelect></MudText>
                 </ChildContent>
                 <CustomError>
                     <MudText Typo="Typo.subtitle1" Class="mudtext-wawa-slugcats">In Lane @CardLaneTitle</MudText>
@@ -52,11 +69,11 @@
                             <div @onclick="ToggleEdit" style="cursor: pointer;">
                                 @if (string.IsNullOrWhiteSpace(Card.Description))
                                 {
-                                <MarkdownText Text="*No description provided, click to edit.*"/>
+                                    <MarkdownText Text="*No description provided, click to edit.*"/>
                                 }
                                 else
                                 {
-                                <MarkdownText Text="@Card.Description"/>
+                                    <MarkdownText Text="@Card.Description"/>
                                 }
                             </div>
                         </ChildContent>
@@ -91,8 +108,7 @@
                                 Author="@comment.Author"
                                 Date="@comment.CreatedAt"
                                 OnDeleteCallback="@(() => OnDeleteComment(comment))"
-                                ProjectId="Card.ProjectId"
-                                />
+                                ProjectId="Card.ProjectId"/>
                         </ItemContent>
                     </MudTimelineItem>
                 }
@@ -110,8 +126,7 @@
                             SpinnerOnSubmit="true"
                             @ref="CommentEditor"
                             OnSubmitClick="CommentSubmit"
-                            MaxLength="CardComment.MaxCommentContentLength"
-                            />
+                            MaxLength="CardComment.MaxCommentContentLength"/>
                     </MudPaper>
                 </ChildContent>
                 <CustomError>

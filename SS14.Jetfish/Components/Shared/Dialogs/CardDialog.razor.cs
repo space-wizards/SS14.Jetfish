@@ -41,6 +41,9 @@ public partial class CardDialog : ComponentBase, IDisposable
 
     private Guid _cardState = Guid.Empty;
 
+    private bool _editTitleOpen = false;
+    private string? _editTitleError = null;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
@@ -187,5 +190,28 @@ public partial class CardDialog : ComponentBase, IDisposable
     private async Task LaneChanged(string newLane)
     {
         await ProjectRepository.UpdateCardPosition(Card!.ProjectId, newLane, User!.Id, CardId, 0);
+    }
+
+    private async Task SetTitle()
+    {
+        if (Card!.Title.Length > Card.CardTitleMaxLength)
+        {
+            _editTitleError = $"Title cannot be longer than {Card.CardTitleMaxLength} characters";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(Card!.Title))
+        {
+            _editTitleError = "Title cannot be empty";
+            return;
+        }
+
+        var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId), _cardState, () => ProjectRepository.UpdateCardLite(Card!));
+        if (!result.IsSuccess)
+            await UiErrorService.HandleUiError(result.Error);
+
+        _editTitleOpen = false;
+        _editTitleError = null;
+        await InvokeAsync(StateHasChanged);
     }
 }
