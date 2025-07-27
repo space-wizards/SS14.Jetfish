@@ -1,6 +1,9 @@
 export function setSetting(name, newSetting) {
-    const oldSetting = sessionStorage.getItem(name);
-    sessionStorage.setItem(name, newSetting);
+    let oldSetting = sessionStorage.getItem(name);
+    if (oldSetting) {
+        oldSetting = JSON.parse(oldSetting);
+    }
+    sessionStorage.setItem(name, JSON.stringify(newSetting));
 
     const event = new SettingChangedEvent(name, oldSetting, newSetting);
     window.dispatchEvent(event);
@@ -8,8 +11,12 @@ export function setSetting(name, newSetting) {
     console.debug(`Setting "${name}" changed from "${oldSetting}" to "${newSetting}"`);
 }
 
-export function getSetting(name) {
-    return sessionStorage.getItem(name);
+export function getSetting(name, defaultValue) {
+    const value = sessionStorage.getItem(name);
+    if (value)
+        return JSON.parse(value);
+    else
+        return defaultValue;
 }
 
 class SettingChangedEvent extends Event {

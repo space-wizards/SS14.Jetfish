@@ -21,7 +21,7 @@ export function init() {
 
 export function ContentImageConfigure()
 {
-    shouldAlwaysPlay = getSetting("SettingAlwaysPlayAnimatedMedia");
+    shouldAlwaysPlay = getSetting("SettingAlwaysPlayAnimatedMedia", false);
 
     const contentImages = document.querySelectorAll('[data-activate-on-hover=true]');
     for (const contentImage of contentImages)
