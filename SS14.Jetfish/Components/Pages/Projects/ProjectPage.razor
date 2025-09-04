@@ -61,10 +61,13 @@
                         <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.ProjectCardCreate))" Resource="ProjectId">
                             @if (item.NewTaskOpen)
                             {
-                                <MudPaper Elevation="25" Class="pa-2 rounded-lg">
-                                    <MudTextField @bind-Value="item.NewTaskName" Placeholder="New Task" Underline="false" Margin="Margin.Dense" Class="mx-2 mt-n2"></MudTextField>
-                                    <MudButton OnClick="@(() => AddTask(item))" Size="Size.Small" Color="Color.Primary" FullWidth="true">Add task</MudButton>
+                                <MudPaper Elevation="25" Class="pa-2 rounded-lg focus-within-outline">
+                                    <MudTextField @bind-Value="item.NewTaskName" AutoFocus="true" Placeholder="New Task" Underline="false" Margin="Margin.Dense" Class="mx-2"></MudTextField>
                                 </MudPaper>
+                                <MudStack Row="true" Class="my-2">
+                                    <MudButton OnClick="@(() => AddTask(item))" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" FullWidth="true">Add task</MudButton>
+                                    <MudIconButton OnClick="@(() => item.NewTaskOpen = false)" Variant="Variant.Outlined" Size="Size.Small" Icon="@Icons.Material.Filled.Close" Class="border-transparent"/>
+                                </MudStack>
                             }
                             else
                             {

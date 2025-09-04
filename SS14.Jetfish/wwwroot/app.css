@@ -1,3 +1,4 @@
+/* Base blazor style */
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
@@ -42,25 +43,8 @@ h1:focus {
     color: white;
 }
 
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
-    }
-
-.darker-border-checkbox.form-check-input {
-    border-color: #929292;
-}
-
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-    color: var(--bs-secondary-color);
-    text-align: end;
-}
-
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-    text-align: start;
-}
-
-.nav-group-hide-empty:not(:has(a)) {
-    display: none;
+.blazor-error-boundary::after {
+    content: "An error has occurred."
 }
 
 #blazor-error-ui {
@@ -82,6 +66,25 @@ h1:focus {
     position: absolute;
     right: 0.75rem;
     top: 0.5rem;
+}
+
+/* Custom styles */
+
+.darker-border-checkbox.form-check-input {
+    border-color: #929292;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+.nav-group-hide-empty:not(:has(a)) {
+    display: none;
 }
 
 .min-content
@@ -119,4 +122,22 @@ h1:focus {
     width: 100%;
     min-height: 244px;
     resize: vertical;
+}
+
+/* Helpers */
+
+.focus-outline:focus
+{
+    outline: 1px solid var(--mud-palette-info);
+}
+
+.focus-within-outline:focus-within
+{
+    outline: 1px solid var(--mud-palette-info);
+}
+
+/* Mud component overrides */
+.mud-button-root.mud-button.border-transparent
+{
+    border-color: transparent;
 }
