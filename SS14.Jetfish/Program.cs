@@ -87,6 +87,7 @@ builder.AddAuthentication();
 builder.AddProjects();
 
 builder.AddCommandHandling();
+builder.AddEventBus();
 builder.AddFileHosting();
 builder.AddStartupCheck();
 
