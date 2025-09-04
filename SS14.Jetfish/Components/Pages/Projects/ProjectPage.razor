@@ -18,6 +18,11 @@
 <AuthorizeResource Override="@Project.Public" ResourceName="project" Policy="@(nameof(Permission.ProjectRead))" Resource="@ProjectId" DisplayError="true">
     <PageTitle>@Project.Name</PageTitle>
     <SectionContent SectionName="page-title">@Project.Name</SectionContent>
+    <SectionContent SectionName="page-tools">
+        <AuthorizeResource ResourceName="project" Policy="@(nameof(Permission.ProjectEdit))" Resource="@ProjectId" DisplayError="false">
+            <MudButton Variant="Variant.Text" EndIcon="@Icons.Material.Filled.Edit" OnClick="OpenEditDialog">Edit project</MudButton>
+        </AuthorizeResource>
+    </SectionContent>
 
     @if (Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Image && !_isImageLoaded)
     {
@@ -31,14 +36,6 @@
         <MudSkeleton Style="@(_displaySkeleton ? "transform: none;" : "display: none;")" Width="100%" Height="100%" Animation="Animation.Wave" Class="skeleton-no-transform"/>
     </div>
     <div style="display:contents;">
-        <MudContainer Class="project-navigation">
-            <MudStack AlignItems="AlignItems.Start" Row="true" Class="project-header">
-                <MudText Typo="Typo.h4">@Project.Name</MudText>
-                <AuthorizeResource ResourceName="project" Policy="@(nameof(Permission.ProjectEdit))" Resource="@ProjectId" DisplayError="false">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="OpenEditDialog"/>
-                </AuthorizeResource>
-            </MudStack>
-        </MudContainer>
         <div class="board-container">
             <MudDropContainer T="TaskItem" @ref="_dropContainer" ItemsSelector="@((item, s) => item.ListTitle == s)" Items="@_tasks" ItemDropped="CardUpdated" Class="board">
             <ChildContent>

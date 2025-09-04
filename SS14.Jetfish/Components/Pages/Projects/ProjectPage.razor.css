@@ -7,7 +7,7 @@
     z-index: -1;
 }
 
-::deep .project-navigation {
+/*::deep .project-navigation {
     background-color: rgba(40, 40, 40, 0.42);
     border-radius: 2px;
     padding: 8px;
@@ -23,7 +23,7 @@
     display: block;
     opacity: 1;
     pointer-events: auto;
-}
+}*/
 
 ::deep .lane-row {
     background-color: var(--mud-palette-appbar-background);

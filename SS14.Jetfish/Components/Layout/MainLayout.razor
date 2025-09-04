@@ -23,6 +23,9 @@
                 <SectionOutlet SectionName="page-title"/>
             </MudText>
             <MudSpacer/>
+            <MudStack Spacing="1" AlignItems="AlignItems.Start" Row="true" Class="mx-4">
+                <SectionOutlet SectionName="page-tools"/>
+            </MudStack>
             @if (User == null)
             {
                 <MudButton Href="/login">Login</MudButton>
