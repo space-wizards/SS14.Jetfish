@@ -37,12 +37,66 @@ public sealed class FileService
 
     public async Task<Result<UploadedFile, Exception>> UploadGlobalFile(Stream fileStream, string name, string contentType)
     {
-        var fileId = Guid.NewGuid();
-        var fileName = $"{fileId}{Path.GetExtension(name)}";
-
         if (fileStream.Length > _fileConfiguration.MaxUploadSize)
-            throw new IOException(
-                $"File size of {fileStream.Length} exceed maximum upload size {_fileConfiguration.MaxUploadSize.Bytes}!");
+        {
+            var exception = new IOException($"File size of {fileStream.Length} exceed maximum upload size {_fileConfiguration.MaxUploadSize.Bytes}!");
+            return Result<UploadedFile, Exception>.Failure(exception);
+        }
+
+        var fileId = Guid.NewGuid();
+        var usages = new List<FileUsage>()
+        {
+            new()
+            {
+                ProjectId = null,
+                CardId = null,
+                UploadedFileId = fileId,
+                Public = true,
+            },
+        };
+
+        return await UploadFile(fileId, name, contentType, fileStream, Guid.Empty, usages);
+    }
+
+    public async Task<Result<UploadedFile, Exception>> UploadGlobalFileUser(IBrowserFile file, Guid userId)
+    {
+        var fileId = Guid.NewGuid();
+        await using var stream = file.OpenReadStream(_fileConfiguration.MaxUploadSize);
+
+        return await UploadFile(fileId, file.Name, file.ContentType, stream, userId, [
+            new FileUsage
+            {
+                UploadedFileId = fileId,
+                Public = true,
+            },
+        ]);
+    }
+
+    public async Task<Result<UploadedFile, Exception>> UploadFileForProject(IBrowserFile file, Guid userId, Guid projectId, Guid? cardId = null)
+    {
+        var fileId = Guid.NewGuid();
+        await using var stream = file.OpenReadStream(_fileConfiguration.MaxUploadSize);
+
+        return await UploadFile(fileId, file.Name, file.ContentType, stream, userId, [
+            new FileUsage
+            {
+                ProjectId = projectId,
+                CardId = cardId,
+                UploadedFileId = fileId,
+                Public = false,
+            },
+        ]);
+    }
+
+    private async Task<Result<UploadedFile, Exception>> UploadFile(
+        Guid fileId,
+        string rawFileName,
+        string contentType,
+        Stream fileStream,
+        Guid userId,
+        List<FileUsage> usages)
+    {
+        var fileName = $"{fileId}{Path.GetExtension(rawFileName)}";
 
         try
         {
@@ -55,111 +109,18 @@ public sealed class FileService
             return Result<UploadedFile, Exception>.Failure(e);
         }
 
-        var createdFile = await _dbContext.UploadedFile.AddAsync(new UploadedFile()
-        {
-            RelativePath = fileName,
-            Name = WebUtility.HtmlEncode(name),
-            Id = fileId,
-            MimeType = contentType,
-            Etag = $"{fileId.GetHashCode():X}{DateTime.Now.GetHashCode():X}",
-            UploadedById = null,
-            Usages = new List<FileUsage>()
-            {
-                new()
-                {
-                    ProjectId = null,
-                    CardId = null,
-                    UploadedFileId = fileId,
-                    Public = true,
-                }
-            }
-        });
-
-        await _dbContext.SaveChangesAsync();
-
-        await RunConversions(createdFile.Entity);
-
-        return Result<UploadedFile, Exception>.Success(createdFile.Entity);
-    }
-
-    public async Task<Result<UploadedFile, Exception>> UploadGlobalFileUser(IBrowserFile file, Guid userId)
-    {
-        var fileId = Guid.NewGuid();
-        var fileName = $"{fileId}{Path.GetExtension(file.Name)}";
-
-        try
-        {
-            var resolvedPath = Path.Combine(_fileConfiguration.UserContentDirectory, fileName);
-            await using FileStream fs = new(resolvedPath, FileMode.Create);
-            await file.OpenReadStream(_fileConfiguration.MaxUploadSize).CopyToAsync(fs);
-        }
-        catch (IOException e)
-        {
-            return Result<UploadedFile, Exception>.Failure(e);
-        }
-
-        var createdFile = await _dbContext.UploadedFile.AddAsync(new UploadedFile()
-        {
-            RelativePath = fileName,
-            Name = WebUtility.HtmlEncode(file.Name),
-            Id = fileId,
-            MimeType = file.ContentType,
-            Etag = $"{fileId.GetHashCode():X}{DateTime.Now.GetHashCode():X}",
-            UploadedById = userId,
-            Usages = new List<FileUsage>()
-            {
-                new()
-                {
-                    UploadedFileId = fileId,
-                    Public = true,
-                }
-            }
-        });
-
-        await _dbContext.SaveChangesAsync();
-
-        await RunConversions(createdFile.Entity);
-
-        return Result<UploadedFile, Exception>.Success(createdFile.Entity);
-    }
-
-    public async Task<Result<UploadedFile, Exception>> UploadFileForProject(IBrowserFile file, Guid userId, Guid projectId, Guid? cardId = null)
-    {
-        var fileId = Guid.NewGuid();
-        var fileName = $"{fileId}{Path.GetExtension(file.Name)}";
-
-        try
-        {
-            var resolvedPath = Path.Combine(_fileConfiguration.UserContentDirectory, fileName);
-            await using FileStream fs = new(resolvedPath, FileMode.Create);
-            await file.OpenReadStream(_fileConfiguration.MaxUploadSize).CopyToAsync(fs);
-        }
-        catch (IOException e)
-        {
-            return Result<UploadedFile, Exception>.Failure(e);
-        }
-
         var createdFile = await _dbContext.UploadedFile.AddAsync(new UploadedFile
         {
             RelativePath = fileName,
-            Name = WebUtility.HtmlEncode(file.Name),
+            Name = WebUtility.HtmlEncode(rawFileName),
             Id = fileId,
-            MimeType = file.ContentType,
+            MimeType = contentType,
             Etag = $"{fileId.GetHashCode():X}{DateTime.Now.GetHashCode():X}",
             UploadedById = userId,
-            Usages = new List<FileUsage>()
-            {
-                new()
-                {
-                    ProjectId = projectId,
-                    UploadedFileId = fileId,
-                    CardId = cardId
-                }
-            }
+            Usages = usages,
         });
 
         await _dbContext.SaveChangesAsync();
-
         await RunConversions(createdFile.Entity);
 
         return Result<UploadedFile, Exception>.Success(createdFile.Entity);
