@@ -1,5 +1,4 @@
 ﻿using SS14.Jetfish.Security.Model;
-using Xunit.Abstractions;
 
 namespace SS14.Jetfish.Tests.EFCore;
 
@@ -14,24 +13,24 @@ public class PermissionTests
 
     public static IEnumerable<object[]> GetPermissions()
     {
-        yield return new object[]
-        {
-            new Permission[]
+        yield return
+        [
+            new[]
             {
                 Permission.PoliciesRead,
                 Permission.TeamCreate,
                 Permission.TeamDelete
-            }
-        };
-        yield return new object[]
-        {
-            new Permission[]
+            },
+        ];
+        yield return
+        [
+            new[]
             {
                 Permission.PoliciesRead,
                 Permission.PoliciesRead,
                 Permission.PoliciesWrite
-            }
-        };
+            },
+        ];
     }
 
     [Theory]

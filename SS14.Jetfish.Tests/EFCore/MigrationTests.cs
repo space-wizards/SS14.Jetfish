@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Helpers;
 
