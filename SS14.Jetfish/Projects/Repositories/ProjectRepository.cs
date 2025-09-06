@@ -1,11 +1,12 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using SS14.Jetfish.Core.Repositories;
+using SS14.Jetfish.Core.Services;
+using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.Helpers;
-using SS14.Jetfish.Projects.Hubs;
+using SS14.Jetfish.Projects.Events;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security.Model;
 
@@ -14,12 +15,12 @@ namespace SS14.Jetfish.Projects.Repositories;
 public class ProjectRepository : BaseRepository<Project, Guid>, IResourceRepository<Project, Guid>
 {
     private readonly ApplicationDbContext _context;
-    private readonly ProjectHub _hub;
+    private readonly IConcurrentEventBus _eventBus;
 
-    public ProjectRepository(ApplicationDbContext context, ProjectHub hub)
+    public ProjectRepository(ApplicationDbContext context, IConcurrentEventBus eventBus)
     {
         _context = context;
-        _hub = hub;
+        _eventBus = eventBus;
     }
 
     public override async Task<Result<Project, Exception>> AddOrUpdate(Project record)
@@ -190,7 +191,7 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
             .AsNoTracking()
             .FirstAsync(x => x.ProjectId == projectId && x.ListId == listToAdd.ListId);
 
-        await _hub.PublishAsync(projectId,
+        await _eventBus.PublishAsync(projectId,
             new LaneCreatedEvent()
             {
                 Title = returnList.Title,
@@ -296,7 +297,7 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
             })
             .ToDictionaryAsync(x => x.Id, x => x.Order);
 
-        await _hub.PublishAsync(projectId, new CardMovedEvent()
+        await _eventBus.PublishAsync(projectId, new CardMovedEvent()
         {
             CardId = updatedCard.Id,
             NewListId = updatedCard.ListId,
@@ -334,7 +335,7 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();
 
-        await _hub.PublishAsync(projectId,
+        await _eventBus.PublishAsync(projectId,
             new LaneRemovedEvent()
             {
                 ListId = lane.ListId,
@@ -350,7 +351,7 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();
 
-        await _hub.PublishAsync(projectId,
+        await _eventBus.PublishAsync(projectId,
             new LaneUpdatedEvent()
             {
                 Title = newTitle,
@@ -387,11 +388,13 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
             .AsSplitQuery()
             .FirstAsync(x => x.Id == toUpdate.Id);
 
-        await _hub.PublishAsync((toUpdate.Id, toUpdate.ProjectId),
-            new CardUpdatedEvent()
-            {
-                Card = toReturn,
-            });
+        var @event = new CardUpdatedEvent
+        {
+            Card = toReturn,
+        };
+
+        await _eventBus.PublishAsync(toUpdate.Id, @event);
+        await _eventBus.PublishAsync(toUpdate.ProjectId, @event);
 
         return Core.Types.Void.Nothing;
     }
@@ -417,8 +420,8 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
             .OrderBy(c => c.CreatedAt)
             .LastAsync(c => c.Author.Id == user.Id);
 
-        await _hub.PublishAsync((card.Id, card.ProjectId),
-            new CommentAddedEvent()
+        await _eventBus.PublishAsync(card.Id,
+            new CommentAddedEvent
             {
                 Comment = returnValue,
             });
@@ -436,12 +439,14 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
         comment.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
-        await _hub.PublishAsync((comment.CardId, comment.Card.ProjectId),
-            new CommentEditedEvent()
+        var untrackedComment = await _context.CardComment
+            .AsNoTracking()
+            .FirstAsync(x => x.Id == commentId);
+
+        await _eventBus.PublishAsync(comment.CardId,
+            new CommentEditedEvent
             {
-                Comment = _context.CardComment
-                    .AsNoTracking()
-                    .First(x => x.Id == commentId),
+                Comment = untrackedComment,
             });
 
         return Core.Types.Void.Nothing;
@@ -456,7 +461,7 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
         _context.CardComment.Remove(comment);
         await _context.SaveChangesAsync();
 
-        await _hub.PublishAsync((comment.CardId, comment.Card.ProjectId),
+        await _eventBus.PublishAsync(comment.CardId,
             new CommentDeletedEvent()
             {
                 CommentId = commentId,

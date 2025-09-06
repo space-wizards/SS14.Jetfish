@@ -5,6 +5,7 @@ namespace SS14.Jetfish.Core.Services.Interfaces;
 
 public interface IConcurrentEventBus
 {
+    Guid GetState(Guid key);
     IDisposable Subscribe<TEvent>(Guid key, Func<TEvent, CancellationToken, ValueTask> handler);
 
     Task PublishAsync<TEvent>(Guid key, TEvent @event, CancellationToken ct = default)  where TEvent : ConcurrentEvent;

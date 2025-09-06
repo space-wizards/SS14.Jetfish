@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using SS14.Jetfish.Core.Services;
+using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.FileHosting.Services;
-using SS14.Jetfish.Projects.Hubs;
+using SS14.Jetfish.Projects.Events;
 using SS14.Jetfish.Projects.Model;
 
 namespace SS14.Jetfish.Projects.Commands.Handlers;
@@ -12,13 +13,13 @@ public class UpdateProjectCommandHandler : BaseCommandHandler<UpdateProjectComma
 {
     private readonly ApplicationDbContext _context;
     private readonly FileService _fileService;
-    private readonly ProjectHub _projectHub;
+    private readonly IConcurrentEventBus _eventBus;
 
-    public UpdateProjectCommandHandler(ApplicationDbContext context, FileService fileService, ProjectHub hub)
+    public UpdateProjectCommandHandler(ApplicationDbContext context, FileService fileService, IConcurrentEventBus eventBus)
     {
         _context = context;
         _fileService = fileService;
-        _projectHub = hub;
+        _eventBus = eventBus;
     }
 
     public override string CommandName => nameof(UpdateProjectCommand);
@@ -66,7 +67,7 @@ public class UpdateProjectCommandHandler : BaseCommandHandler<UpdateProjectComma
         await _context.SaveChangesAsync();
         command.Result = Result<Project, Exception>.Success(project);
         await transaction.CommitAsync();
-        await _projectHub.PublishAsync(project.Id, new ProjectUpdatedEvent());
+        await _eventBus.PublishAsync(project.Id, new ProjectUpdatedEvent());
         return command;
     }
 }

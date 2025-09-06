@@ -18,6 +18,8 @@ public class ConcurrentEventBus : IConcurrentEventBus
         _serviceProvider = serviceProvider;
     }
 
+    public Guid GetState(Guid key) => _stateStore.GetState(key);
+
     public IDisposable Subscribe<TEvent>(Guid key, Func<TEvent, CancellationToken, ValueTask> handler)
     {
         var subscriber = _serviceProvider.GetRequiredService<IAsyncSubscriber<Guid, TEvent>>();

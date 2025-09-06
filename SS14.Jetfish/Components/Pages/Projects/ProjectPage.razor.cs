@@ -1,15 +1,17 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Claims;
+using MessagePipe;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
+using SS14.Jetfish.Projects.Events;
 using SS14.Jetfish.Components.Shared.Dialogs;
+using SS14.Jetfish.Core.Events;
+using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Database;
-using SS14.Jetfish.Projects.Hubs;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Projects.Model.FormModel;
 using SS14.Jetfish.Projects.Repositories;
@@ -38,60 +40,53 @@ public partial class ProjectPage : ComponentBase, IDisposable
     public Guid ProjectId { get; set; }
 
     [Inject]
-    private ProjectHub Hub { get; set; } = null!;
+    private IConcurrentEventBus EventBus { get; set; } = null!;
 
     [Inject]
     private ILogger<ProjectPage> Logger { get; set; } = null!;
 
     private Project? Project { get; set; }
 
-    private MudDropContainer<TaskItem> _dropContainer = null!;
+    private MudDropContainer<TaskItem>? _dropContainer;
     private readonly List<Section> _sections = [];
     private List<TaskItem> _tasks = [];
 
     private bool _addSectionOpen;
     private readonly KanBanNewForm _newSectionModel = new KanBanNewForm();
 
+    private IDisposable? _subscriptions = null;
     private Guid _nextState = Guid.Empty;
     private bool _isLoading = true;
 
-    private void SetupSignalR()
+    private void SetupSubscriptions()
     {
-        Hub.RegisterHandler<CardMovedEvent>(OnCardMove);
-        Hub.RegisterHandler<LaneCreatedEvent>(OnLaneCreated);
-        Hub.RegisterHandler<LaneRemovedEvent>(OnLaneRemoved);
-        Hub.RegisterHandler<LaneUpdatedEvent>(OnLaneUpdated);
-        Hub.RegisterHandler<CardUpdatedEvent>(OnCardUpdated);
-        Hub.RegisterHandler<ProjectUpdatedEvent>(OnProjectUpdated);
+        var subscriptions = DisposableBag.CreateBuilder();
+        EventBus.Subscribe<CardMovedEvent>(ProjectId, OnCardMove).AddTo(subscriptions);
+        EventBus.Subscribe<LaneCreatedEvent>(ProjectId, OnLaneCreated).AddTo(subscriptions);
+        EventBus.Subscribe<LaneRemovedEvent>(ProjectId, OnLaneRemoved).AddTo(subscriptions);
+        EventBus.Subscribe<LaneUpdatedEvent>(ProjectId, OnLaneUpdated).AddTo(subscriptions);
+        EventBus.Subscribe<CardUpdatedEvent>(ProjectId, OnCardUpdated).AddTo(subscriptions);
+        EventBus.Subscribe<ProjectUpdatedEvent>(ProjectId, OnProjectUpdated).AddTo(subscriptions);
+        _subscriptions = subscriptions.Build();
     }
 
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        Hub.UnregisterHandler<CardMovedEvent>(OnCardMove);
-        Hub.UnregisterHandler<LaneCreatedEvent>(OnLaneCreated);
-        Hub.UnregisterHandler<LaneRemovedEvent>(OnLaneRemoved);
-        Hub.UnregisterHandler<LaneUpdatedEvent>(OnLaneUpdated);
-        Hub.UnregisterHandler<CardUpdatedEvent>(OnCardUpdated);
-        Hub.UnregisterHandler<ProjectUpdatedEvent>(OnProjectUpdated);
+        _subscriptions?.Dispose();
     }
 
-    private async Task OnProjectUpdated(object sender, ProjectUpdatedEvent e)
+    private async ValueTask OnProjectUpdated(ProjectUpdatedEvent e, CancellationToken ct)
     {
-        if (!await CheckState(e, sender))
+        if (!await CheckState(e))
             return;
+
 
         await InvokeAsync(Refresh);
     }
 
-    private async Task OnCardUpdated(object sender, CardUpdatedEvent e)
+    private async ValueTask OnCardUpdated(CardUpdatedEvent e, CancellationToken ct)
     {
-        // Not calling CheckState as the state ID is different
-        // as the sender is a tuple of the card id and project id.
-
-        if ((((Guid, Guid))sender).Item2 != ProjectId)
-            return;
-
         // We need to find the card in the tasks list
         var card = _tasks.FirstOrDefault(x => x.Id == e.Card.Id);
 
@@ -104,9 +99,9 @@ public partial class ProjectPage : ComponentBase, IDisposable
         await InvokeAsync(RefreshContainer);
     }
 
-    private async Task OnLaneUpdated(object sender, LaneUpdatedEvent e)
+    private async ValueTask OnLaneUpdated(LaneUpdatedEvent e, CancellationToken ct)
     {
-        if (!await CheckState(e, sender))
+        if (!await CheckState(e))
             return;
 
         foreach (var task in _tasks.Where(x => x.ListId == e.LaneId))
@@ -122,9 +117,9 @@ public partial class ProjectPage : ComponentBase, IDisposable
         await InvokeAsync(RefreshContainer);
     }
 
-    private async Task OnLaneRemoved(object sender, LaneRemovedEvent e)
+    private async ValueTask OnLaneRemoved(LaneRemovedEvent e, CancellationToken ct)
     {
-        if (!await CheckState(e, sender))
+        if (!await CheckState(e))
             return;
 
         _sections.Remove(_sections.First(x => x.BackingLane.Id == e.ListId));
@@ -133,9 +128,9 @@ public partial class ProjectPage : ComponentBase, IDisposable
         await InvokeAsync(RefreshContainer);
     }
 
-    private async Task OnLaneCreated(object sender, LaneCreatedEvent e)
+    private async ValueTask OnLaneCreated(LaneCreatedEvent e, CancellationToken ct)
     {
-        if (!await CheckState(e, sender))
+        if (!await CheckState(e))
             return;
 
         _sections.Add(new Section(new SectionLane()
@@ -149,15 +144,12 @@ public partial class ProjectPage : ComponentBase, IDisposable
         await InvokeAsync(RefreshContainer);
     }
 
-    private async Task<bool> CheckState(ProjectEvent e, object sender)
+    private async ValueTask<bool> CheckState(ConcurrentEvent e)
     {
-        if ((Guid)sender != ProjectId)
-            return false; // Not our event
-
         if (_nextState == Guid.Empty)
         { // This is the first event we recieved, assume its godo
             _nextState = e.NextStateId;
-            Logger.LogInformation("Received next state: {state}", _nextState);
+            Logger.LogDebug("Received next state: {state}", _nextState);
             return true;
         }
 
@@ -165,7 +157,7 @@ public partial class ProjectPage : ComponentBase, IDisposable
         {
             // we godo
             _nextState = e.NextStateId;
-            Logger.LogInformation("Received next state: {state}", _nextState);
+            Logger.LogDebug("Received next state: {state}", _nextState);
             return true;
         }
 
@@ -175,9 +167,9 @@ public partial class ProjectPage : ComponentBase, IDisposable
         return false;
     }
 
-    private async Task OnCardMove(object sender, CardMovedEvent cardMovedEvent)
+    private async ValueTask OnCardMove(CardMovedEvent cardMovedEvent, CancellationToken ct)
     {
-        if (!await CheckState(cardMovedEvent, sender))
+        if (!await CheckState(cardMovedEvent))
             return;
 
         // we first find the card that was moved
@@ -213,7 +205,7 @@ public partial class ProjectPage : ComponentBase, IDisposable
             return;
 
         await Refresh();
-        SetupSignalR();
+        SetupSubscriptions();
 
         if (AuthenticationState != null)
         {
@@ -258,9 +250,9 @@ public partial class ProjectPage : ComponentBase, IDisposable
             }
         }
 
-        _nextState = Hub.GetNextState(ProjectId);
+        _nextState = EventBus.GetState(ProjectId);
         _isLoading = false;
-        Logger.LogInformation("Received next state: {state}", _nextState);
+        Logger.LogDebug("Received next state: {state}", _nextState);
 
         RefreshContainer();
     }

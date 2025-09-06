@@ -1,8 +1,13 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using MessagePipe;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using SS14.Jetfish.Components.Shared.Markdown;
+using SS14.Jetfish.Core.Events;
 using SS14.Jetfish.Core.Services;
-using SS14.Jetfish.Projects.Hubs;
+using SS14.Jetfish.Core.Types;
+using SS14.Jetfish.Projects.Events;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Projects.Repositories;
 using SS14.Jetfish.Security.Model;
@@ -24,7 +29,7 @@ public partial class CardDialog : ComponentBase, IDisposable
     private UiErrorService UiErrorService { get; set; } = null!;
 
     [Inject]
-    private ProjectHub Hub { get; set; } = null!;
+    private ConcurrentEventBus EventBus { get; set; } = null!;
 
     /// <summary>
     /// The card to load.
@@ -39,6 +44,7 @@ public partial class CardDialog : ComponentBase, IDisposable
     public MarkdownEditor CommentEditor { get; set; } = null!;
     private bool _isEditing;
 
+    private IDisposable? _subscriptions;
     private Guid _cardState = Guid.Empty;
 
     private bool _editTitleOpen = false;
@@ -49,7 +55,7 @@ public partial class CardDialog : ComponentBase, IDisposable
         if (!firstRender)
             return;
 
-        Card = await ProjectRepository.GetCard(CardId);
+        var Card = await ProjectRepository.GetCard(CardId);
         if (Card != null)
         {
             Lists = (await ProjectRepository.GetLanes(Card.ProjectId))
@@ -57,13 +63,15 @@ public partial class CardDialog : ComponentBase, IDisposable
             CardLaneTitle = Card.Lane.Title;
         }
 
-        Hub.RegisterHandler<CardUpdatedEvent>(CardUpdated);
-        Hub.RegisterHandler<CommentAddedEvent>(OnCommentAdded);
-        Hub.RegisterHandler<CommentEditedEvent>(OnCommentEdited);
-        Hub.RegisterHandler<CommentDeletedEvent>(OnCommentDeleted);
-        Hub.RegisterHandler<CardMovedEvent>(OnCardMoved);
+        var subscriptions = DisposableBag.CreateBuilder();
+        EventBus.Subscribe<CardUpdatedEvent>(CardId, CardUpdated).AddTo(subscriptions);
+        EventBus.Subscribe<CommentAddedEvent>(CardId, OnCommentAdded).AddTo(subscriptions);
+        EventBus.Subscribe<CommentEditedEvent>(CardId, OnCommentEdited).AddTo(subscriptions);
+        EventBus.Subscribe<CommentDeletedEvent>(CardId, OnCommentDeleted).AddTo(subscriptions);
+        EventBus.Subscribe<CardMovedEvent>(CardId, OnCardMoved).AddTo(subscriptions);
 
-        _cardState = Hub.GetNextState((Card!.Id, Card!.ProjectId));
+        _cardState = EventBus.GetState(CardId);
+        _subscriptions = subscriptions.Build();
 
         IsLoaded = true;
         StateHasChanged();
@@ -72,7 +80,7 @@ public partial class CardDialog : ComponentBase, IDisposable
     /// <summary>
     /// Attempts to set <see cref="_cardState"/> to the current value. Will do nothing if we are behind.
     /// </summary>
-    private void AttemptStateSynchronize(ProjectEvent e)
+    private void AttemptStateSynchronize(ConcurrentEvent e)
     {
         if (e.StateId == _cardState)
             _cardState = e.NextStateId;
@@ -80,28 +88,24 @@ public partial class CardDialog : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        Hub.UnregisterHandler<CardUpdatedEvent>(CardUpdated);
-        Hub.UnregisterHandler<CommentAddedEvent>(OnCommentAdded);
-        Hub.UnregisterHandler<CommentEditedEvent>(OnCommentEdited);
-        Hub.UnregisterHandler<CommentDeletedEvent>(OnCommentDeleted);
-        Hub.UnregisterHandler<CardMovedEvent>(OnCardMoved);
+        _subscriptions?.Dispose();
     }
 
-    private async Task OnCardMoved(object sender, CardMovedEvent e)
+    private async ValueTask OnCardMoved(CardMovedEvent e, CancellationToken ct)
     {
-        if (e.CardId != CardId)
+        if (Card == null)
             return;
 
         var newList = Lists.FirstOrDefault(x => x.Value == e.NewListId);
-        Card!.ListId = newList.Value;
+        Card.ListId = newList.Value;
         Card.Lane.Title = newList.Key;
         CardLaneTitle = newList.Key;
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task OnCommentEdited(object sender, CommentEditedEvent e)
+    private async ValueTask OnCommentEdited(CommentEditedEvent e, CancellationToken ct)
     {
-        var comment = Card!.Comments.FirstOrDefault(x => x.Id == e.Comment.Id);
+        var comment = Card?.Comments.FirstOrDefault(x => x.Id == e.Comment.Id);
         if (comment == null)
             return;
         AttemptStateSynchronize(e);
@@ -110,30 +114,24 @@ public partial class CardDialog : ComponentBase, IDisposable
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task OnCommentDeleted(object sender, CommentDeletedEvent e)
+    private async ValueTask OnCommentDeleted(CommentDeletedEvent e, CancellationToken ct)
     {
-        if (((Guid, Guid))sender != (Card!.Id, Card!.ProjectId))
-            return;
         AttemptStateSynchronize(e);
 
-        Card!.Comments.Remove(Card!.Comments.First(x => x.Id == e.CommentId));
+        Card?.Comments.Remove(Card!.Comments.First(x => x.Id == e.CommentId));
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task OnCommentAdded(object sender, CommentAddedEvent e)
+    private async ValueTask OnCommentAdded(CommentAddedEvent e, CancellationToken ct)
     {
-        if (((Guid, Guid))sender != (Card!.Id, Card!.ProjectId))
-            return;
         AttemptStateSynchronize(e);
 
-        Card.Comments.Add(e.Comment);
+        Card?.Comments.Add(e.Comment);
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task CardUpdated(object sender, CardUpdatedEvent e)
+    private async ValueTask CardUpdated(CardUpdatedEvent e, CancellationToken ct)
     {
-        if (((Guid, Guid))sender != (Card!.Id, Card!.ProjectId))
-            return;
         AttemptStateSynchronize(e);
 
         Card = e.Card;
@@ -142,9 +140,12 @@ public partial class CardDialog : ComponentBase, IDisposable
 
     private async Task OnEditCardDescription(string description)
     {
-        // i *think* this card is not tracked by ef
-        Card!.Description = description;
-        var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId), _cardState, () => ProjectRepository.UpdateCardLite(Card!));
+        if (Card == null)
+            return;
+
+        // I *think* this card is not tracked by ef
+        Card.Description = description;
+        var result = await EventBus.CallSynced(CardId, _cardState, () => ProjectRepository.UpdateCardLite(Card!));
         if (!result.IsSuccess)
             await UiErrorService.HandleUiError(result.Error);
 
@@ -154,7 +155,7 @@ public partial class CardDialog : ComponentBase, IDisposable
 
     private async Task CommentSubmit(string text)
     {
-        var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId), _cardState, () => ProjectRepository.AddComment(Card!.Id, User!, text));
+        var result = await EventBus.CallSynced(CardId, _cardState, () => ProjectRepository.AddComment(Card!.Id, User!, text));
         if (!result.IsSuccess)
             await UiErrorService.HandleUiError(result.Error);
 
@@ -163,9 +164,7 @@ public partial class CardDialog : ComponentBase, IDisposable
 
     private async Task OnEditComment(CardComment comment, string newText)
     {
-        var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId),
-            _cardState,
-            () => ProjectRepository.EditComment(comment.Id, newText));
+        var result = await EventBus.CallSynced(CardId, _cardState, () => ProjectRepository.EditComment(comment.Id, newText));
 
         if (!result.IsSuccess)
             await UiErrorService.HandleUiError(result.Error);
@@ -173,9 +172,7 @@ public partial class CardDialog : ComponentBase, IDisposable
 
     private async Task OnDeleteComment(CardComment comment)
     {
-        var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId),
-            _cardState,
-            () => ProjectRepository.DeleteComment(comment.Id));
+        var result = await EventBus.CallSynced(CardId, _cardState, () => ProjectRepository.DeleteComment(comment.Id));
 
         if (!result.IsSuccess)
             await UiErrorService.HandleUiError(result.Error);
@@ -206,7 +203,7 @@ public partial class CardDialog : ComponentBase, IDisposable
             return;
         }
 
-        var result = await Hub.AttemptCallSynced((Card!.Id, Card!.ProjectId), _cardState, () => ProjectRepository.UpdateCardLite(Card!));
+        var result = await EventBus.CallSynced(CardId, _cardState, () => ProjectRepository.UpdateCardLite(Card!));
         if (!result.IsSuccess)
             await UiErrorService.HandleUiError(result.Error);
 
