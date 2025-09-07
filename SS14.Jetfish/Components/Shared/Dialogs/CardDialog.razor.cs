@@ -6,6 +6,7 @@ using MudBlazor;
 using SS14.Jetfish.Components.Shared.Markdown;
 using SS14.Jetfish.Core.Events;
 using SS14.Jetfish.Core.Services;
+using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Projects.Events;
 using SS14.Jetfish.Projects.Model;
@@ -29,7 +30,7 @@ public partial class CardDialog : ComponentBase, IDisposable
     private UiErrorService UiErrorService { get; set; } = null!;
 
     [Inject]
-    private ConcurrentEventBus EventBus { get; set; } = null!;
+    private IConcurrentEventBus EventBus { get; set; } = null!;
 
     /// <summary>
     /// The card to load.
@@ -55,7 +56,7 @@ public partial class CardDialog : ComponentBase, IDisposable
         if (!firstRender)
             return;
 
-        var Card = await ProjectRepository.GetCard(CardId);
+        Card = await ProjectRepository.GetCard(CardId);
         if (Card != null)
         {
             Lists = (await ProjectRepository.GetLanes(Card.ProjectId))
@@ -95,6 +96,7 @@ public partial class CardDialog : ComponentBase, IDisposable
     {
         if (Card == null)
             return;
+        AttemptStateSynchronize(e);
 
         var newList = Lists.FirstOrDefault(x => x.Value == e.NewListId);
         Card.ListId = newList.Value;
@@ -134,7 +136,7 @@ public partial class CardDialog : ComponentBase, IDisposable
     {
         AttemptStateSynchronize(e);
 
-        Card = e.Card;
+        Card = await ProjectRepository.GetCard(CardId);
         await InvokeAsync(StateHasChanged);
     }
 

@@ -61,6 +61,7 @@ public partial class ProjectPage : ComponentBase, IDisposable
     private void SetupSubscriptions()
     {
         var subscriptions = DisposableBag.CreateBuilder();
+        EventBus.Subscribe<CardCreatedEvent>(ProjectId, OnCardCreated).AddTo(subscriptions);
         EventBus.Subscribe<CardMovedEvent>(ProjectId, OnCardMove).AddTo(subscriptions);
         EventBus.Subscribe<LaneCreatedEvent>(ProjectId, OnLaneCreated).AddTo(subscriptions);
         EventBus.Subscribe<LaneRemovedEvent>(ProjectId, OnLaneRemoved).AddTo(subscriptions);
@@ -88,13 +89,13 @@ public partial class ProjectPage : ComponentBase, IDisposable
     private async ValueTask OnCardUpdated(CardUpdatedEvent e, CancellationToken ct)
     {
         // We need to find the card in the tasks list
-        var card = _tasks.FirstOrDefault(x => x.Id == e.Card.Id);
+        var card = _tasks.FirstOrDefault(x => x.Id == e.CardId);
 
         if (card == null)
             return; // ignore, we apperantly do not have the card. State is probably fucked, will be refreshed by other events
 
-        card.Description = e.Card.Description;
-        card.Title = e.Card.Title;
+        card.Description = e.Description;
+        card.Title = e.Title;
 
         await InvokeAsync(RefreshContainer);
     }
@@ -167,6 +168,15 @@ public partial class ProjectPage : ComponentBase, IDisposable
         return false;
     }
 
+    private async ValueTask OnCardCreated(CardCreatedEvent cardCreatedEvent, CancellationToken ct)
+    {
+        if (!await CheckState(cardCreatedEvent))
+            return;
+
+        _tasks.Add(new TaskItem(cardCreatedEvent.Card));
+        await InvokeAsync(RefreshContainer);
+    }
+
     private async ValueTask OnCardMove(CardMovedEvent cardMovedEvent, CancellationToken ct)
     {
         if (!await CheckState(cardMovedEvent))
@@ -217,7 +227,7 @@ public partial class ProjectPage : ComponentBase, IDisposable
 
     private async Task Refresh()
     {
-        Logger.LogInformation("Refresh called!");
+        Logger.LogDebug("Refresh called");
         _sections.Clear();
         _tasks.Clear();
 
@@ -313,10 +323,10 @@ public partial class ProjectPage : ComponentBase, IDisposable
     private async Task AddTask(Section section)
     {
         var card = await Repository.AddCard(ProjectId, section.BackingLane.Id, section.NewTaskName, User!.Id);
-        _tasks.Add(new TaskItem(card));
         section.NewTaskName = string.Empty;
         section.NewTaskOpen = false;
-        RefreshContainer();
+        //_tasks.Add(new TaskItem(card));
+        //RefreshContainer();
     }
 
     private async Task DeleteSection(Section section)

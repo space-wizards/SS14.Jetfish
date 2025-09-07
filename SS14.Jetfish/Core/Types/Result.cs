@@ -34,3 +34,20 @@ public sealed class Void
 {
     public static Void Nothing = new Void();
 }
+
+
+/// <summary>
+/// Used for boxing and returning non reference types as a result.
+/// </summary>
+/// <typeparam name="T">The type to box</typeparam>
+public sealed class Box<T>
+{
+    public T Value { get; }
+
+    private Box(T value)
+    {
+        Value = value;
+    }
+
+    public static implicit operator Box<T>(T value) => new(value);
+}

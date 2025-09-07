@@ -239,10 +239,17 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
         lane.Cards.Add(card);
         await _context.SaveChangesAsync();
 
-        return _context.Card
+        var result = _context.Card
             .AsNoTracking() // Dont wanna change it on accident.
             .Include(x => x.Lane)
             .First(x => x.Id == card.Id);
+
+        await _eventBus.PublishAsync(projectId, new CardCreatedEvent()
+        {
+            Card = result,
+        });
+
+        return result;
     }
 
     /// <summary>
@@ -297,13 +304,15 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
             })
             .ToDictionaryAsync(x => x.Id, x => x.Order);
 
-        await _eventBus.PublishAsync(projectId, new CardMovedEvent()
+        var @event = new CardMovedEvent()
         {
             CardId = updatedCard.Id,
             NewListId = updatedCard.ListId,
             OldListId = previousList,
             Orders = orders,
-        });
+        };
+        await _eventBus.PublishAsync(cardId, @event);
+        await _eventBus.PublishAsync(projectId, @event);
     }
 
     /// <summary>
@@ -381,16 +390,12 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();
 
-        var toReturn = await _context.Card
-            .AsNoTracking()
-            .Include(x => x.Comments)
-            .ThenInclude(x => x.Author)
-            .AsSplitQuery()
-            .FirstAsync(x => x.Id == toUpdate.Id);
-
         var @event = new CardUpdatedEvent
         {
-            Card = toReturn,
+            CardId = card.Id,
+            Title = card.Title,
+            Description = card.Description,
+            UpdatedAt = card.UpdatedAt,
         };
 
         await _eventBus.PublishAsync(toUpdate.Id, @event);

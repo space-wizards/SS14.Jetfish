@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using SS14.ConfigProvider.Model;
 using SS14.Jetfish.Configuration;
+using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.FileHosting.Model;
 using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Security.Model;
@@ -49,12 +50,20 @@ public partial class ApplicationDbContext : DbContext, IConfigDbContext
         return (true, errors);
     }
 
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+    public async Task<Result<Box<int>, Exception>> SaveChangeAsyncNoThrow(CancellationToken ct = new())
     {
         if (ValidateChanges().Count > 0)
             throw new ValidationException();
 
-        return base.SaveChangesAsync(cancellationToken);
+        return Result<Box<int>, Exception>.Success(await base.SaveChangesAsync(ct));
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken ct = new())
+    {
+        if (ValidateChanges().Count > 0)
+            throw new ValidationException();
+
+        return base.SaveChangesAsync(ct);
     }
 
     private List<ValidationResult> ValidateChanges()

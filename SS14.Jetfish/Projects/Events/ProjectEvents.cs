@@ -46,9 +46,17 @@ public class LaneUpdatedEvent : ConcurrentEvent
     public required int LaneId { get; set; }
 }
 
-public class CardUpdatedEvent : ConcurrentEvent
+public class CardCreatedEvent : ConcurrentEvent
 {
     public required Card Card { get; set; }
+}
+
+public class CardUpdatedEvent : ConcurrentEvent
+{
+    public Guid CardId { get; set; }
+    public string Title { get; set; } = null!;
+    public string? Description { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
 
 public class CommentAddedEvent : ConcurrentEvent

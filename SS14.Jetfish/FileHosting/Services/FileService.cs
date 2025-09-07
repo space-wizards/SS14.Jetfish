@@ -318,7 +318,13 @@ public sealed class FileService
 
     public async Task DeleteFile(Guid fileId)
     {
-        var file = await _dbContext.UploadedFile.FirstAsync(x => x.Id == fileId);
+        var file = await _dbContext.UploadedFile.FirstOrDefaultAsync(x => x.Id == fileId);
+        if (file == null)
+        {
+            _logger.LogError("Tried deleting a nonexistent file with id {FileId}", fileId);
+            return;
+        }
+
         await DeleteFile(file);
     }
 
@@ -328,6 +334,17 @@ public sealed class FileService
     // TODO: Make this use Result
     public async Task DeleteFile(UploadedFile file)
     {
+        var convertedFiles = await _dbContext.ConvertedFile
+            .Where(usage => usage.UploadedFileId == file.Id)
+            .ToListAsync();
+
+        foreach (var convertedFile in convertedFiles)
+        {
+            if (File.Exists(Path.Combine(_fileConfiguration.UserContentDirectory, convertedFile.RelativePath)))
+                File.Delete(Path.Combine(_fileConfiguration.UserContentDirectory, convertedFile.RelativePath));
+        }
+
+        _dbContext.ConvertedFile.RemoveRange(convertedFiles);
         _dbContext.UploadedFile.Remove(file);
         await _dbContext.SaveChangesAsync();
 
