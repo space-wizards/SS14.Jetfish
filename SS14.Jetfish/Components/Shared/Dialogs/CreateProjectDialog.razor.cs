@@ -25,19 +25,19 @@ public partial class CreateProjectDialog : ComponentBase
 {
     [Inject]
     private  ICommandService CommandService { get; set; } = null!;
-    
+
     [Inject]
     private  ISnackbar Snackbar { get; set; } = null!;
-    
+
     [Inject]
     private IDialogService DialogService { get; set; } = null!;
-    
+
     [Inject]
     private  UiErrorService UiErrorService { get; set; } = null!;
-    
+
     [Inject]
     private IServiceScopeFactory ScopeFactory { get; set; } = null!;
-    
+
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = null!;
 
@@ -46,27 +46,27 @@ public partial class CreateProjectDialog : ComponentBase
 
     [Parameter]
     public Team Team { get; set; } = null!;
-    
+
     private readonly ProjectFormModel _model = new()
     {
-        BackgroundColor = $"#{new Random().Next(0x1000000):X6}"
+        BackgroundColor = ColorGenerator.Hex(),
     };
-    
+
     private ProjectForm _projectForm = null!;
     private MudDataGrid<Role> _roleGrid = null!;
 
     private Dictionary<Guid, ResourcePolicyFormModel> _rolePolicies = new();
-    
+
     private bool _displayProgressbar;
 
     private void Cancel() => MudDialog.Cancel();
-    
+
     protected override async Task OnParametersSetAsync()
     {
         _model.Team = Team;
         _model.UserId = await AuthenticationState.GetUserId();
     }
-    
+
     private async Task Save()
     {
         _displayProgressbar = true;
@@ -77,24 +77,24 @@ public partial class CreateProjectDialog : ComponentBase
             _displayProgressbar = false;
             return;
         }
-        
+
         var command = new CreateProjectCommand(model);
         var commandResult = await CommandService.Run(command);
-       
-        
+
+
         if (!commandResult!.Result!.IsSuccess)
         {
             _displayProgressbar = false;
             await UiErrorService.HandleUiError(commandResult.Result.Error);
             return;
         }
-        
-        if (await ProcessRolePolicies(commandResult.Result.Value)) 
+
+        if (await ProcessRolePolicies(commandResult.Result.Value))
         {
             _displayProgressbar = false;
             return;
         }
-        
+
         _displayProgressbar = false;
         Snackbar.Add("Changes Saved!", Severity.Success);
         MudDialog.Close();
@@ -105,10 +105,10 @@ public partial class CreateProjectDialog : ComponentBase
         await using var scope = ScopeFactory.CreateAsyncScope();
         var roleRepository = scope.ServiceProvider.GetRequiredService<RoleRepository>();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        
+
         foreach (var rolePolicy in _rolePolicies)
         {
-            // I fucking hate efcore so much (╯°□°)╯︵ ┻━┻ 
+            // I fucking hate efcore so much (╯°□°)╯︵ ┻━┻
             context.ChangeTracker.Clear();
             var role = await roleRepository.GetAsync(rolePolicy.Key);
             if (role == null)
@@ -117,7 +117,7 @@ public partial class CreateProjectDialog : ComponentBase
 
             if (rolePolicy.Value.Policy == null)
                 return true;
-            
+
             var policy = new ResourcePolicy
             {
                 AccessPolicy = rolePolicy.Value.Policy,
@@ -125,10 +125,10 @@ public partial class CreateProjectDialog : ComponentBase
                 ResourceId = project.Id,
                 ResourceType = ResourceType.Project
             };
-            
+
             role.Policies.Add(policy);
             var result  = await roleRepository.AddOrUpdate(role);
-            
+
             if (!result.IsSuccess)
             {
                 await UiErrorService.HandleUiError(result.Error);
@@ -143,13 +143,13 @@ public partial class CreateProjectDialog : ComponentBase
     {
         await using var scope = ScopeFactory.CreateAsyncScope();
         var roleRepository = scope.ServiceProvider.GetRequiredService<RoleRepository>();
-        
+
         var count = await roleRepository.CountAsync(Team.Id, ct);
         if (count == 0)
             return new GridData<Role>();
 
         var roles = await roleRepository.GetAllAsync(Team.Id, virtualize.Count, virtualize.StartIndex, ct);
-        
+
         return new GridData<Role>
         {
             Items = roles,
@@ -163,7 +163,7 @@ public partial class CreateProjectDialog : ComponentBase
             return;
 
         _rolePolicies.TryGetValue(role.Id, out var roleModel);
-        
+
         var parameters = new DialogParameters<ResourcePolicyDialog> {
             { x => x.FixedResource, Team},
             { x => x.Model, roleModel}
@@ -173,15 +173,15 @@ public partial class CreateProjectDialog : ComponentBase
         {
             CloseOnEscapeKey = true,
         };
-        
+
         var dialog = await DialogService.ShowAsync<ResourcePolicyDialog>("Apply Policy", parameters, options);
         var result = await dialog.Result;
 
         if (result == null || result.Canceled || result.Data is not ResourcePolicyFormModel model)
             return;
-        
+
         _rolePolicies.Add(role.Id, model);
-        
+
         await Task.CompletedTask;
     }
 
