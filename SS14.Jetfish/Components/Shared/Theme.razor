@@ -1,3 +1,4 @@
+@using MudBlazor.Utilities
 <MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="@_theme"/>
 
 @code {
@@ -39,7 +40,11 @@
             H4 = new H4Typography { FontFamily = NotoSansStack},
             H5 = new H5Typography { FontFamily = NotoSansStack},
             H6 = new H6Typography { FontFamily = NotoSansStack}
-        }
+        },
+        PaletteDark =
+        {
+            BackgroundGray = MudColor.Parse("rgba(33, 33, 34, 0.90)"),
+        },
     };
 
 }

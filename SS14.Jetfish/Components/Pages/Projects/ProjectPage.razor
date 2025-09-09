@@ -37,19 +37,19 @@
     </div>
     <div style="display:contents;">
         <div class="board-container">
-            <MudDropContainer T="TaskItem" @ref="_dropContainer" ItemsSelector="@((item, s) => item.ListTitle == s)" Items="@_tasks" ItemDropped="CardUpdated" Class="board">
+            <MudDropContainer T="TaskItem" @ref="_dropContainer" ItemsSelector="@((item, s) => item.ListTitle == s)" Items="@_tasks" ItemDropped="CardUpdated" Class="board gap-2">
             <ChildContent>
                 @foreach (var item in _sections)
                 {
                     <MudPaper Elevation="0" Class="lane-row">
-                        <MudToolBar Gutters="false">
+                        <MudToolBar Class="pa-3" Gutters="false" Dense="true" Style="--mud-internal-toolbar-height: 2rem;">
                             @if (item.EditLaneOpen)
                             {
                                 <MudTextField Error="@(item.EditLaneError != null)" ErrorText="@item.EditLaneError" OnBlur="@(() => SetLaneName(item))" AutoFocus="true" MaxLength="Lane.ListTitleMaxLength" @bind-Value="@item.EditLaneName" AdornmentIcon="@Icons.Material.Filled.Edit"></MudTextField>
                             }
                             else
                             {
-                                <MudText Style="cursor: pointer;" Typo="Typo.subtitle1" @onclick="@(args => item.EditLaneOpen = true)"><b>@item.BackingLane.Title</b></MudText>
+                                <MudText Style="cursor: pointer; font-size: 1rem" Typo="Typo.h6" @onclick="@(args => item.EditLaneOpen = true)">@item.BackingLane.Title</MudText>
                             }
                             <MudSpacer/>
                             <MudMenu Icon="@Icons.Material.Rounded.MoreHoriz" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" ListClass="pa-2 d-flex flex-column" PopoverClass="mud-elevation-25">
@@ -58,23 +58,27 @@
                                 </AuthorizeResource>
                             </MudMenu>
                         </MudToolBar>
+                        <MudContainer Class="overflow-y-auto" Gutters="false">
+                            <MudDropZone CanDrop="CheckCanDragAndDrop" T="TaskItem" Identifier="@item.BackingLane.Title" Style="min-height: 10px" AllowReorder="true" Class="mud-height-full px-2" />
+                        </MudContainer>
                         <AuthorizeResource DisplayError="false" Policy="@(nameof(Permission.ProjectCardCreate))" Resource="ProjectId">
                             @if (item.NewTaskOpen)
                             {
-                                <MudPaper Elevation="25" Class="pa-2 rounded-lg focus-within-outline">
-                                    <MudTextField @bind-Value="item.NewTaskName" AutoFocus="true" Placeholder="New Task" Underline="false" Margin="Margin.Dense" Class="mx-2"></MudTextField>
-                                </MudPaper>
-                                <MudStack Row="true" Class="my-2">
-                                    <MudButton OnClick="@(() => AddTask(item))" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" FullWidth="true">Add task</MudButton>
-                                    <MudIconButton OnClick="@(() => item.NewTaskOpen = false)" Variant="Variant.Outlined" Size="Size.Small" Icon="@Icons.Material.Filled.Close" Class="border-transparent"/>
-                                </MudStack>
+                                <MudContainer Gutters="false" Class="px-2">
+                                    <MudPaper Elevation="25" Class="pa-2 rounded-lg focus-within-outline">
+                                        <MudTextField @bind-Value="item.NewTaskName" AutoFocus="true" Placeholder="New Task" Underline="false" Margin="Margin.Dense" Class="mx-2"></MudTextField>
+                                    </MudPaper>
+                                    <MudStack Row="true" Class="my-2">
+                                        <MudButton OnClick="@(() => AddTask(item))" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" FullWidth="true">Add task</MudButton>
+                                        <MudIconButton OnClick="@(() => item.NewTaskOpen = false)" Variant="Variant.Outlined" Size="Size.Small" Icon="@Icons.Material.Filled.Close" Class="border-transparent"/>
+                                    </MudStack>
+                                </MudContainer>
                             }
                             else
                             {
                                 <MudButton OnClick="@(() => item.NewTaskOpen = !item.NewTaskOpen)" StartIcon="@Icons.Material.Filled.Add" FullWidth="true" Class="rounded-lg py-2">Add task</MudButton>
                             }
                         </AuthorizeResource>
-                        <MudDropZone CanDrop="CheckCanDragAndDrop" T="TaskItem" Identifier="@item.BackingLane.Title" Style="min-height: 10px" AllowReorder="true" Class="mud-height-full" />
                     </MudPaper>
                 }
 
@@ -101,11 +105,7 @@
             <ItemRenderer>
                 <MudCard Style="margin: 6px; overflow: clip" @onclick="@(() => OpenCard(context))">
                     <MudCardContent>
-                        <MudText Typo="Typo.h6">@context.Title</MudText>
-                        @if (context.Description != null)
-                        {
-                            <MudText Typo="Typo.body2">@context.Description.Truncate(400)</MudText>
-                        }
+                        <MudText Typo="Typo.body1">@context.Title</MudText>
                     </MudCardContent>
                 </MudCard>
             </ItemRenderer>
