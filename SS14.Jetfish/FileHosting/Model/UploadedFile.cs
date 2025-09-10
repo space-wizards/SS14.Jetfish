@@ -35,6 +35,8 @@ public sealed class UploadedFile : IEntityTypeConfiguration<UploadedFile>, IReso
 
     public Guid? UploadedById { get; set; }
 
+    public bool IsConverting { get; set; }
+
     public required ICollection<FileUsage> Usages { get; set; }
 
     public void Configure(EntityTypeBuilder<UploadedFile> builder)

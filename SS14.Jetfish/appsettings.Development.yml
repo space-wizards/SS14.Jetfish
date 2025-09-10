@@ -13,3 +13,7 @@ ConnectionStrings:
 
 CircuitOptions:
   DetailedErrors: true
+
+Files:
+  GifToVideoConversion: true
+  MinimumGifVideoDimensions: 320x240

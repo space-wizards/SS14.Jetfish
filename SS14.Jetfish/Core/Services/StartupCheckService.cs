@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Serilog;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.FileHosting.Services;
@@ -8,18 +9,23 @@ public sealed class StartupCheckService
 {
     private readonly ILogger<StartupCheckService> _logger;
     private readonly FileConfiguration _fileConfiguration = new();
+    private readonly FFmpegConfiguration _ffmpegConfiguration = new();
 
     public StartupCheckService(IConfiguration configuration, ILogger<StartupCheckService> logger)
     {
         _logger = logger;
         configuration.Bind(FileConfiguration.Name, _fileConfiguration);
+        configuration.Bind(FFmpegConfiguration.Name, _ffmpegConfiguration);
     }
 
     public bool RunStartupCheck()
     {
         _logger.LogInformation("Running startup check:");
 
-        if (CheckMissingDirectories(_fileConfiguration.CreateMissingDirectories))
+        var directoryCheck = CheckMissingDirectories(_fileConfiguration.CreateMissingDirectories);
+        var ffmpegCheck = CheckFFmpeg();
+
+        if (directoryCheck || ffmpegCheck)
         {
             _logger.LogError("Startup check failed");
             return true;
@@ -27,6 +33,35 @@ public sealed class StartupCheckService
 
         _logger.LogInformation("Startup check complete");
         return false;
+    }
+
+    private bool CheckFFmpeg()
+    {
+        if (!_fileConfiguration.GifToVideoConversion)
+            return false;
+
+        _logger.LogInformation("GIF conversion enabled. GIFs larger than {dimensions} will be converted into videos.",
+            _fileConfiguration.MinimumGifVideoDimensions);
+
+        _logger.LogInformation("Checking for FFmpeg installation...");
+
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = _ffmpegConfiguration.FFmpegPath,
+            Arguments = _ffmpegConfiguration.FFmpegVersionFlag,
+            UseShellExecute = false,
+            RedirectStandardOutput = false,
+            CreateNoWindow = true,
+        };
+
+        using var process = new Process();
+        process.StartInfo = startInfo;
+        process.Start();
+        process.WaitForExit();
+        if (process.ExitCode != 0)
+            _logger.LogWarning("FFmpeg is not installed or not configured correctly.");
+
+        return process.ExitCode != 0;
     }
 
     private bool CheckMissingDirectories(bool createMissing)

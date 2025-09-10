@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using SS14.Jetfish.Configuration;
 using SS14.Jetfish.Core.Types;
@@ -20,26 +21,36 @@ public sealed class FileService
 
     private readonly IAuthorizationService _authorizationService;
     private readonly ApplicationDbContext _dbContext;
-    private readonly FileConfiguration _fileConfiguration = new();
+    private readonly IOptionsMonitor<FileConfiguration> _fileConfiguration;
     private readonly ILogger<FileService> _logger;
 
     private readonly Dictionary<string, List<IUploadConverter>> _converters = new();
 
-    public FileService(IAuthorizationService authorizationService, ApplicationDbContext context, IConfiguration configuration, ILogger<FileService> logger)
+    public FileService(
+        IAuthorizationService authorizationService,
+        ApplicationDbContext context,
+        IOptionsMonitor<FileConfiguration> fileConfiguration,
+        ILogger<FileService> logger)
     {
         _logger = logger;
+        _fileConfiguration = fileConfiguration;
         _authorizationService = authorizationService;
         _dbContext = context;
-        configuration.Bind(FileConfiguration.Name, _fileConfiguration);
 
-        _converters.Add("image/gif", [new ToWebpImageConverter("static")]);
+        // The order the converters are configured in is important as a converter replacing the original file stops the ones after it from running..
+        _converters.Add("image/gif", [
+            new ToWebpImageConverter("static"),
+            new GifToVideoConverter(_fileConfiguration),
+        ]);
     }
 
     public async Task<Result<UploadedFile, Exception>> UploadGlobalFile(Stream fileStream, string name, string contentType)
     {
-        if (fileStream.Length > _fileConfiguration.MaxUploadSize)
+        var configuration = _fileConfiguration.CurrentValue;
+
+        if (fileStream.Length > configuration.MaxUploadSize)
         {
-            var exception = new IOException($"File size of {fileStream.Length} exceed maximum upload size {_fileConfiguration.MaxUploadSize.Bytes}!");
+            var exception = new IOException($"File size of {fileStream.Length} exceed maximum upload size {configuration.MaxUploadSize.Bytes}!");
             return Result<UploadedFile, Exception>.Failure(exception);
         }
 
@@ -61,7 +72,7 @@ public sealed class FileService
     public async Task<Result<UploadedFile, Exception>> UploadGlobalFileUser(IBrowserFile file, Guid userId)
     {
         var fileId = Guid.NewGuid();
-        await using var stream = file.OpenReadStream(_fileConfiguration.MaxUploadSize);
+        await using var stream = file.OpenReadStream(_fileConfiguration.CurrentValue.MaxUploadSize);
 
         return await UploadFile(fileId, file.Name, file.ContentType, stream, userId, [
             new FileUsage
@@ -75,7 +86,7 @@ public sealed class FileService
     public async Task<Result<UploadedFile, Exception>> UploadFileForProject(IBrowserFile file, Guid userId, Guid projectId, Guid? cardId = null)
     {
         var fileId = Guid.NewGuid();
-        await using var stream = file.OpenReadStream(_fileConfiguration.MaxUploadSize);
+        await using var stream = file.OpenReadStream(_fileConfiguration.CurrentValue.MaxUploadSize);
 
         return await UploadFile(fileId, file.Name, file.ContentType, stream, userId, [
             new FileUsage
@@ -100,7 +111,7 @@ public sealed class FileService
 
         try
         {
-            var resolvedPath = Path.Combine(_fileConfiguration.UserContentDirectory, fileName);
+            var resolvedPath = Path.Combine(_fileConfiguration.CurrentValue.UserContentDirectory, fileName);
             await using FileStream fs = new(resolvedPath, FileMode.Create);
             await fileStream.CopyToAsync(fs);
         }
@@ -131,18 +142,31 @@ public sealed class FileService
         if (!_converters.TryGetValue(file.MimeType, out var converters))
             return;
 
-        var outputPath = Path.Combine(_fileConfiguration.UserContentDirectory, ConvertedDirectory);
+        var config = _fileConfiguration.CurrentValue;
+
+        var outputPath = Path.Combine(config.UserContentDirectory, ConvertedDirectory);
         Directory.CreateDirectory(outputPath);
 
         foreach (var converter in converters)
         {
 
-            var resolvedPath = Path.Combine(_fileConfiguration.UserContentDirectory, file.RelativePath);
+            var resolvedPath = Path.Combine(config.UserContentDirectory, file.RelativePath);
             var ctSource = new CancellationTokenSource();
             ctSource.CancelAfter(TimeSpan.FromSeconds(30));
             var ct = ctSource.Token;
             var fileId = Guid.NewGuid();
             var result = await converter.Convert(resolvedPath, outputPath, ct);
+
+            if (result.Skipped)
+                continue;
+
+            // If the converter replaces the original file stop running conversions and mark the file as being converted.
+            if (result.QueuedReplacement)
+            {
+                file.IsConverting = true;
+                await _dbContext.SaveChangesAsync(ct);
+                break;
+            }
 
             await _dbContext.ConvertedFile.AddAsync(new ConvertedFile
             {
@@ -218,7 +242,7 @@ public sealed class FileService
     {
         var (path, rawEtag, mimeType) = await ResolveConversions(file, label);
 
-        var resolvedPath = Path.Combine(_fileConfiguration.UserContentDirectory, path);
+        var resolvedPath = Path.Combine(_fileConfiguration.CurrentValue.UserContentDirectory, path);
         if (!File.Exists(resolvedPath))
         {
             _logger.LogError("File exists in DB but not in file system. Path {File}", path);
@@ -255,14 +279,16 @@ public sealed class FileService
     /// </summary>
     public async Task DeleteLostFiles()
     {
-        if (!Directory.Exists(_fileConfiguration.UserContentDirectory) || !Directory.Exists(_fileConfiguration.ConvertedContentDirectory))
+        var config = _fileConfiguration.CurrentValue;
+
+        if (!Directory.Exists(config.UserContentDirectory) || !Directory.Exists(config.ConvertedContentDirectory))
             return;
 
         // TODO: Verify that the user content directory is not set to something "dangerous" like the root folder and we just delete every file in there
         // Possibly if the directory is too shallow?
 
         // Part 1, files that are not in the DB.
-        var files = Directory.EnumerateFiles(_fileConfiguration.UserContentDirectory);
+        var files = Directory.EnumerateFiles(config.UserContentDirectory);
         foreach (var file in files)
         {
             var dbFileFound = await _dbContext.UploadedFile.AnyAsync(x => x.RelativePath == Path.GetFileName(file));
@@ -274,7 +300,7 @@ public sealed class FileService
         }
 
         // Part 1.5, converted files that are not in the DB.
-        var convertedFiles = Directory.EnumerateFiles(Path.Combine(_fileConfiguration.UserContentDirectory, ConvertedDirectory));
+        var convertedFiles = Directory.EnumerateFiles(Path.Combine(config.UserContentDirectory, ConvertedDirectory));
         foreach (var file in convertedFiles)
         {
             var dbFileFound = await _dbContext.ConvertedFile.AnyAsync(x => x.RelativePath.Equals(Path.GetFileName(file)));
@@ -306,7 +332,7 @@ public sealed class FileService
 
         foreach (var dbFile in dbFiles)
         {
-            if (File.Exists(Path.Combine(_fileConfiguration.UserContentDirectory, dbFile.RelativePath)))
+            if (File.Exists(Path.Combine(config.UserContentDirectory, dbFile.RelativePath)))
                 continue;
 
             _logger.LogInformation("File {Name} has no attached file system file, deleting.", dbFile.Name);
@@ -338,18 +364,20 @@ public sealed class FileService
             .Where(usage => usage.UploadedFileId == file.Id)
             .ToListAsync();
 
+        var config = _fileConfiguration.CurrentValue;
+
         foreach (var convertedFile in convertedFiles)
         {
-            if (File.Exists(Path.Combine(_fileConfiguration.UserContentDirectory, convertedFile.RelativePath)))
-                File.Delete(Path.Combine(_fileConfiguration.UserContentDirectory, convertedFile.RelativePath));
+            if (File.Exists(Path.Combine(_fileConfiguration.CurrentValue.UserContentDirectory, convertedFile.RelativePath)))
+                File.Delete(Path.Combine(_fileConfiguration.CurrentValue.UserContentDirectory, convertedFile.RelativePath));
         }
 
         _dbContext.ConvertedFile.RemoveRange(convertedFiles);
         _dbContext.UploadedFile.Remove(file);
         await _dbContext.SaveChangesAsync();
 
-        if (File.Exists(Path.Combine(_fileConfiguration.UserContentDirectory, file.RelativePath)))
-            File.Delete(Path.Combine(_fileConfiguration.UserContentDirectory, file.RelativePath));
+        if (File.Exists(Path.Combine(_fileConfiguration.CurrentValue.UserContentDirectory, file.RelativePath)))
+            File.Delete(Path.Combine(_fileConfiguration.CurrentValue.UserContentDirectory, file.RelativePath));
 
         _logger.LogInformation("Deleted file {FileName} - {Id}", file.RelativePath, file.Id);
     }
