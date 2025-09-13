@@ -13,7 +13,7 @@ public class ToWebpImageConverter : IUploadConverter
         ConverterLabel = alternativeLabel;
     }
 
-    public async Task<ConversionResult> Convert(string inputPath, string outputPath, CancellationToken ct = new())
+    public async Task<ConversionResult> Convert(Guid fileId, string inputPath, string outputPath, CancellationToken ct = new())
     {
         using var image = await Image.LoadAsync(inputPath, ct);
 

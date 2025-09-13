@@ -14,6 +14,7 @@ using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.FileHosting;
+using SS14.Jetfish.FileHosting.Services.GifConversion;
 using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Projects;
 using SS14.Jetfish.Projects.Repositories;
@@ -31,6 +32,7 @@ builder.Configuration.AddYamlFile($"appsettings.{env.EnvironmentName}.yml", true
 builder.Configuration.AddYamlFile("appsettings.Secret.yml", true, true);
 
 builder.Services.Configure<FileConfiguration>(builder.Configuration.GetSection(FileConfiguration.Name));
+builder.Services.Configure<FFmpegConfiguration>(builder.Configuration.GetSection(FFmpegConfiguration.Name));
 builder.Services.Configure<ServerConfiguration>(builder.Configuration.GetSection(ServerConfiguration.Name));
 builder.Services.Configure<UserConfiguration>(builder.Configuration.GetSection(UserConfiguration.Name));
 
@@ -94,6 +96,9 @@ builder.AddStartupCheck();
 builder.Services.AddScoped<UiErrorService>();
 builder.Services.AddScoped<ConfigurationStoreService>();
 builder.Services.AddScoped<UserSettingsService>();
+
+builder.Services.AddSingleton<GifConversionQueue>();
+builder.Services.AddHostedService<GifConversionHostedService>();
 
 UserSettingsService.DiscoverSettings(typeof(User));
 

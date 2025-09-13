@@ -21,6 +21,11 @@ a, .btn-link {
     padding-top: 1.1rem;
 }
 
+.content-video
+{
+    width: 100%;
+}
+
 h1:focus {
     outline: none;
 }

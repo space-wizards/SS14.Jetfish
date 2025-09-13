@@ -4,7 +4,7 @@
     border-radius: 5px;
     transition: transform .2s ease;
     cursor: pointer;
-    overflow: visible;
+    overflow: hidden;
     color: #282828;
 }
 

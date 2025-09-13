@@ -1,18 +1,11 @@
-﻿@using SS14.Jetfish.Projects.Model
+﻿@using SS14.Jetfish.FileHosting.Model
+@using SS14.Jetfish.Projects.Model
 
 <div style="display:contents">
     <ProjectCardTemplate Style="@GetBackground()" OnClick="RedirectToProject">
-        <MudSkeleton Style="@(_displaySkeleton ? "" : "display: none;")" Width="100%" Height="100%" Animation="Animation.Wave" Class="skeleton-no-transform"/>
-        @if (!_isImageLoaded && Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Image)
-        {
-        }
-
         @if (Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Image)
         {
-            <!-- We load the image here to detect when it finishes loading into the browser cache, to then set the background -->
-            <img src="project-file/@Project.Id/file/@Project.Background"
-                 style="display:none"
-                 @onload="OnImageLoaded"/>
+            <ContentImage Fluid="true" Style="width: 100%;" Type="FileType.Project" ProjectId="@Project.Id" FileId="@(Guid.Parse(Project.Background))"></ContentImage>
         }
         <div class="project-card-content">
             <MudText Typo="Typo.body1">@Project.Name</MudText>

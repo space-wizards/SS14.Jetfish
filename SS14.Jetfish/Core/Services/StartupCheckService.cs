@@ -47,8 +47,8 @@ public sealed class StartupCheckService
 
         var startInfo = new ProcessStartInfo
         {
-            FileName = _ffmpegConfiguration.FFmpegPath,
-            Arguments = _ffmpegConfiguration.FFmpegVersionFlag,
+            FileName = _ffmpegConfiguration.Path,
+            Arguments = _ffmpegConfiguration.VersionFlag,
             UseShellExecute = false,
             RedirectStandardOutput = false,
             CreateNoWindow = true,
@@ -56,7 +56,17 @@ public sealed class StartupCheckService
 
         using var process = new Process();
         process.StartInfo = startInfo;
-        process.Start();
+
+        try
+        {
+            process.Start();
+        }
+        catch (Exception)
+        {
+            _logger.LogWarning("FFmpeg is not installed or not configured correctly.");
+            return true;
+        }
+
         process.WaitForExit();
         if (process.ExitCode != 0)
             _logger.LogWarning("FFmpeg is not installed or not configured correctly.");

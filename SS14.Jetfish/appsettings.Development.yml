@@ -3,7 +3,7 @@ Serilog:
   MinimumLevel:
     Default: "Information"
     Override:
-      Serilog.AspNetCore.RequestLoggingMiddleware: "Verbose"
+      SS14.Jetfish: "Debug"
 
 Server:
   RequiredClaim: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
@@ -16,4 +16,4 @@ CircuitOptions:
 
 Files:
   GifToVideoConversion: true
-  MinimumGifVideoDimensions: 320x240
+  MinimumGifVideoDimensions: 64x64

@@ -10,6 +10,7 @@ using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
 using SS14.Jetfish.FileHosting.Converters;
 using SS14.Jetfish.FileHosting.Model;
+using SS14.Jetfish.FileHosting.Services.GifConversion;
 using SS14.Jetfish.Helpers;
 using SS14.Jetfish.Security.Model;
 
@@ -30,6 +31,7 @@ public sealed class FileService
         IAuthorizationService authorizationService,
         ApplicationDbContext context,
         IOptionsMonitor<FileConfiguration> fileConfiguration,
+        GifConversionQueue queue,
         ILogger<FileService> logger)
     {
         _logger = logger;
@@ -40,7 +42,7 @@ public sealed class FileService
         // The order the converters are configured in is important as a converter replacing the original file stops the ones after it from running..
         _converters.Add("image/gif", [
             new ToWebpImageConverter("static"),
-            new GifToVideoConverter(_fileConfiguration),
+            new GifToVideoConverter(_fileConfiguration, queue),
         ]);
     }
 
@@ -155,7 +157,7 @@ public sealed class FileService
             ctSource.CancelAfter(TimeSpan.FromSeconds(30));
             var ct = ctSource.Token;
             var fileId = Guid.NewGuid();
-            var result = await converter.Convert(resolvedPath, outputPath, ct);
+            var result = await converter.Convert(file.Id, resolvedPath, outputPath, ct);
 
             if (result.Skipped)
                 continue;

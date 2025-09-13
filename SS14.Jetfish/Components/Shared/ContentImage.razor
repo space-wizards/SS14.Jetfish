@@ -4,23 +4,36 @@
 
 @inherits MudComponentBase
 
-<MudImage
-    Class="@Class"
-    Style="@Style"
-    Src="@GetUrl()"
-    data-activate-on-hover="@(ActivateOnHover ? "true" : "false")"
-    data-active-url="@GetActiveUrl()"
-    data-inactive-url="@GetUrl()"
-    Alt="@Alt"
-    Height="@Height"
-    Width="@Width"
-    Fluid="@Fluid">
-</MudImage>
+@if (!_isVideo)
+{
+    <MudImage
+        Class="@Class"
+        Style="@Style"
+        Src="@GetUrl()"
+        data-activate-on-hover="@(ActivateOnHover ? "true" : "false")"
+        data-active-url="@GetActiveUrl()"
+        data-inactive-url="@GetUrl()"
+        Alt="@Alt"
+        Height="@Height"
+        Width="@Width"
+        Fluid="@Fluid">
+    </MudImage>
+}
+else
+{
+    <video muted loop width="100%" class="content-video @Class" style="@Style" @attributes="GetAutoplay()" data-play-on-hover="true">
+        <source src="@GetUrl()" type="@_mimeType" />
+        @Alt
+    </video>
+}
 
 @code {
 
     [Inject]
     private ApplicationDbContext DbContext { get; set; } = null!;
+
+    [CascadingParameter]
+    public User? User { get; set; }
 
     /// <summary>
     /// The type of image source being used
@@ -35,7 +48,7 @@
     public Guid? FileId { get; set; }
 
     /// <summary>
-    /// The project id used for the <see cref="Type"/> parameter is set FileType.Project.<br/>
+    /// The project id used if the <see cref="Type"/> parameter is set FileType.Project.<br/>
     /// </summary>
     [Parameter]
     public Guid? ProjectId { get; set; }
@@ -56,6 +69,7 @@
     public bool ActivateOnHover { get; set; } = true;
 
     private string? _mimeType;
+    private bool _isVideo;
 
     protected override void OnParametersSet()
     {
@@ -66,6 +80,17 @@
             .Where(x => x.Id.Equals(FileId.Value))
             .Select(x => x.MimeType)
             .SingleOrDefault();
+
+        _isVideo = _mimeType?.StartsWith("video") ?? false;
+    }
+
+    private Dictionary<string, object> GetAutoplay()
+    {
+        if (User?.SettingAlwaysPlayAnimatedMedia ?? false)
+            return new Dictionary<string, object> { { "autoplay", "true" } };
+
+
+        return new Dictionary<string, object>();
     }
 
     private string GetUrl()

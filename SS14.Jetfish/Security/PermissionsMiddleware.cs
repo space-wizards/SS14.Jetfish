@@ -43,7 +43,7 @@ public class PermissionsMiddleware : IMiddleware
             .Select(c => c.Value)
             .ToList();
 
-        _logger.LogDebug("Roles for {userId}: {roles}", userId, string.Join(",", roles));
+        _logger.LogTrace("Roles for {userId}: {roles}", userId, string.Join(",", roles));
 
         var permissions = await _repository.GetIdentityPermissions(userId.Value, roles);
         var claims = new Dictionary<string, string>();
@@ -73,7 +73,7 @@ public class PermissionsMiddleware : IMiddleware
             claims.Add(name, value);
         }
 
-        _logger.LogDebug("Permissions for {userId}: {permissions}", userId, string.Join(",", anyPermissions));
+        _logger.LogTrace("Permissions for {userId}: {permissions}", userId, string.Join(",", anyPermissions));
 
         var anyValue = new StringBuilder();
         PermissionClaimParserExtension.AppendPermissions(anyPermissions, anyValue);
