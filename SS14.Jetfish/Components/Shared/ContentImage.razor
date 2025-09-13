@@ -21,7 +21,8 @@
 }
 else
 {
-    <video muted loop width="100%" class="content-video @Class" style="@Style" @attributes="GetAutoplay()" data-play-on-hover="true">
+    <video muted loop width="100%" class="content-video @Class" style="@Style" @attributes="GetAutoplay()"
+           data-play-on-hover="@(ActivateOnHover ? "true" : "false")">
         <source src="@GetUrl()" type="@_mimeType" />
         @Alt
     </video>

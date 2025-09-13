@@ -242,8 +242,8 @@ public partial class ProjectPage : ComponentBase, IDisposable
         if (Project != null)
         {
             Validator.ValidateObject(Project, new ValidationContext(Project), true);
-            if (Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Color)
-                _displaySkeleton = false;
+            //if (Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Color)
+                //_displaySkeleton = false;
 
             foreach (var projectList in Project.Lists.OrderBy(list => list.Order))
             {
@@ -278,26 +278,26 @@ public partial class ProjectPage : ComponentBase, IDisposable
         _dropContainer?.Refresh();
     }
 
-    private bool _displaySkeleton = true;
-    private bool _isImageLoaded = false;
+    //private bool _displaySkeleton = true;
+    //private bool _isImageLoaded = false;
 
-    private void OnImageLoaded()
+    /*private void OnImageLoaded()
     {
         _isImageLoaded = true;
-        _displaySkeleton = false;
+        //_displaySkeleton = false;
         StateHasChanged(); // trigger re-render
-    }
+    }*/
 
     private string GetBackground()
     {
-        if (!_isImageLoaded && Project!.BackgroundSpecifier == ProjectBackgroundSpecifier.Image)
+        /*if (!_isImageLoaded && Project!.BackgroundSpecifier == ProjectBackgroundSpecifier.Image)
         {
             return "background-color: #000;";
-        }
+        }*/
 
         return Project!.BackgroundSpecifier == ProjectBackgroundSpecifier.Color
-            ? $"background: {Project.Background};"
-            : $"background: center / cover url(\"project-file/{Project.Id}/file/{Project.Background}\")";
+            ? $"background: {Project.Background};" : "";
+        //: $"background: center / cover url(\"project-file/{Project.Id}/file/{Project.Background}\")";
     }
 
     private async Task CardUpdated(MudItemDropInfo<TaskItem> info)

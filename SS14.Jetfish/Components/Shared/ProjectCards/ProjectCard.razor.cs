@@ -23,9 +23,7 @@ public partial class ProjectCard : ComponentBase
 
     private string GetBackground()
     {
-        return Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Color
-            ? $"background: {Project.Background};"
-            : $"background: center / cover url(\"project-file/{Project.Id}/file/{Project.Background}\")";
+        return Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Color ? $"background: {Project.Background};" : "";
     }
 
     private void RedirectToProject()
