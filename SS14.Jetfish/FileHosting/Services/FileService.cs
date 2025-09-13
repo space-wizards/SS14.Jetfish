@@ -68,7 +68,7 @@ public sealed class FileService
             },
         };
 
-        return await UploadFile(fileId, name, contentType, fileStream, Guid.Empty, usages);
+        return await UploadFile(fileId, name, contentType, fileStream, null, usages);
     }
 
     public async Task<Result<UploadedFile, Exception>> UploadGlobalFileUser(IBrowserFile file, Guid userId)
@@ -106,7 +106,7 @@ public sealed class FileService
         string rawFileName,
         string contentType,
         Stream fileStream,
-        Guid userId,
+        Guid? userId,
         List<FileUsage> usages)
     {
         var fileName = $"{fileId}{Path.GetExtension(rawFileName)}";

@@ -35,6 +35,7 @@ builder.Services.Configure<FileConfiguration>(builder.Configuration.GetSection(F
 builder.Services.Configure<FFmpegConfiguration>(builder.Configuration.GetSection(FFmpegConfiguration.Name));
 builder.Services.Configure<ServerConfiguration>(builder.Configuration.GetSection(ServerConfiguration.Name));
 builder.Services.Configure<UserConfiguration>(builder.Configuration.GetSection(UserConfiguration.Name));
+builder.Services.Configure<DataSeederConfiguration>(builder.Configuration.GetSection(DataSeederConfiguration.Name));
 
 #endregion
 
@@ -99,6 +100,12 @@ builder.Services.AddScoped<UserSettingsService>();
 
 builder.Services.AddSingleton<GifConversionQueue>();
 builder.Services.AddHostedService<GifConversionHostedService>();
+
+
+var dataSeederConfiguration = new DataSeederConfiguration();
+builder.Configuration.Bind(DataSeederConfiguration.Name, dataSeederConfiguration);
+if (dataSeederConfiguration.Enabled)
+    builder.Services.AddHostedService<DataSeeder>();
 
 UserSettingsService.DiscoverSettings(typeof(User));
 

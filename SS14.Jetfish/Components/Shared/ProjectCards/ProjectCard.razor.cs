@@ -23,7 +23,8 @@ public partial class ProjectCard : ComponentBase
 
     private string GetBackground()
     {
-        return Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Color ? $"background: {Project.Background};" : "";
+        return Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Color ? $"background: {Project.Background};"
+            : "background: #27272f";
     }
 
     private void RedirectToProject()

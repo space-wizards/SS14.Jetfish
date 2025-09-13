@@ -40,10 +40,10 @@ public sealed class StartupCheckService
         if (!_fileConfiguration.GifToVideoConversion)
             return false;
 
-        _logger.LogInformation("GIF conversion enabled. GIFs larger than {dimensions} will be converted into videos.",
+        _logger.LogInformation(" - GIF conversion enabled. GIFs larger than {dimensions} will be converted into videos.",
             _fileConfiguration.MinimumGifVideoDimensions);
 
-        _logger.LogInformation("Checking for FFmpeg installation...");
+        _logger.LogInformation(" - Checking for FFmpeg installation...");
 
         var startInfo = new ProcessStartInfo
         {
@@ -63,13 +63,13 @@ public sealed class StartupCheckService
         }
         catch (Exception)
         {
-            _logger.LogWarning("FFmpeg is not installed or not configured correctly.");
+            _logger.LogWarning(" - FFmpeg is not installed or not configured correctly.");
             return true;
         }
 
         process.WaitForExit();
         if (process.ExitCode != 0)
-            _logger.LogWarning("FFmpeg is not installed or not configured correctly.");
+            _logger.LogWarning(" - FFmpeg is not installed or not configured correctly.");
 
         return process.ExitCode != 0;
     }
