@@ -1,18 +1,32 @@
 <div style="display:contents;">
-<MudDialog ContentClass="pa-0" Style="height: 78vh; width: 100%">
+<MudDialog ContentClass="pa-0 ma-0" Style="height: 78vh; width: 100%">
     <DialogContent>
-        <MudStack StretchItems="StretchItems.All" Row="true" Spacing="0">
-            <MudPaper Elevation="0">
-                <MudStack Row="true" Class="height-7 width-full border-b border-color-default">
-                    a
+        <MudStack Class="height-full" StretchItems="StretchItems.All" Row="true" Spacing="0">
+            <MudPaper Elevation="0" Width="60%">
+                <MudStack Row="true" Class="content-box height-8 px-4 pt-1 width-full border-b border-color-default">
+                    <TaskSectionSelect></TaskSectionSelect>
                 </MudStack>
-                <MudStack>
+                <MudStack Class="pa-4">
                     <p>editor</p>
                 </MudStack>
             </MudPaper>
-            <MudPaper Elevation="0">
-                <MudText Typo="Typo.subtitle2">Comments:</MudText>
-                <MudStack>
+            <MudPaper Width="40%" Class="mud-theme-dark rounded-l-0 height-full" Elevation="0">
+                <MudText Class="px-4 pt-2 pb-5" Typo="Typo.subtitle2">Comments:</MudText>
+                <MudStack class="overflow-y-auto" Style="height: calc(100% - 60px);">
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
                 </MudStack>
             </MudPaper>
         </MudStack>

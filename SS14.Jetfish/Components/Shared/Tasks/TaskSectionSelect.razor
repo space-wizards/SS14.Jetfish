@@ -1,0 +1,23 @@
+<MudSelect T="string" ValueChanged="SectionChanged" Value="SectionTitle" FitContent="true">
+    @foreach (var projectSection in Sections)
+    {
+        <MudSelectItem T="string" value="@(projectSection.Key)">@projectSection.Key</MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    private string SectionTitle { get; set; } = string.Empty;
+    private Dictionary<string, int> Sections { get; set; } = new()
+    {
+        {"Test 1", 0},
+        {"Test 2", 1},
+        {"Test 3", 2},
+    };
+
+    private Task SectionChanged(string arg)
+    {
+        SectionTitle = arg;
+        return Task.CompletedTask;
+    }
+
+}

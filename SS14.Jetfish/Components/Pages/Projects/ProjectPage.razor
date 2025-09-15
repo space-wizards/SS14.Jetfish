@@ -24,7 +24,10 @@
         </AuthorizeResource>
     </SectionContent>
     <div class="project-background" style="@GetBackground()">
-        <ContentImage Fluid="true" Style="width: 100%;" Type="FileType.Project" ProjectId="@Project.Id" FileId="@(Guid.Parse(Project.Background))"></ContentImage>
+        @if (Project.BackgroundSpecifier == ProjectBackgroundSpecifier.Image)
+        {
+            <ContentImage Fluid="true" Style="width: 100%;" Type="FileType.Project" ProjectId="@Project.Id" FileId="@(Guid.Parse(Project.Background))"></ContentImage>
+        }
     </div>
     <div style="display:contents;">
         <div class="board-container">

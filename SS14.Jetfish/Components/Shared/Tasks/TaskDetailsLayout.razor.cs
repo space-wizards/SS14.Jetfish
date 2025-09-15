@@ -24,6 +24,7 @@ public partial class TaskDetailsLayout : ComponentBase, IDisposable
     [Inject]
     private IConcurrentEventBus EventBus { get; set; } = null!;
 
+
     /// <summary>
     /// The card to load.
     /// </summary>

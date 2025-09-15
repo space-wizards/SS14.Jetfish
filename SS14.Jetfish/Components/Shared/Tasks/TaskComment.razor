@@ -1,0 +1,20 @@
+<MudStack Class="@Class" Row="true" Spacing="0">
+    <MudAvatar></MudAvatar>
+    <MudStack Class="ml-2" Spacing="1">
+        <MudStack Class="height-6" Row="true" Spacing="0">
+            <MudText Typo="Typo.subtitle2">Test User</MudText>
+        </MudStack>
+        <MudText Typo="Typo.body2">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda, ea hic? A deleniti excepturi illo quis reprehenderit, voluptate? Dicta dolorem eveniet expedita fugiat minus molestias nobis quaerat qui reiciendis voluptatem!
+        </MudText>
+        <MudStack Class="height-6" Row="true" Spacing="0" Justify="Justify.FlexEnd">
+            <MudText Class="" Typo="Typo.caption">12.09.2025 23:24</MudText>
+        </MudStack>
+    </MudStack>
+</MudStack>
+
+@code
+{
+    [Parameter]
+    public string Class { get; set; } = "";
+}

@@ -192,6 +192,11 @@ h1:focus {
     height: calc(1rem * 2.5);
 }
 
+.height-full
+{
+    height: 100%;
+}
+
 .width-full
 {
     width: 100%;
@@ -201,6 +206,12 @@ h1:focus {
 {
     border-color: var(--mud-palette-lines-default);
 }
+
+.content-box
+{
+    box-sizing: content-box;
+}
+
 /* Mud component overrides */
 .mud-button-root.mud-button.border-transparent
 {
