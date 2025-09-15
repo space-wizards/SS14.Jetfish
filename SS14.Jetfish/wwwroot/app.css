@@ -141,6 +141,66 @@ h1:focus {
     outline: 1px solid var(--mud-palette-info);
 }
 
+/* cries in scss */
+.height-1
+{
+    height: calc(1rem * 0.25);
+}
+
+.height-2
+{
+    height: calc(1rem * 0.5);
+}
+
+.height-3
+{
+    height: calc(1rem * 0.75);
+}
+
+.height-4
+{
+    height: calc(1rem * 1);
+}
+
+.height-5
+{
+    height: calc(1rem * 1.25);
+}
+
+.height-6
+{
+    height: calc(1rem * 1.5);
+}
+
+.height-7
+{
+    height: calc(1rem * 1.75);
+}
+
+.height-8
+{
+    height: calc(1rem * 2);
+}
+
+.height-9
+{
+    height: calc(1rem * 2.25);
+}
+
+.height-10
+{
+    height: calc(1rem * 2.5);
+}
+
+.width-full
+{
+    width: 100%;
+}
+
+.border-color-default
+{
+    border-color: var(--mud-palette-lines-default);
+}
 /* Mud component overrides */
 .mud-button-root.mud-button.border-transparent
 {

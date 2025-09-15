@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using SS14.Jetfish.Projects.Events;
 using SS14.Jetfish.Components.Shared.Dialogs;
+using SS14.Jetfish.Components.Shared.Tasks;
 using SS14.Jetfish.Core.Events;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Database;
@@ -361,13 +362,13 @@ public partial class ProjectPage : ComponentBase, IDisposable
 
     private async Task OpenCard(TaskItem item)
     {
-        await DialogService.ShowAsync<CardDialog>(item.Title, new DialogParameters()
+        await DialogService.ShowAsync<TaskDetailsLayout>(item.Title, new DialogParameters()
         {
-            { nameof(CardDialog.CardId), item.Id },
+            { nameof(TaskDetailsLayout.CardId), item.Id },
         }, new DialogOptions()
         {
             BackdropClick = true,
-            MaxWidth = MaxWidth.Medium,
+            MaxWidth = MaxWidth.Large,
             NoHeader = true,
         });
     }

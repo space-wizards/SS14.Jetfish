@@ -15,7 +15,7 @@ using SS14.Jetfish.Security.Model;
 
 namespace SS14.Jetfish.Components.Shared.Dialogs;
 
-public partial class CardDialog : ComponentBase, IDisposable
+public partial class OldCardDialog : ComponentBase, IDisposable
 {
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = null!;
