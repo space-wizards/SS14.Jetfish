@@ -212,8 +212,18 @@ h1:focus {
     box-sizing: content-box;
 }
 
+.align-content-center
+{
+    align-content: center;
+}
+
 /* Mud component overrides */
 .mud-button-root.mud-button.border-transparent
+{
+    border-color: transparent;
+}
+
+.mud-menu.border-transparent .mud-button-root
 {
     border-color: transparent;
 }
