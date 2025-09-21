@@ -1,6 +1,9 @@
-﻿<div class="mrrp-meow">
+﻿<div class="@Class">
     <MudMarkdown
-        Value="@Text"
+        Value="@(Text ?? string.Empty)"
         MarkdownPipeline="@MarkdownPipeline"
-        Styling="@Styling"/>
+        Styling="@Styling"
+        Props="@Props"
+    />
 </div>
+

@@ -1,0 +1,17 @@
+@page "/debug/markdown"
+@using SS14.Jetfish.Components.Shared.Markdown
+@using SS14.Jetfish.Projects.Model
+
+<SectionContent SectionName="page-title">Markdown Test Page</SectionContent>
+
+<MarkdownEditor
+    CancelText="Cancel"
+    SubmitText="Save"
+    MaxLength="CardComment.MaxCommentContentLength"
+    ParameterText="Lorem ipsum dolor sit amet, consectetur adipiscing elit."/>
+
+
+<MarkdownEditorInterop TextToInitWith="Lorem ipsum dolor sit amet, consectetur adipiscing elit."/>
+@code {
+
+}

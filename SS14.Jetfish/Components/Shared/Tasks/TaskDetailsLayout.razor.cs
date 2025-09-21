@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Services.Interfaces;
+using SS14.Jetfish.Projects.Model;
 using SS14.Jetfish.Projects.Repositories;
 using SS14.Jetfish.Security.Model;
 
@@ -30,6 +31,17 @@ public partial class TaskDetailsLayout : ComponentBase, IDisposable
     /// </summary>
     [Parameter]
     public Guid CardId { get; set; }
+
+    private Card? Task { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        Task = await ProjectRepository.GetCard(CardId);
+        StateHasChanged();
+    }
 
     public void Dispose()
     {

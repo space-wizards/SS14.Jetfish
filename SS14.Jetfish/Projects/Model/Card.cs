@@ -5,10 +5,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SS14.Jetfish.Core.Extensions;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Security.Model;
+using SS14.Jetfish.Security.Services.Interfaces;
 
 namespace SS14.Jetfish.Projects.Model;
 
-public sealed class Card : IEntityTypeConfiguration<Card>, IRecord<Guid>
+// TODO: Honestly, this should be called Task or ProjectTask (to not clash with .net Task)
+public sealed class Card : IEntityTypeConfiguration<Card>, IAuthoredResource, IRecord<Guid>
 {
     public const int CardTitleMaxLength = 200;
     public const int CardDescriptionMaxLength = 50_000;

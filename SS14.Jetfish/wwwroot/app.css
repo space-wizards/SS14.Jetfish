@@ -217,6 +217,10 @@ h1:focus {
     align-content: center;
 }
 
+.color-primary
+{
+    color: var(--mud-palette-text-primary) !important;
+}
 /* Mud component overrides */
 .mud-button-root.mud-button.border-transparent
 {
@@ -226,4 +230,10 @@ h1:focus {
 .mud-menu.border-transparent .mud-button-root
 {
     border-color: transparent;
+}
+
+/* CM */
+.cm-editor, .cm-announced, .cm-scroller, .cm-content
+{
+    min-height: inherit !important;
 }

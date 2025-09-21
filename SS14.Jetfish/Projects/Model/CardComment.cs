@@ -5,10 +5,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SS14.Jetfish.Core.Extensions;
 using SS14.Jetfish.Core.Repositories;
 using SS14.Jetfish.Security.Model;
+using SS14.Jetfish.Security.Services.Interfaces;
 
 namespace SS14.Jetfish.Projects.Model;
 
-public sealed class CardComment : IEntityTypeConfiguration<CardComment>, IRecord<Guid>
+public sealed class CardComment : IEntityTypeConfiguration<CardComment>, IAuthoredResource, IRecord<Guid>
 {
     public const int MaxCommentContentLength = 50_000;
 
@@ -19,6 +20,7 @@ public sealed class CardComment : IEntityTypeConfiguration<CardComment>, IRecord
     public Card Card { get; set; } = null!;
 
     public User Author { get; set; } = null!;
+    public Guid AuthorId { get; set; }
 
     [Column(TypeName = "Text")]
     [MaxLength(MaxCommentContentLength)]

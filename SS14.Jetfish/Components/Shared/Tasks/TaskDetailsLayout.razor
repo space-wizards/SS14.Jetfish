@@ -13,20 +13,10 @@
             <MudPaper Width="40%" Class="mud-theme-dark rounded-l-0 height-full" Elevation="0">
                 <MudText Class="px-4 pt-2 pb-5" Typo="Typo.subtitle2">Comments:</MudText>
                 <MudStack class="overflow-y-auto" Style="height: calc(100% - 60px);">
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
-                    <TaskComment Class="width-full px-4 border-b border-color-default"></TaskComment>
+                    @foreach (var comment in Task?.Comments ?? [])
+                    {
+                        <TaskComment Comment="comment" Class="width-full px-4 border-b border-color-default"/>
+                    }
                 </MudStack>
             </MudPaper>
         </MudStack>

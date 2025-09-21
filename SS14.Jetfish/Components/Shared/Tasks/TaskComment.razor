@@ -1,30 +1,51 @@
+@using SS14.Jetfish.Components.Pages.User
+@using SS14.Jetfish.Components.Shared.Markdown
+@using SS14.Jetfish.Projects.Model
+@using SS14.Jetfish.Security.Extensions
+@if(Comment == null)
+    return;
+
+
+
 <MudStack Class="@Class" Row="true" Spacing="0">
-    <MudAvatar></MudAvatar>
-    <MudStack Class="ml-2" Spacing="1">
+    <UserAvatar UserOverride="Comment.Author"/>
+    <MudStack Class="ml-3 width-full" Spacing="1">
         <MudStack Class="height-7" Row="true" Spacing="1">
-            <MudText Class="align-content-center" Typo="Typo.subtitle2">Test User</MudText>
+            <MudText Class="align-content-center color-primary" Typo="Typo.subtitle2">@Comment.Author.DisplayName</MudText>
             <MudSpacer></MudSpacer>
-            <MudTooltip Text="Edit Comment">
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" Class="border-transparent" Size="Size.Small" aria-label="edit comment"/>
-            </MudTooltip>
-            <MudTooltip Text="Delete Comment">
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Class="border-transparent" Size="Size.Small" aria-label="delete comment"/>
-            </MudTooltip>
+            <AuthorizeResource Override="@(Comment?.Card.IsOwnedBy(User) ?? false)" Policy="@Permission.ProjectCardCommentEdit.Name()" Resource="@Comment?.Card.ProjectId">
+                <MudTooltip Text="Edit Comment">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" Class="border-transparent"
+                                   OnClick="@(() => EditorOpen = true)"
+                                   Size="Size.Small" aria-label="edit comment"/>
+                </MudTooltip>
+            </AuthorizeResource>
+            <AuthorizeResource Override="@(Comment?.Card.IsOwnedBy(User) ?? false)" Policy="@Permission.ProjectCardCommentDelete.Name()" Resource="@Comment?.Card.ProjectId">
+                <MudTooltip Text="Delete Comment">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Class="border-transparent" Size="Size.Small" aria-label="delete comment"/>
+                </MudTooltip>
+            </AuthorizeResource>
             @*<MudMenu Icon="@Icons.Material.Filled.MoreHoriz" Variant="Variant.Outlined" Size="Size.Small" Class="border-transparent" AriaLabel="Open comment menu">
-                <MudMenuItem Label="Delete" Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error"/>
-            </MudMenu>*@
+                    <MudMenuItem Label="Delete" Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error"/>
+                </MudMenu>*@
         </MudStack>
-        <MudText Typo="Typo.body2">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda, ea hic? A deleniti excepturi illo quis reprehenderit, voluptate? Dicta dolorem eveniet expedita fugiat minus molestias nobis quaerat qui reiciendis voluptatem!
-        </MudText>
+        <MarkdownText Class="ml-2" Text="@Comment.Content"/>
         <MudStack Class="height-6" Row="true" Spacing="0" Justify="Justify.FlexEnd">
-            <MudText Class="" Typo="Typo.caption">12.09.2025 23:24</MudText>
+            <MudText Class="color-primary" Typo="Typo.caption"><LocalDate Date="@Comment.CreatedAt"/></MudText>
         </MudStack>
     </MudStack>
 </MudStack>
 
 @code
 {
+    [CascadingParameter]
+    public User? User { get; set; }
+
     [Parameter]
     public string Class { get; set; } = "";
+
+    [Parameter]
+    public CardComment? Comment { get; set; }
+
+    public bool EditorOpen { get; set; }
 }

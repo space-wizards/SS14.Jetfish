@@ -90,4 +90,9 @@ public static class PermissionExtensions
         additionalPermissions[^1] = permission;
         return GetPolicyNames(additionalPermissions);
     }
+
+   public static string Name(this Permission permission)
+   {
+       return GetPolicyNames(permission);
+   }
 }

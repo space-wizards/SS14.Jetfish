@@ -5,6 +5,7 @@ import { oneDark } from "@codemirror/theme-one-dark"
 
 let views = new Map();
 
+// TODO: Use a mutation observer to detect when the editor is removed from the DOM and destroy it
 export function initializeEditor(domId) {
     const parent = document.getElementById(domId);
     if (!parent) {
