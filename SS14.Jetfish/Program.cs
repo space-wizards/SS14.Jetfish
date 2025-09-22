@@ -149,6 +149,9 @@ if (!app.Environment.IsDevelopment())
 if (serverConfiguration.UseHttps)
     app.UseHttpsRedirection();
 
+if (serverConfiguration.UseForwardedHeaders)
+    app.UseForwardedHeaders();
+
 app.UseSerilogRequestLogging(o => o.GetLevel = HttpContextExtension.GetRequestLogLevel);
 
 app.UseAntiforgery();
