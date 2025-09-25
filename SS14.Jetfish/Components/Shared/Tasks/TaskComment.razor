@@ -2,6 +2,10 @@
 @using SS14.Jetfish.Components.Shared.Markdown
 @using SS14.Jetfish.Projects.Model
 @using SS14.Jetfish.Security.Extensions
+
+@inject IJsApiService JsApiService
+@inject ISnackbar Snackbar
+
 @if(Comment == null)
     return;
 
@@ -25,6 +29,11 @@
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Class="border-transparent" Size="Size.Small" aria-label="delete comment"/>
                 </MudTooltip>
             </AuthorizeResource>
+            <MudTooltip Text="Copy Text">
+                <MudIconButton Icon="@Icons.Material.Filled.ContentCopy" Variant="Variant.Outlined" Class="border-transparent"
+                               OnClick="@CopyText"
+                               Size="Size.Small" aria-label="delete comment"/>
+            </MudTooltip>
             @*<MudMenu Icon="@Icons.Material.Filled.MoreHoriz" Variant="Variant.Outlined" Size="Size.Small" Class="border-transparent" AriaLabel="Open comment menu">
                     <MudMenuItem Label="Delete" Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error"/>
                 </MudMenu>*@
@@ -48,4 +57,14 @@
     public CardComment? Comment { get; set; }
 
     public bool EditorOpen { get; set; }
+
+    private async Task CopyText()
+    {
+        await JsApiService.CopyToClipboardAsync(Comment?.Content ?? "");
+        Snackbar.Add("Copied text to clipboard!", Severity.Success,
+            options =>
+            {
+                options.Icon = Icons.Material.Filled.Check;
+            });
+    }
 }
