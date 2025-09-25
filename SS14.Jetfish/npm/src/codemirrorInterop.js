@@ -1,4 +1,6 @@
 ﻿import { EditorView, minimalSetup } from "codemirror"
+import { keymap } from "@codemirror/view"
+import { indentWithTab, defaultKeymap } from "@codemirror/commands"
 import { markdown } from "@codemirror/lang-markdown";
 import { placeholder } from "@codemirror/view";
 import { oneDark } from "@codemirror/theme-one-dark"
@@ -19,10 +21,14 @@ export function initializeEditor(domId) {
             minimalSetup,
             markdown(),
             placeholder("Click to start typing... Markdown supported!"),
-            oneDark
+            oneDark,
+            keymap.of([defaultKeymap, indentWithTab]),
         ],
         parent: parent,
     })
+
+    // Prevent tab from being captured by default
+    view.setTabFocusMode(true);
 
     views.set(domId, view);
     console.debug("Initialized Editor: ", domId, view);

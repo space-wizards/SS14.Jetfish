@@ -233,6 +233,11 @@ h1:focus {
 }
 
 /* CM */
+.cm-editor, .cm-content
+{
+    height: inherit !important;
+}
+
 .cm-editor, .cm-announced, .cm-scroller, .cm-content
 {
     min-height: inherit !important;
