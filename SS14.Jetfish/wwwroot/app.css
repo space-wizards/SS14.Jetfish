@@ -221,6 +221,12 @@ h1:focus {
 {
     color: var(--mud-palette-text-primary) !important;
 }
+
+.color-secondary
+{
+    color: var(--mud-palette-text-secondary) !important;
+}
+
 /* Mud component overrides */
 .mud-button-root.mud-button.border-transparent
 {

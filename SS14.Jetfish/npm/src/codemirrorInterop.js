@@ -4,6 +4,7 @@ import { indentWithTab, defaultKeymap } from "@codemirror/commands"
 import { markdown } from "@codemirror/lang-markdown";
 import { placeholder } from "@codemirror/view";
 import { oneDark } from "@codemirror/theme-one-dark"
+import {createInfoPanel} from "./editor/infoPanel";
 
 let views = new Map();
 
@@ -23,6 +24,7 @@ export function initializeEditor(domId) {
             placeholder("Click to start typing... Markdown supported!"),
             oneDark,
             keymap.of([defaultKeymap, indentWithTab]),
+            createInfoPanel()
         ],
         parent: parent,
     })
