@@ -1,12 +1,33 @@
-﻿import { EditorView, minimalSetup } from "codemirror"
-import { keymap } from "@codemirror/view"
-import { indentWithTab, defaultKeymap } from "@codemirror/commands"
+﻿import { EditorView } from "codemirror";
+import { indentWithTab, history, defaultKeymap, historyKeymap } from "@codemirror/commands";
 import { markdown } from "@codemirror/lang-markdown";
-import { placeholder } from "@codemirror/view";
+import { EditorState } from '@codemirror/state';
+import { highlightSelectionMatches, selectSelectionMatches, selectNextOccurrence } from '@codemirror/search';
+import { indentOnInput, syntaxHighlighting, defaultHighlightStyle, bracketMatching } from '@codemirror/language';
+import { highlightSpecialChars, drawSelection, dropCursor, keymap, placeholder  } from "@codemirror/view";
+import { closeBrackets, autocompletion, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete';
 import { oneDark } from "@codemirror/theme-one-dark"
-import {createInfoPanel} from "./editor/infoPanel";
+import { createInfoPanel } from "./editor/infoPanel";
 
 let views = new Map();
+
+/**
+ * Toggles the tab focus mode while also causing a view state update so the info panel gets updated.
+ * @param {EditorView} view
+ * @returns {boolean}
+ */
+const customToggleTabFocusMode = view => {
+    view.setTabFocusMode();
+    // Figuring this out meant I had to dive into the codemirror source code. Great
+    view.dispatch(view.state.update(view.state.update(), { userEvent: "input" }));
+    return true;
+};
+
+const customKeymap = [
+    { key: "Ctrl-m", mac: "Shift-Alt-m", run: customToggleTabFocusMode, preventDefault: true },
+    { key: "Mod-Shift-l", run: selectSelectionMatches },
+    { key: "Mod-d", run: selectNextOccurrence, preventDefault: true }
+];
 
 // TODO: Use a mutation observer to detect when the editor is removed from the DOM and destroy it
 export function initializeEditor(domId) {
@@ -19,11 +40,30 @@ export function initializeEditor(domId) {
     let view = new EditorView({
         doc: "",
         extensions: [
-            minimalSetup,
+            highlightSpecialChars(),
+            history(),
+            drawSelection(),
+            dropCursor(),
+            EditorState.allowMultipleSelections.of(true),
+            indentOnInput(),
+            syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+            bracketMatching(),
+            closeBrackets(),
+            autocompletion(),
+            highlightSelectionMatches(),
             markdown(),
             placeholder("Click to start typing... Markdown supported!"),
             oneDark,
-            keymap.of([defaultKeymap, indentWithTab]),
+            keymap.of([
+                // Getting the keybind to work took so much effort wtf.
+                // For the future: use the spread operator to add keymaps and the earlier in the list the higher the priority.
+                ...customKeymap,
+                ...closeBracketsKeymap,
+                ...(defaultKeymap.filter(b => b.key !== "Ctrl-m")),
+                ...historyKeymap,
+                ...completionKeymap,
+                indentWithTab
+            ]),
             createInfoPanel()
         ],
         parent: parent,

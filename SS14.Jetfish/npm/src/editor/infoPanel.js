@@ -2,7 +2,9 @@ import {showPanel, EditorView} from "@codemirror/view";
 
 const template = () => `
 <div class="editor-info-panel">
-    <p>Tab Mode <span class="color-secondary info-tab-mode-content"></span></p>
+    <p>Help: <kbd>F1</kbd></p>
+    <p style="flex-grow: 1"></p>
+    <p>Tab Mode <span class="info-tab-mode-content"></span><kbd>Ctrl-M</kbd></p>
 </div>
 `
 

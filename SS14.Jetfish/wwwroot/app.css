@@ -248,3 +248,35 @@ h1:focus {
 {
     min-height: inherit !important;
 }
+
+.cm-panels.cm-panels-bottom
+{
+    border-top: none !important;
+}
+
+.editor-info-panel
+{
+    display: flex;
+    justify-content: end;
+    padding: 0.2rem 0.5rem;
+    font-size: var(--mud-typography-caption-size);
+}
+
+.info-tab-mode-content
+{
+    display: inline-block;
+    width: 50px;
+    color: var(--mud-palette-info) !important;
+    opacity: 80%;
+}
+
+kbd
+{
+    font-size: 0.55rem;
+    padding: 0.2em 0.3em;
+    border: solid 1px;
+    border-radius: 0.3em;
+    margin: 0 4px;
+    font-weight: bold;
+    color: var(--mud-palette-text-secondary);
+}
