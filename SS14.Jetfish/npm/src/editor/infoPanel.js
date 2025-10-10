@@ -4,7 +4,7 @@ const template = () => `
 <div class="editor-info-panel">
     <p>Help: <kbd>F1</kbd></p>
     <p style="flex-grow: 1"></p>
-    <p>Tab Mode <span class="info-tab-mode-content"></span><kbd>Ctrl-M</kbd></p>
+    <p>Tab Mode <span class="info-tab-mode-content"></span><kbd>Ctrl</kbd>+<kbd>M</kbd></p>
 </div>
 `
 

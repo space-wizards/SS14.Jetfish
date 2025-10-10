@@ -17,7 +17,7 @@ export default {
             moduleDirectories: ['node_modules']
         }),
         //commonjs(),
-        terser(),
+        //terser(),
         visualizer({ filename: './stats.html' })
     ],
     treeshake: {

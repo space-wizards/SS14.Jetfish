@@ -8,6 +8,7 @@ import { highlightSpecialChars, drawSelection, dropCursor, keymap, placeholder  
 import { closeBrackets, autocompletion, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete';
 import { oneDark } from "@codemirror/theme-one-dark"
 import { createInfoPanel } from "./editor/infoPanel";
+import {helpPanelExtension} from "./editor/helpPanel";
 
 let views = new Map();
 
@@ -64,6 +65,7 @@ export function initializeEditor(domId) {
                 ...completionKeymap,
                 indentWithTab
             ]),
+            helpPanelExtension,
             createInfoPanel()
         ],
         parent: parent,
