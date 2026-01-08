@@ -18,27 +18,18 @@
             <MudText Class="align-content-center color-primary" Typo="Typo.subtitle2">@Comment.Author.DisplayName</MudText>
             <MudSpacer></MudSpacer>
             <AuthorizeResource Override="@(Comment?.Card.IsOwnedBy(User) ?? false)" Policy="@Permission.ProjectCardCommentEdit.Name()" Resource="@Comment?.Card.ProjectId">
-                <MudTooltip Text="Edit Comment">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" Class="border-transparent"
-                                   OnClick="@(() => EditorOpen = true)"
-                                   Size="Size.Small" aria-label="edit comment"/>
-                </MudTooltip>
+                <TooltipButton Tooltip="Edit Comment" Icon="@Icons.Material.Filled.Edit" OnClick="@Edit"/>
             </AuthorizeResource>
             <AuthorizeResource Override="@(Comment?.Card.IsOwnedBy(User) ?? false)" Policy="@Permission.ProjectCardCommentDelete.Name()" Resource="@Comment?.Card.ProjectId">
-                <MudTooltip Text="Delete Comment">
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Class="border-transparent" Size="Size.Small" aria-label="delete comment"/>
-                </MudTooltip>
+                <TooltipButton Tooltip="Delete Comment" Icon="@Icons.Material.Filled.Delete" />
             </AuthorizeResource>
-            <MudTooltip Text="Copy Text">
-                <MudIconButton Icon="@Icons.Material.Filled.ContentCopy" Variant="Variant.Outlined" Class="border-transparent"
-                               OnClick="@CopyText"
-                               Size="Size.Small" aria-label="delete comment"/>
-            </MudTooltip>
+            <TooltipButton Tooltip="Copy Text" Icon="@Icons.Material.Filled.ContentCopy" OnClick="@CopyText"/>
             @*<MudMenu Icon="@Icons.Material.Filled.MoreHoriz" Variant="Variant.Outlined" Size="Size.Small" Class="border-transparent" AriaLabel="Open comment menu">
                     <MudMenuItem Label="Delete" Icon="@Icons.Material.Filled.Delete" IconColor="Color.Error"/>
                 </MudMenu>*@
         </MudStack>
-        <MarkdownText Class="ml-2" Text="@Comment.Content"/>
+        <!-- TODO: Remove margin from last p element in markdown -->
+        <MarkdownText Class="ml-2 markdown-margin-fix" Text="@Comment.Content"/>
         <MudStack Class="height-6" Row="true" Spacing="0" Justify="Justify.FlexEnd">
             <MudText Class="color-primary" Typo="Typo.caption"><LocalDate Date="@Comment.CreatedAt"/></MudText>
         </MudStack>
@@ -56,7 +47,8 @@
     [Parameter]
     public CardComment? Comment { get; set; }
 
-    public bool EditorOpen { get; set; }
+    [Parameter]
+    public EventCallback<CardComment> OnEdit { get; set; }
 
     private async Task CopyText()
     {
@@ -66,5 +58,13 @@
             {
                 options.Icon = Icons.Material.Filled.Check;
             });
+    }
+
+    private async Task Edit()
+    {
+        if (Comment == null)
+            return;
+
+        await OnEdit.InvokeAsync(Comment);
     }
 }

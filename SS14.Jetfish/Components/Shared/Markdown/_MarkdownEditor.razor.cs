@@ -5,7 +5,7 @@ using MudBlazor;
 
 namespace SS14.Jetfish.Components.Shared.Markdown;
 
-public partial class MarkdownEditor : MudComponentBase, IAsyncDisposable
+public partial class _MarkdownEditor : MudComponentBase
 {
     private string Text { set; get; } = string.Empty;
 
@@ -139,15 +139,15 @@ public partial class MarkdownEditor : MudComponentBase, IAsyncDisposable
         _isLoading = false;
     }
 
-    public async ValueTask DisposeAsync()
+    /*public async ValueTask DisposeAsync()
     {
         try
         {
-            await JsRuntime.InvokeVoidAsync("cmInterop.destroy", Editor.EditorGuid);
+            //await JsRuntime.InvokeVoidAsync("cmInterop.destroy", Editor.EditorGuid);
         }
         catch (JSDisconnectedException)
         {
             // we can safely ignore that.
         }
-    }
+    }*/
 }

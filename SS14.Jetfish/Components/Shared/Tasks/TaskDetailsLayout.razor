@@ -1,3 +1,4 @@
+@using SS14.Jetfish.Components.Shared.Markdown
 <div style="display:contents;">
 <MudDialog ContentClass="pa-0 ma-0" Style="height: 78vh; width: 100%">
     <DialogContent>
@@ -11,12 +12,15 @@
                 </MudStack>
             </MudPaper>
             <MudPaper Width="40%" Class="mud-theme-dark rounded-l-0 height-full" Elevation="0">
-                <MudText Class="px-4 pt-2 pb-5" Typo="Typo.subtitle2">Comments:</MudText>
-                <MudStack class="overflow-y-auto" Style="height: calc(100% - 60px);">
-                    @foreach (var comment in Task?.Comments ?? [])
-                    {
-                        <TaskComment Comment="comment" Class="width-full px-4 border-b border-color-default"/>
-                    }
+                <MudStack Spacing="0" Class="height-full">
+                    <MudText Class="px-4 pt-2 pb-5" Typo="Typo.subtitle2">Comments:</MudText>
+                    <MudStack class="overflow-y-auto flex-grow-1" Style="height: calc(100% - 60px);">
+                        @foreach (var comment in Task?.Comments ?? [])
+                        {
+                            <TaskComment Comment="comment" Class="width-full px-4 border-b border-color-default"/>
+                        }
+                    </MudStack>
+                    <MarkdownEditor Class="ma-2" Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit."/>
                 </MudStack>
             </MudPaper>
         </MudStack>

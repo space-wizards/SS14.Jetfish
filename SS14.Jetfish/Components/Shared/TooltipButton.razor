@@ -1,0 +1,32 @@
+@inherits MudComponentBase
+
+<MudTooltip Text="@Tooltip">
+    <MudIconButton
+        Icon="@Icon"
+        Variant="Variant.Outlined"
+        Class="border-transparent"
+        OnClick="@Click"
+        Size="@Size"
+        aria-label="@Tooltip"/>
+</MudTooltip>
+
+@code {
+
+    [Parameter]
+    public string? Icon { get; set; }
+
+    [Parameter]
+    public string? Tooltip { get; set; }
+
+    [Parameter]
+    public Size Size { get; set; } = Size.Small;
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private async Task Click()
+    {
+        await OnClick.InvokeAsync();
+    }
+
+}

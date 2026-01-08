@@ -3,7 +3,7 @@
 @code {
 
     [Parameter]
-    public string TextToInitWith { get; set; } = string.Empty;
+    public string InitialText { get; set; } = string.Empty;
 
     [Inject]
     private IJSRuntime JsRuntime { get; set; } = null!;
@@ -15,7 +15,7 @@
         if (!firstRender)
             return;
 
-        await InitializeEditor(TextToInitWith);
+        await InitializeEditor(InitialText);
     }
 
     private async Task InitializeEditor(string withText = "")

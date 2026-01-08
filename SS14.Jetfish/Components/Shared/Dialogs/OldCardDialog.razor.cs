@@ -42,7 +42,7 @@ public partial class OldCardDialog : ComponentBase, IDisposable
     private Card? Card { get; set; }
     private Dictionary<string, int> Lists { get; set; } = new Dictionary<string, int>();
     private string CardLaneTitle { get; set; } = string.Empty;
-    public MarkdownEditor CommentEditor { get; set; } = null!;
+    public _MarkdownEditor CommentEditor { get; set; } = null!;
     private bool _isEditing;
 
     private IDisposable? _subscriptions;

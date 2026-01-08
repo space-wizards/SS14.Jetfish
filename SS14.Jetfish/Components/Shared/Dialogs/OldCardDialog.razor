@@ -54,7 +54,7 @@
                 <MudText Typo="Typo.subtitle1">Created <LocalDate Date="@Card.CreatedAt"></LocalDate></MudText>
                 @if (_isEditing)
                 {
-                    <MarkdownEditor
+                    <_MarkdownEditor
                         CancelText="Cancel"
                         SubmitText="Save"
                         OnCancelClick="ToggleEdit"
@@ -122,7 +122,7 @@
                             <MudText>Add a comment</MudText>
                             <UserAvatar Size="Size.Medium"/>
                         </MudStack>
-                        <MarkdownEditor
+                        <_MarkdownEditor
                             SpinnerOnSubmit="true"
                             @ref="CommentEditor"
                             OnSubmitClick="CommentSubmit"

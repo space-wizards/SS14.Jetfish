@@ -1,42 +1,67 @@
-﻿@inherits MudComponentBase
+@inherits MudComponentBase
 
-<div style="display: contents;" class="editor-root">
-    <MudPaper Elevation="0" Style="position: relative">
-        <MudTabs
-            Elevation="2"
-            Rounded="true"
-            ApplyEffectsToContainer="true"
-            Class="@Class"
-            Style="@Style"
-            OnPreviewInteraction="OnPreviewInteraction"
-            @attributes="UserAttributes">
-            <MudTabPanel Text="Editor">
-                <MarkdownEditorInterop TextToInitWith="@Text" @ref="@Editor"/>
-            </MudTabPanel>
-            <MudTabPanel Text="Preview">
-                @if (string.IsNullOrEmpty(Text))
-                {
-                    <MarkdownText Text="Nothing to preview..."/>
-                }
-                else
-                {
-                    <MarkdownText Text="@Text"/>
-                }
-            </MudTabPanel>
-        </MudTabs>
-        <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled" Class="mt-4">
-            @if (CancelText != null)
+<MudPaper Style="min-height: 310px; overflow-y: auto;" Class="@Class">
+    <MudStack Style="height: 100%;" Spacing="0">
+        <MudToolBar Dense>
+            <TooltipButton
+                Size="Size.Medium"
+                Tooltip="Preview"
+                Icon="@(_showPreview ? Icons.Material.Filled.RemoveRedEye : Icons.Material.Outlined.RemoveRedEye)"
+                OnClick="@(TogglePreview)"/>
+            <MudSpacer/>
+            <TooltipButton
+                Size="Size.Medium"
+                Tooltip="Cancel"
+                Icon="@Icons.Material.Outlined.Close"
+                OnClick="@(async () => await OnCancel.InvokeAsync())"/>
+            <TooltipButton
+                Size="Size.Medium"
+                Tooltip="Save"
+                Icon="@Icons.Material.Outlined.Check"
+                OnClick="@(Save)"/>
+        </MudToolBar>
+        <div style="height: 100%; overflow-y: auto;">
+            @if (_showPreview)
             {
-                <MudButton OnClick="@(() => ButtonClicked(OnCancelClick, false, false))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">@CancelText</MudButton>
+                <MarkdownText Text="@Text" Class="editor pa-1" />
             }
-            <MudButton OnClick="@(() => ButtonClicked(OnSubmitClick, true, true))" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Save" Color="Color.Primary">@SubmitText</MudButton>
-        </MudButtonGroup>
-        @if (!string.IsNullOrEmpty(Error))
-        {
-            <MudText Color="Color.Error">@Error</MudText>
-        }
-        <MudOverlay ZIndex="9999" Visible="_isLoading" DarkBackground="true" Absolute="true">
-            <MudProgressCircular Color="Color.Secondary" Indeterminate="true" Class="loading-spinner"/>
-        </MudOverlay>
-    </MudPaper>
-</div>
+            else
+            {
+                <MarkdownEditorInterop @ref="_editor" InitialText="@Text" />
+            }
+        </div>
+    </MudStack>
+</MudPaper>
+
+@code {
+
+    private bool _showPreview;
+    private MarkdownEditorInterop? _editor;
+
+    [Parameter]
+    public string? Text { private get; set; }
+
+    [Parameter]
+    public EventCallback<string?> OnSave { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private async Task Save()
+    {
+        if (_editor != null)
+            Text = await _editor.GetText();
+
+        await OnSave.InvokeAsync(Text);
+    }
+
+    private async Task TogglePreview()
+    {
+        _showPreview = !_showPreview;
+        if (_showPreview && _editor != null)
+            Text = await _editor.GetText();
+
+        StateHasChanged();
+    }
+
+}
