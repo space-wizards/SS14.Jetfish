@@ -15,12 +15,21 @@
                 <MudStack Spacing="0" Class="height-full">
                     <MudText Class="px-4 pt-2 pb-5" Typo="Typo.subtitle2">Comments:</MudText>
                     <MudStack class="overflow-y-auto flex-grow-1" Style="height: calc(100% - 60px);">
-                        @foreach (var comment in Task?.Comments ?? [])
+                        @foreach (var comment in TaskDetails?.Comments ?? [])
                         {
-                            <TaskComment Comment="comment" Class="width-full px-4 border-b border-color-default"/>
+                            <TaskComment
+                                Comment="comment"
+                                Class="@("width-full px-4 border-b " + (CurrentlyEditedComment?.Id == comment.Id ? "border-color-highlight" : "border-color-default"))"
+                                IsBeingEdited="@(CurrentlyEditedComment?.Id == comment.Id)"
+                                OnEdit="async value => await StartEditingComment(value.Item1, value.Item2)"/>
                         }
                     </MudStack>
-                    <MarkdownEditor Class="ma-2" Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit."/>
+                    <MarkdownEditor
+                        @ref="_editor"
+                        OnSave="text => SaveComment(text)"
+                        OnCancel="@CancelEditingComment"
+                        Class="ma-2"
+                        Text="@CurrentEditorText"/>
                 </MudStack>
             </MudPaper>
         </MudStack>

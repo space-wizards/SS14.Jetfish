@@ -50,14 +50,6 @@ public partial class ApplicationDbContext : DbContext, IConfigDbContext
         return (true, errors);
     }
 
-    public async Task<Result<Box<int>, Exception>> SaveChangeAsyncNoThrow(CancellationToken ct = new())
-    {
-        if (ValidateChanges().Count > 0)
-            throw new ValidationException();
-
-        return Result<Box<int>, Exception>.Success(await base.SaveChangesAsync(ct));
-    }
-
     public override Task<int> SaveChangesAsync(CancellationToken ct = new())
     {
         if (ValidateChanges().Count > 0)

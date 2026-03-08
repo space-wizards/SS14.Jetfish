@@ -11,7 +11,7 @@
             OnPreviewInteraction="OnPreviewInteraction"
             @attributes="UserAttributes">
             <MudTabPanel Text="Editor">
-                <MarkdownEditorInterop InitialText="@Text" @ref="@Editor"/>
+                <MarkdownEditorInterop Text="@Text" @ref="@Editor"/>
             </MudTabPanel>
             <MudTabPanel Text="Preview">
                 @if (string.IsNullOrEmpty(Text))

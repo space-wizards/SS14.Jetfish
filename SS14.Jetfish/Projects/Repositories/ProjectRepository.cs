@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using SS14.Jetfish.Core.Repositories;
-using SS14.Jetfish.Core.Services;
 using SS14.Jetfish.Core.Services.Interfaces;
 using SS14.Jetfish.Core.Types;
 using SS14.Jetfish.Database;
@@ -377,6 +376,7 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
             .ToListAsync();
     }
 
+    // TODO: Remove
     public async Task<Core.Types.Void> UpdateCardLite(Card toUpdate)
     {
         var card = await _context.Card
@@ -404,7 +404,8 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
         return Core.Types.Void.Nothing;
     }
 
-    public async Task<Core.Types.Void> AddComment(Guid cardId, User user, string text)
+    // TODO: Remove
+    public async Task<Result<CardComment, Exception>> AddComment(Guid cardId, User user, string text)
     {
         var card = await _context.Card
             .FirstAsync(card => card.Id == cardId);
@@ -417,7 +418,9 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
             CardId = cardId,
         });
 
-        await _context.SaveChangesAsync();
+        var result = await SaveChanges(card, _context);
+        if (!result.IsSuccess)
+            return Result<CardComment, Exception>.Failure(result.Error);
 
         var returnValue = await _context.CardComment
             .AsNoTracking()
@@ -431,10 +434,11 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
                 Comment = returnValue,
             });
 
-        return Core.Types.Void.Nothing;
+        return Result<CardComment, Exception>.Success(returnValue);
     }
 
-    public async Task<Core.Types.Void> EditComment(Guid commentId, string newText)
+    // TODO: Remove
+    public async Task<Result<CardComment, Exception>> EditComment(Guid commentId, string newText)
     {
         var comment = await _context.CardComment
             .Include(cardComment => cardComment.Card)
@@ -442,7 +446,10 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
 
         comment.Content = newText;
         comment.UpdatedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
+
+        var result = await SaveChanges(comment, _context);
+        if (!result.IsSuccess)
+            return Result<CardComment, Exception>.Failure(result.Error);
 
         var untrackedComment = await _context.CardComment
             .AsNoTracking()
@@ -454,17 +461,21 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
                 Comment = untrackedComment,
             });
 
-        return Core.Types.Void.Nothing;
+        return Result<CardComment, Exception>.Success(untrackedComment);
     }
 
-    public async Task<Core.Types.Void> DeleteComment(Guid commentId)
+    // TODO: Remove
+    public async Task<Result<Core.Types.Void, Exception>> DeleteComment(Guid commentId)
     {
         var comment = await _context.CardComment
             .Include(cardComment => cardComment.Card)
             .FirstAsync(x => x.Id == commentId);
 
         _context.CardComment.Remove(comment);
-        await _context.SaveChangesAsync();
+        var result = await SaveChanges(comment, _context);
+        if (!result.IsSuccess)
+            return Result<Core.Types.Void, Exception>.Failure(result.Error);
+
 
         await _eventBus.PublishAsync(comment.CardId,
             new CommentDeletedEvent()
@@ -472,6 +483,6 @@ public class ProjectRepository : BaseRepository<Project, Guid>, IResourceReposit
                 CommentId = commentId,
             });
 
-        return Core.Types.Void.Nothing;
+        return Result<Core.Types.Void, Exception>.Success(Core.Types.Void.Nothing);
     }
 }

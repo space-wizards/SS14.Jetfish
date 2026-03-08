@@ -218,6 +218,11 @@ kbd
     border-color: var(--mud-palette-lines-default);
 }
 
+.border-color-highlight
+{
+    border-color: var(--mud-palette-info);
+}
+
 .content-box
 {
     box-sizing: content-box;

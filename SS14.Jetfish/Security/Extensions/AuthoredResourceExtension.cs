@@ -7,7 +7,15 @@ public static class AuthoredResourceExtension
 {
     public static bool IsOwnedBy(this IAuthoredResource resource, User? user)
     {
-        return user != null && resource.AuthorId == user.Id;
+        try
+        {
+            return user != null && resource.AuthorId == user.Id;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public static bool IsOwnedBy(this IAuthoredResource resource, Guid userId)

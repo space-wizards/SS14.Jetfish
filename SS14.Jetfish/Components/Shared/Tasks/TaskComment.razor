@@ -17,10 +17,10 @@
         <MudStack Class="height-7" Row="true" Spacing="1">
             <MudText Class="align-content-center color-primary" Typo="Typo.subtitle2">@Comment.Author.DisplayName</MudText>
             <MudSpacer></MudSpacer>
-            <AuthorizeResource Override="@(Comment?.Card.IsOwnedBy(User) ?? false)" Policy="@Permission.ProjectCardCommentEdit.Name()" Resource="@Comment?.Card.ProjectId">
-                <TooltipButton Tooltip="Edit Comment" Icon="@Icons.Material.Filled.Edit" OnClick="@Edit"/>
+            <AuthorizeResource Override="@(Comment?.IsOwnedBy(User) ?? false)" Policy="@Permission.ProjectCardCommentEdit.Name()" Resource="@Comment?.Card.ProjectId">
+                <TooltipButton Disabled="@IsBeingEdited" Tooltip="Edit Comment" Icon="@Icons.Material.Filled.Edit" OnClick="@Edit"/>
             </AuthorizeResource>
-            <AuthorizeResource Override="@(Comment?.Card.IsOwnedBy(User) ?? false)" Policy="@Permission.ProjectCardCommentDelete.Name()" Resource="@Comment?.Card.ProjectId">
+            <AuthorizeResource Override="@(Comment?.IsOwnedBy(User) ?? false)" Policy="@Permission.ProjectCardCommentDelete.Name()" Resource="@Comment?.Card.ProjectId">
                 <TooltipButton Tooltip="Delete Comment" Icon="@Icons.Material.Filled.Delete" />
             </AuthorizeResource>
             <TooltipButton Tooltip="Copy Text" Icon="@Icons.Material.Filled.ContentCopy" OnClick="@CopyText"/>
@@ -48,7 +48,10 @@
     public CardComment? Comment { get; set; }
 
     [Parameter]
-    public EventCallback<CardComment> OnEdit { get; set; }
+    public bool IsBeingEdited { get; set; }
+
+    [Parameter]
+    public EventCallback<(CardComment, Guid)> OnEdit { get; set; }
 
     private async Task CopyText()
     {
@@ -65,6 +68,6 @@
         if (Comment == null)
             return;
 
-        await OnEdit.InvokeAsync(Comment);
+        await OnEdit.InvokeAsync((Comment, Guid.NewGuid()));
     }
 }

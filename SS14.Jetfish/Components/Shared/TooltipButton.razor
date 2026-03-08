@@ -7,6 +7,7 @@
         Class="border-transparent"
         OnClick="@Click"
         Size="@Size"
+        Disabled="@Disabled"
         aria-label="@Tooltip"/>
 </MudTooltip>
 
@@ -20,6 +21,9 @@
 
     [Parameter]
     public Size Size { get; set; } = Size.Small;
+
+    [Parameter]
+    public bool Disabled { get; set; }
 
     [Parameter]
     public EventCallback OnClick { get; set; }

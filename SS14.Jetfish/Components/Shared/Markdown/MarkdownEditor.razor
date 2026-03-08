@@ -27,7 +27,7 @@
             }
             else
             {
-                <MarkdownEditorInterop @ref="_editor" InitialText="@Text" />
+                <MarkdownEditorInterop @ref="_editor" Text="@Text" />
             }
         </div>
     </MudStack>
@@ -47,6 +47,24 @@
     [Parameter]
     public EventCallback OnCancel { get; set; }
 
+    public async Task<string?> GetText()
+    {
+        if (_editor == null)
+            return null;
+
+        return await _editor.GetText();
+    }
+
+    public async Task ClearText()
+    {
+        _showPreview = false;
+        Text = null;
+        if (_editor != null)
+            await _editor.SetText("");
+
+        StateHasChanged();
+    }
+
     private async Task Save()
     {
         if (_editor != null)
@@ -63,5 +81,4 @@
 
         StateHasChanged();
     }
-
 }
