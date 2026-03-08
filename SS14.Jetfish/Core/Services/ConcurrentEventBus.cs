@@ -28,7 +28,12 @@ public class ConcurrentEventBus : IConcurrentEventBus
 
     public async Task PublishAsync<TEvent>(Guid key, TEvent @event, CancellationToken ct = default) where TEvent : ConcurrentEvent
     {
-        var (state, nextState) = _stateStore.Advance(key);
+        await PublishAsync(key, key, @event, ct);
+    }
+
+    public async Task PublishAsync<TEvent>(Guid key, Guid stateKey, TEvent @event, CancellationToken ct = default) where TEvent : ConcurrentEvent
+    {
+        var (state, nextState) = _stateStore.Advance(stateKey);
         _logger.LogDebug("Publishing event {EventName} with state {State}", typeof(TEvent).Name, state);
         @event.StateId = state;
         @event.NextStateId = nextState;

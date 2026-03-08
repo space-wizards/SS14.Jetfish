@@ -73,7 +73,7 @@ public class CommentRepository : BaseRepository<CardComment, Guid>
             .OrderBy(c => c.CreatedAt)
             .LastAsync(c => c.Author.Id == user.Id);
 
-        await _eventBus.PublishAsync(card.Id,
+        await _eventBus.PublishAsync(card.Id, returnValue.Id,
             new CommentAddedEvent
             {
                 Comment = returnValue,
@@ -98,7 +98,7 @@ public class CommentRepository : BaseRepository<CardComment, Guid>
             .AsNoTracking()
             .FirstAsync(x => x.Id == commentId);
 
-        await _eventBus.PublishAsync(comment.CardId,
+        await _eventBus.PublishAsync(comment.CardId, comment.Id,
             new CommentEditedEvent
             {
                 Comment = untrackedComment,
@@ -118,7 +118,7 @@ public class CommentRepository : BaseRepository<CardComment, Guid>
         if (!result.IsSuccess)
             return Result<Core.Types.Void, Exception>.Failure(result.Error);
 
-        await _eventBus.PublishAsync(comment.CardId,
+        await _eventBus.PublishAsync(comment.CardId, result.Value.Id,
             new CommentDeletedEvent()
             {
                 CommentId = commentId,

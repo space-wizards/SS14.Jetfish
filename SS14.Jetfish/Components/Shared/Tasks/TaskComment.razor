@@ -51,7 +51,7 @@
     public bool IsBeingEdited { get; set; }
 
     [Parameter]
-    public EventCallback<(CardComment, Guid)> OnEdit { get; set; }
+    public EventCallback<CardComment> OnEdit { get; set; }
 
     private async Task CopyText()
     {
@@ -68,6 +68,6 @@
         if (Comment == null)
             return;
 
-        await OnEdit.InvokeAsync((Comment, Guid.NewGuid()));
+        await OnEdit.InvokeAsync(Comment);
     }
 }

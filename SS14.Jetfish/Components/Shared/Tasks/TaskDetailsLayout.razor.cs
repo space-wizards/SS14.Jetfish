@@ -48,7 +48,7 @@ public partial class TaskDetailsLayout : ComponentBase, IDisposable
     private string? PreviousEditorText { get; set; }
     private string? CurrentEditorText { get; set; }
     private CardComment? CurrentlyEditedComment { get; set; }
-    public Guid? EditingState { get; set; }
+    private Dictionary<Guid, Guid?> StateMap { get; } = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -62,16 +62,25 @@ public partial class TaskDetailsLayout : ComponentBase, IDisposable
         EventBus.Subscribe<CommentEditedEvent>(CardId, OnCommentEdited).AddTo(subscriptions);
         _subscriptions = subscriptions.Build();
 
+        SyncStates();
         StateHasChanged();
+    }
+
+    private void SyncStates()
+    {
+        if (TaskDetails == null)
+            return;
+
+        foreach (var comment in TaskDetails.Comments)
+        {
+            StateMap[comment.Id] = EventBus.GetState(comment.Id);
+        }
     }
 
     private async ValueTask OnCommentAdded(CommentAddedEvent e, CancellationToken ct)
     {
-        if (e.StateId == EditingState)
-            EditingState = e.NextStateId;
-
+        StateMap[e.Comment.Id] = e.NextStateId;
         TaskDetails?.Comments.Add(e.Comment);
-
         await InvokeAsync(StateHasChanged);
     }
 
@@ -81,8 +90,8 @@ public partial class TaskDetailsLayout : ComponentBase, IDisposable
         if (comment == null)
             return;
 
-        if (e.StateId == EditingState)
-            EditingState = e.NextStateId;
+        if (StateMap.TryGetValue(e.Comment.Id, out var state) && state == e.StateId)
+            StateMap[e.Comment.Id] = e.NextStateId;
 
         comment.Content = e.Comment.Content;
 
@@ -94,12 +103,11 @@ public partial class TaskDetailsLayout : ComponentBase, IDisposable
         _subscriptions?.Dispose();
     }
 
-    private async Task StartEditingComment(CardComment comment, Guid? state)
+    private async Task StartEditingComment(CardComment comment)
     {
         PreviousEditorText = await (_editor?.GetText() ?? Task.FromResult<string?>(null));
         CurrentEditorText = comment.Content;
         CurrentlyEditedComment = comment;
-        EditingState = state;
     }
 
     private async Task SaveComment(string? text)
@@ -114,7 +122,7 @@ public partial class TaskDetailsLayout : ComponentBase, IDisposable
         {
             result = await EventBus.CallSynced(
                 CurrentlyEditedComment.Id,
-                EditingState!.Value,
+                StateMap.GetValueOrDefault(CurrentlyEditedComment.Id, Guid.Empty)!.Value,
                 async () => (await CommandService.Run(command))!.Result!
                 );
         }
