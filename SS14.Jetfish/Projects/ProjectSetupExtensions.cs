@@ -16,5 +16,6 @@ public static class ProjectSetupExtensions
         builder.Services.AddScoped<ICommandHandler, CreateProjectCommandHandler>();
         builder.Services.AddScoped<ICommandHandler, DeleteProjectCommandHandler>();
         builder.Services.AddScoped<ICommandHandler, UpdateProjectCommandHandler>();
+        builder.Services.AddScoped<ICommandHandler, DeleteCommentCommandHandler>();
     }
 }

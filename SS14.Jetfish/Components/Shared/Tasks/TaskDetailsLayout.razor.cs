@@ -28,6 +28,9 @@ public partial class TaskDetailsLayout : ComponentBase, IDisposable
     [Inject]
     private ICommandService CommandService { get; set; } = null!;
 
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; } = null!;
 
@@ -60,6 +63,7 @@ public partial class TaskDetailsLayout : ComponentBase, IDisposable
         var subscriptions = DisposableBag.CreateBuilder();
         EventBus.Subscribe<CommentAddedEvent>(CardId, OnCommentAdded).AddTo(subscriptions);
         EventBus.Subscribe<CommentEditedEvent>(CardId, OnCommentEdited).AddTo(subscriptions);
+        EventBus.Subscribe<CommentDeletedEvent>(CardId, OnCommentDeleted).AddTo(subscriptions);
         _subscriptions = subscriptions.Build();
 
         SyncStates();
@@ -95,6 +99,17 @@ public partial class TaskDetailsLayout : ComponentBase, IDisposable
 
         comment.Content = e.Comment.Content;
 
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async ValueTask OnCommentDeleted(CommentDeletedEvent e, CancellationToken ct)
+    {
+        var comment = TaskDetails?.Comments.FirstOrDefault(x => x.Id == e.CommentId);
+        if (comment == null)
+            return;
+
+        TaskDetails?.Comments.Remove(comment);
+        StateMap.Remove(e.CommentId);
         await InvokeAsync(StateHasChanged);
     }
 
@@ -150,6 +165,20 @@ public partial class TaskDetailsLayout : ComponentBase, IDisposable
         PreviousEditorText = null;
         CurrentlyEditedComment = null;
         return Task.CompletedTask;
+    }
+
+    private async Task DeleteComment(Guid commentId)
+    {
+        if (CurrentlyEditedComment != null && CurrentlyEditedComment.Id == commentId)
+            await CancelEditingComment();
+
+        await EventBus.CallSynced(
+            commentId,
+            StateMap.GetValueOrDefault(commentId, Guid.Empty)!.Value,
+            async () => (await CommandService.Run(new DeleteCommentCommand(commentId)))!.Result!
+        );
+
+        Snackbar.Add("Comment deleted", Severity.Success, key: commentId.ToString());
     }
 }
 

@@ -21,7 +21,8 @@
                                 Comment="comment"
                                 Class="@("width-full px-4 border-b " + (CurrentlyEditedComment?.Id == comment.Id ? "border-color-highlight" : "border-color-default"))"
                                 IsBeingEdited="@(CurrentlyEditedComment?.Id == comment.Id)"
-                                OnEdit="async value => await StartEditingComment(value)"/>
+                                OnEdit="async value => await StartEditingComment(value)"
+                                OnDelete="async value => await DeleteComment(value.Id)"/>
                         }
                     </MudStack>
                     <MarkdownEditor

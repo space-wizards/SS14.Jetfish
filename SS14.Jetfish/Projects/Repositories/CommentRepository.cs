@@ -107,7 +107,7 @@ public class CommentRepository : BaseRepository<CardComment, Guid>
         return Result<CardComment, Exception>.Success(untrackedComment);
     }
 
-    public async Task<Result<Core.Types.Void, Exception>> DeleteComment(Guid commentId)
+    public async Task<Result<CardComment, Exception>> DeleteComment(Guid commentId)
     {
         var comment = await _context.CardComment
             .Include(cardComment => cardComment.Card)
@@ -116,7 +116,7 @@ public class CommentRepository : BaseRepository<CardComment, Guid>
         _context.CardComment.Remove(comment);
         var result = await SaveChanges(comment, _context);
         if (!result.IsSuccess)
-            return Result<Core.Types.Void, Exception>.Failure(result.Error);
+            return Result<CardComment, Exception>.Failure(result.Error);
 
         await _eventBus.PublishAsync(comment.CardId, result.Value.Id,
             new CommentDeletedEvent()
@@ -124,6 +124,6 @@ public class CommentRepository : BaseRepository<CardComment, Guid>
                 CommentId = commentId,
             });
 
-        return Result<Core.Types.Void, Exception>.Success(Core.Types.Void.Nothing);
+        return Result<CardComment, Exception>.Success(result.Value);
     }
 }

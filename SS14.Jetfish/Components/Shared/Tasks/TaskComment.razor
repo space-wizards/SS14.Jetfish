@@ -21,7 +21,7 @@
                 <TooltipButton Disabled="@IsBeingEdited" Tooltip="Edit Comment" Icon="@Icons.Material.Filled.Edit" OnClick="@Edit"/>
             </AuthorizeResource>
             <AuthorizeResource Override="@(Comment?.IsOwnedBy(User) ?? false)" Policy="@Permission.ProjectCardCommentDelete.Name()" Resource="@Comment?.Card.ProjectId">
-                <TooltipButton Tooltip="Delete Comment" Icon="@Icons.Material.Filled.Delete" />
+                <TooltipButton Tooltip="Delete Comment" Icon="@Icons.Material.Filled.Delete" OnClick="@Delete"/>
             </AuthorizeResource>
             <TooltipButton Tooltip="Copy Text" Icon="@Icons.Material.Filled.ContentCopy" OnClick="@CopyText"/>
             @*<MudMenu Icon="@Icons.Material.Filled.MoreHoriz" Variant="Variant.Outlined" Size="Size.Small" Class="border-transparent" AriaLabel="Open comment menu">
@@ -53,6 +53,9 @@
     [Parameter]
     public EventCallback<CardComment> OnEdit { get; set; }
 
+    [Parameter]
+    public EventCallback<CardComment> OnDelete { get; set; }
+
     private async Task CopyText()
     {
         await JsApiService.CopyToClipboardAsync(Comment?.Content ?? "");
@@ -69,5 +72,13 @@
             return;
 
         await OnEdit.InvokeAsync(Comment);
+    }
+
+    private async Task Delete()
+    {
+        if (Comment == null)
+            return;
+
+        await OnDelete.InvokeAsync(Comment);
     }
 }
